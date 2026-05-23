@@ -4,70 +4,82 @@ import athooLogo from "@assets/icon_1779544245383.png";
 
 export default function Footer() {
   return (
-    <footer className="border-t bg-muted/20">
-      <div className="container mx-auto px-4 py-12 md:px-6 lg:py-16">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4 lg:gap-12">
-          {/* Brand */}
-          <div className="space-y-4 md:col-span-1">
-            <Link href="/" className="inline-block">
-              <img src={athooLogo} alt="Athoo Logo" className="h-8 w-auto object-contain" />
+    <footer className="athoo-navy text-white">
+      <div className="h-1 w-full bg-gradient-to-r from-[#0057FF] via-[#8A2BE2] to-[#FF8A00]" />
+      
+      <div className="container mx-auto max-w-7xl px-6 py-16 lg:py-20">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-5">
+          
+          <div className="lg:col-span-1">
+            <Link href="/" className="mb-6 inline-block">
+              <img src={athooLogo} alt="Athoo Logo" className="h-8 w-auto brightness-0 invert" />
             </Link>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              Pakistan's trusted home services marketplace. Fast, reliable, and built for you.
+            <p className="mb-8 text-sm leading-relaxed text-gray-400">
+              Pakistan's trusted home services platform. Making everyday living simple, secure, and stress-free.
             </p>
-            <div className="flex items-center gap-4 text-muted-foreground">
-              <a href="https://instagram.com/athoo_services" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                <SiInstagram className="h-5 w-5" />
+            <div className="flex gap-4">
+              <a href="https://instagram.com/athoo_services" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+                <SiInstagram className="h-4 w-4" />
               </a>
-              <a href="https://facebook.com/athoo_services" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                <SiFacebook className="h-5 w-5" />
+              <a href="https://facebook.com/athoo_services" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+                <SiFacebook className="h-4 w-4" />
               </a>
-              <a href="https://tiktok.com/athoo.pk" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                <SiTiktok className="h-5 w-5" />
+              <a href="https://tiktok.com/athoo.pk" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+                <SiTiktok className="h-4 w-4" />
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Company</h3>
-            <ul className="space-y-2">
-              <li><Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
-              <li><Link href="/services" className="text-sm text-muted-foreground hover:text-primary transition-colors">Services</Link></li>
-              <li><Link href="/become-provider" className="text-sm text-muted-foreground hover:text-primary transition-colors">Become a Provider</Link></li>
-              <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact Us</Link></li>
+          <div>
+            <h3 className="mb-6 text-sm font-bold uppercase tracking-wider">Company</h3>
+            <ul className="space-y-4">
+              <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">About</Link></li>
+              <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">Careers</Link></li>
+              <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">Blog</Link></li>
+              <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">Press</Link></li>
             </ul>
           </div>
 
-          {/* Legal */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Legal</h3>
-            <ul className="space-y-2">
-              <li><Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link></li>
+          <div>
+            <h3 className="mb-6 text-sm font-bold uppercase tracking-wider">Services</h3>
+            <ul className="space-y-4">
+              <li><Link href="/services#electrician" className="text-sm text-gray-400 transition-colors hover:text-white">Electrician</Link></li>
+              <li><Link href="/services#plumber" className="text-sm text-gray-400 transition-colors hover:text-white">Plumber</Link></li>
+              <li><Link href="/services#ac" className="text-sm text-gray-400 transition-colors hover:text-white">AC Service</Link></li>
+              <li><Link href="/services#carpenter" className="text-sm text-gray-400 transition-colors hover:text-white">Carpenter</Link></li>
+              <li><Link href="/services" className="text-sm text-gray-400 transition-colors hover:text-white">All Services</Link></li>
             </ul>
           </div>
 
-          {/* Contact */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Contact Info</h3>
-            <ul className="space-y-2">
-              <li className="text-sm text-muted-foreground flex flex-col">
-                <span className="font-medium text-foreground">Email:</span>
-                <a href="mailto:official.athoo@gmail.com" className="hover:text-primary transition-colors">official.athoo@gmail.com</a>
-              </li>
-              <li className="text-sm text-muted-foreground flex flex-col">
-                <span className="font-medium text-foreground">Phone:</span>
-                <a href="tel:+923390051068" className="hover:text-primary transition-colors">+92 339 0051068</a>
-              </li>
+          <div>
+            <h3 className="mb-6 text-sm font-bold uppercase tracking-wider">For Providers</h3>
+            <ul className="space-y-4">
+              <li><Link href="/become-provider" className="text-sm text-gray-400 transition-colors hover:text-white">Become a Provider</Link></li>
+              <li><Link href="/become-provider" className="text-sm text-gray-400 transition-colors hover:text-white">Provider Login</Link></li>
+              <li><Link href="/become-provider" className="text-sm text-gray-400 transition-colors hover:text-white">Earnings</Link></li>
+              <li><Link href="/contact" className="text-sm text-gray-400 transition-colors hover:text-white">Support</Link></li>
             </ul>
           </div>
+
+          <div>
+            <h3 className="mb-6 text-sm font-bold uppercase tracking-wider">Contact</h3>
+            <ul className="space-y-4">
+              <li><a href="mailto:official.athoo@gmail.com" className="text-sm text-gray-400 transition-colors hover:text-white">official.athoo@gmail.com</a></li>
+              <li><a href="tel:+923390051068" className="text-sm text-gray-400 transition-colors hover:text-white">+92 339 0051068</a></li>
+              <li><a href="https://wa.me/923390051068" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 transition-colors hover:text-white">WhatsApp Chat</a></li>
+            </ul>
+          </div>
+
         </div>
 
-        <div className="mt-12 pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Athoo. All rights reserved.
+        <div className="mt-16 flex flex-col items-center justify-between border-t border-white/10 pt-8 sm:flex-row">
+          <p className="mb-4 text-sm text-gray-500 sm:mb-0">
+            © 2025 Athoo. All rights reserved. | Built in Pakistan
           </p>
+          <div className="flex gap-6">
+            <Link href="/privacy" className="text-sm text-gray-500 transition-colors hover:text-white">Privacy Policy</Link>
+            <Link href="/terms" className="text-sm text-gray-500 transition-colors hover:text-white">Terms</Link>
+          </div>
         </div>
       </div>
     </footer>

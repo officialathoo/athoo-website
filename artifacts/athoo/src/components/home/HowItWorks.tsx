@@ -1,102 +1,83 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Smartphone, Search, CheckCircle2, UserPlus, FileCheck, DollarSign } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Smartphone, Grid3x3, Zap, FileCheck, ShieldCheck, TrendingUp } from "lucide-react";
 
 export default function HowItWorks() {
+  const [activeTab, setActiveTab] = useState<"customers" | "providers">("customers");
+
   const customerSteps = [
-    {
-      title: "Open the App",
-      description: "Download Athoo and browse our wide range of home services.",
-      icon: Smartphone,
-    },
-    {
-      title: "Select Service",
-      description: "Choose what you need done and pick a convenient time.",
-      icon: Search,
-    },
-    {
-      title: "Get Connected",
-      description: "A verified professional arrives to get the job done right.",
-      icon: CheckCircle2,
-    },
+    { icon: Smartphone, color: "bg-blue-50 text-blue-600", title: "Open Athoo App", desc: "Download the app and create your free account in seconds." },
+    { icon: Grid3x3, color: "bg-orange-50 text-orange-600", title: "Choose Your Service", desc: "Select what you need help with from our 8 core categories." },
+    { icon: Zap, color: "bg-green-50 text-green-600", title: "Get Connected Instantly", desc: "We match you with a top-rated professional nearby." },
   ];
 
   const providerSteps = [
-    {
-      title: "Register",
-      description: "Sign up as a service provider on our platform.",
-      icon: UserPlus,
-    },
-    {
-      title: "Get Verified",
-      description: "Complete our quick background and skill verification process.",
-      icon: FileCheck,
-    },
-    {
-      title: "Receive Jobs",
-      description: "Start getting job requests in your area and earn money.",
-      icon: DollarSign,
-    },
+    { icon: FileCheck, color: "bg-blue-50 text-blue-600", title: "Register & Upload Docs", desc: "Sign up and provide your identification and skill proofs." },
+    { icon: ShieldCheck, color: "bg-green-50 text-green-600", title: "Get Verified by Team", desc: "Our team reviews your profile to ensure trust and safety." },
+    { icon: TrendingUp, color: "bg-orange-50 text-orange-600", title: "Receive Jobs & Earn", desc: "Start getting job requests directly on your phone." },
   ];
 
+  const currentSteps = activeTab === "customers" ? customerSteps : providerSteps;
+
   return (
-    <section className="py-20 bg-muted/30">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">How Athoo Works</h2>
-          <p className="text-lg text-muted-foreground">
-            A seamless experience whether you need a service or want to provide one.
-          </p>
+    <section className="bg-white py-24">
+      <div className="container mx-auto px-6 max-w-5xl">
+        <div className="mb-16 text-center">
+          <h2 className="mb-8 text-4xl font-extrabold text-gray-900 md:text-5xl">How It Works</h2>
+          
+          <div className="inline-flex rounded-full bg-gray-100 p-1">
+            <button
+              onClick={() => setActiveTab("customers")}
+              className={`rounded-full px-8 py-3 text-sm font-bold transition-all ${
+                activeTab === "customers" ? "bg-[#0057FF] text-white shadow-md" : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              For Customers
+            </button>
+            <button
+              onClick={() => setActiveTab("providers")}
+              className={`rounded-full px-8 py-3 text-sm font-bold transition-all ${
+                activeTab === "providers" ? "bg-[#0057FF] text-white shadow-md" : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              For Providers
+            </button>
+          </div>
         </div>
 
-        <Tabs defaultValue="customers" className="max-w-4xl mx-auto">
-          <TabsList className="grid w-full grid-cols-2 h-14 mb-12">
-            <TabsTrigger value="customers" className="text-base font-semibold data-[state=active]:bg-background data-[state=active]:shadow">
-              For Customers
-            </TabsTrigger>
-            <TabsTrigger value="providers" className="text-base font-semibold data-[state=active]:bg-background data-[state=active]:shadow">
-              For Providers
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="customers">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {customerSteps.map((step, i) => (
-                <Card key={i} className="bg-background border-none shadow-sm relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 text-9xl font-bold text-muted/20 -z-10 leading-none pointer-events-none select-none">
-                    {i + 1}
-                  </div>
-                  <CardContent className="pt-8 pb-8 px-6 text-center space-y-4">
-                    <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
+        <div className="relative mx-auto max-w-3xl">
+          {/* Vertical dashed line */}
+          <div className="absolute bottom-0 left-6 top-0 hidden w-0.5 border-l-2 border-dashed border-gray-200 md:block" />
+
+          <div className="space-y-12">
+            {currentSteps.map((step, i) => (
+              <motion.div
+                key={`${activeTab}-${i}`}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.15 }}
+                className="relative flex flex-col items-start gap-6 md:flex-row md:items-center"
+              >
+                <div className="z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#081120] text-xl font-bold text-white shadow-lg">
+                  {i + 1}
+                </div>
+                
+                <div className="flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                  <div className="flex items-start gap-6">
+                    <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${step.color}`}>
                       <step.icon className="h-8 w-8" />
                     </div>
-                    <h3 className="text-xl font-bold">{step.title}</h3>
-                    <p className="text-muted-foreground">{step.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="providers">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {providerSteps.map((step, i) => (
-                <Card key={i} className="bg-background border-none shadow-sm relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 text-9xl font-bold text-muted/20 -z-10 leading-none pointer-events-none select-none">
-                    {i + 1}
-                  </div>
-                  <CardContent className="pt-8 pb-8 px-6 text-center space-y-4">
-                    <div className="mx-auto h-16 w-16 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 mb-6">
-                      <step.icon className="h-8 w-8" />
+                    <div>
+                      <h3 className="mb-2 text-2xl font-bold text-gray-900">{step.title}</h3>
+                      <p className="text-gray-500 leading-relaxed text-lg">{step.desc}</p>
                     </div>
-                    <h3 className="text-xl font-bold">{step.title}</h3>
-                    <p className="text-muted-foreground">{step.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -2,116 +2,114 @@ import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 
 export default function AppShowcase() {
+  const features = [
+    "Book Any Service in Minutes",
+    "Real-Time Provider Tracking",
+    "Verified, Rated Professionals",
+    "Secure & Transparent Process"
+  ];
+
   return (
-    <section id="app-showcase" className="py-24 bg-muted/20 overflow-hidden">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex flex-col lg:flex-row items-center gap-16">
+    <section id="app-showcase" className="athoo-navy overflow-hidden py-24">
+      <div className="container mx-auto max-w-7xl px-6">
+        <div className="grid items-center gap-16 lg:grid-cols-2">
           
-          <div className="flex-1 space-y-8 max-w-2xl mx-auto lg:mx-0">
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="space-y-8"
+          >
             <div>
-              <div className="inline-flex items-center rounded-full border bg-background px-3 py-1 text-sm font-medium text-foreground mb-6 shadow-sm">
-                The Athoo App (Coming Soon)
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-6">Everything you need, right in your pocket.</h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Booking a service has never been this easy. The Athoo app brings thousands of verified professionals directly to your smartphone.
+              <h2 className="mb-6 text-4xl font-extrabold text-white md:text-5xl">
+                The Athoo App Experience
+              </h2>
+              <p className="text-xl leading-relaxed text-gray-400">
+                Your entire home, managed from one place. Our upcoming app makes finding and booking trusted professionals effortless.
               </p>
             </div>
 
             <ul className="space-y-6">
-              <li className="flex gap-4">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-                  <span className="font-bold">1</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Seamless Booking Flow</h3>
-                  <p className="text-muted-foreground">Select your service, choose a time, and get a confirmed booking in under 60 seconds.</p>
-                </div>
-              </li>
-              <li className="flex gap-4">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-                  <span className="font-bold">2</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Real-Time Updates</h3>
-                  <p className="text-muted-foreground">Track your professional's arrival on the map and communicate directly through the app.</p>
-                </div>
-              </li>
-              <li className="flex gap-4">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-                  <span className="font-bold">3</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Verified Provider Profiles</h3>
-                  <p className="text-muted-foreground">View ratings, past reviews, and verified skill badges before your professional arrives.</p>
-                </div>
-              </li>
+              {features.map((feature, i) => (
+                <li key={i} className="flex items-center gap-4">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500/20 text-green-500">
+                    <CheckCircle2 className="h-5 w-5" />
+                  </div>
+                  <span className="text-lg font-medium text-white">{feature}</span>
+                </li>
+              ))}
             </ul>
-          </div>
+          </motion.div>
 
-          <div className="flex-1 relative w-full flex justify-center lg:justify-end perspective-[1000px]">
-            {/* Customer App Frame */}
-            <motion.div 
-              initial={{ rotateY: -15, x: 50, opacity: 0 }}
-              whileInView={{ rotateY: -15, x: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="relative z-20 w-[260px] h-[540px] rounded-[2.5rem] border-[6px] border-foreground/10 bg-background shadow-2xl overflow-hidden transform-gpu"
-            >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 h-5 w-24 bg-foreground/10 rounded-b-2xl z-30" />
-              <div className="w-full h-full bg-muted/20 p-4 pt-10 flex flex-col gap-4">
-                <div className="flex justify-between items-center mb-2">
-                   <div className="h-8 w-24 bg-primary/20 rounded-md" />
-                   <div className="h-8 w-8 bg-muted rounded-full" />
+          <motion.div 
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="relative flex h-[600px] w-full items-center justify-center lg:justify-end"
+          >
+            {/* Glowing Orbs */}
+            <div className="absolute top-1/2 left-1/4 h-64 w-64 -translate-y-1/2 rounded-full bg-blue-500/20 blur-[80px]" />
+            <div className="absolute top-1/2 right-1/4 h-64 w-64 -translate-y-1/2 rounded-full bg-orange-500/20 blur-[80px]" />
+
+            {/* Phone 1: Customer */}
+            <div className="absolute left-0 z-20 w-64 -rotate-6 transform rounded-[3rem] border-8 border-gray-800 bg-gray-900 shadow-2xl transition-transform hover:rotate-0 md:w-72 lg:left-12">
+              <div className="absolute left-1/2 top-0 h-6 w-32 -translate-x-1/2 rounded-b-3xl bg-gray-800" />
+              <div className="absolute -top-4 left-1/2 z-30 -translate-x-1/2 rounded-full bg-white px-4 py-1 text-xs font-bold text-gray-900 shadow-xl">
+                Customer App
+              </div>
+              <div className="h-[500px] w-full bg-gray-50 overflow-hidden flex flex-col rounded-b-3xl">
+                <div className="bg-[#0057FF] p-6 pt-10 text-white">
+                  <h3 className="font-bold text-lg">Book Service</h3>
+                  <div className="mt-4 h-10 w-full rounded-lg bg-white/20" />
                 </div>
-                <div className="h-24 w-full bg-primary text-primary-foreground rounded-xl p-4 flex flex-col justify-end">
-                   <div className="text-xs opacity-80">Next Booking</div>
-                   <div className="font-bold">Electrician - Today, 4:00 PM</div>
-                </div>
-                <div className="font-bold text-sm">Popular Services</div>
-                <div className="grid grid-cols-2 gap-3">
-                   {[1,2,3,4].map(i => (
-                     <div key={i} className="aspect-[4/3] bg-background border rounded-lg p-2 flex flex-col items-center justify-center gap-1 shadow-sm">
-                       <div className="h-6 w-6 rounded-full bg-primary/10" />
-                       <div className="h-1.5 w-12 bg-muted rounded" />
-                     </div>
-                   ))}
+                <div className="p-4 space-y-4">
+                  <div className="h-24 rounded-xl bg-white shadow-sm border border-gray-100 p-4 flex gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-blue-50" />
+                    <div className="flex-1 space-y-2 py-1">
+                      <div className="h-3 w-3/4 bg-gray-200 rounded" />
+                      <div className="h-2 w-1/2 bg-gray-100 rounded" />
+                    </div>
+                  </div>
+                  <div className="h-24 rounded-xl bg-white shadow-sm border border-gray-100 p-4 flex gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-orange-50" />
+                    <div className="flex-1 space-y-2 py-1">
+                      <div className="h-3 w-3/4 bg-gray-200 rounded" />
+                      <div className="h-2 w-1/2 bg-gray-100 rounded" />
+                    </div>
+                  </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            {/* Provider App Frame */}
-            <motion.div 
-              initial={{ rotateY: 15, x: -50, opacity: 0 }}
-              whileInView={{ rotateY: 15, x: -80, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-              className="absolute top-10 right-0 lg:right-20 z-10 w-[240px] h-[500px] rounded-[2.5rem] border-[6px] border-foreground/5 bg-background shadow-xl overflow-hidden transform-gpu"
-            >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 h-5 w-20 bg-foreground/5 rounded-b-2xl z-30" />
-              <div className="w-full h-full bg-orange-500/5 p-4 pt-10 flex flex-col gap-3">
-                 <div className="text-center mb-2">
-                   <div className="text-xs text-muted-foreground">Today's Earnings</div>
-                   <div className="font-bold text-2xl text-orange-600">Rs. 4,500</div>
-                 </div>
-                 <div className="space-y-3 mt-2">
-                   {[1,2,3].map(i => (
-                     <div key={i} className="bg-background border rounded-lg p-3 shadow-sm">
-                       <div className="flex justify-between items-start mb-2">
-                         <div className="h-2 w-16 bg-muted rounded" />
-                         <div className="h-4 w-12 bg-orange-100 rounded-full" />
-                       </div>
-                       <div className="flex items-center gap-2">
-                         <div className="h-6 w-6 rounded-full bg-muted" />
-                         <div className="h-2 w-20 bg-muted/50 rounded" />
-                       </div>
-                     </div>
-                   ))}
-                 </div>
+            {/* Phone 2: Provider */}
+            <div className="absolute right-0 z-10 w-64 rotate-6 transform rounded-[3rem] border-8 border-gray-800 bg-gray-900 shadow-2xl transition-transform hover:rotate-0 md:w-72 lg:right-12">
+              <div className="absolute left-1/2 top-0 h-6 w-32 -translate-x-1/2 rounded-b-3xl bg-gray-800" />
+              <div className="absolute -top-4 left-1/2 z-30 -translate-x-1/2 rounded-full bg-[#FF8A00] px-4 py-1 text-xs font-bold text-white shadow-xl whitespace-nowrap">
+                Provider App
               </div>
-            </motion.div>
-          </div>
+              <div className="h-[500px] w-full bg-gray-900 overflow-hidden flex flex-col rounded-b-3xl">
+                <div className="p-6 pt-12 space-y-6">
+                  <div className="bg-gray-800 rounded-2xl p-4 text-center">
+                    <p className="text-gray-400 text-xs">New Request</p>
+                    <p className="text-white font-bold text-xl mt-1">Electrical Repair</p>
+                  </div>
+                  <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-green-500/20 animate-pulse" />
+                      <div>
+                        <div className="h-3 w-20 bg-green-500/50 rounded mb-2" />
+                        <div className="h-2 w-12 bg-green-500/30 rounded" />
+                      </div>
+                    </div>
+                    <div className="mt-4 h-10 rounded-full bg-green-500 w-full opacity-80" />
+                  </div>
+                </div>
+              </div>
+            </div>
 
+          </motion.div>
         </div>
       </div>
     </section>

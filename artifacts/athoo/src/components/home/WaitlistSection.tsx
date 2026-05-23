@@ -1,32 +1,149 @@
-import JoinWaitlistForm from "@/components/forms/JoinWaitlistForm";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { SiInstagram, SiFacebook, SiTiktok } from "react-icons/si";
+import { useJoinWaitlist, useGetWaitlistCount } from "@workspace/api-client-react";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { getGetWaitlistCountQueryKey } from "@workspace/api-client-react";
 
 export default function WaitlistSection() {
+  const [email, setEmail] = useState("");
+  const { toast } = useToast();
+  const joinWaitlist = useJoinWaitlist();
+  const queryClient = useQueryClient();
+  const { data: waitlistData } = useGetWaitlistCount();
+
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0, hours: 0, minutes: 0, seconds: 0
+  });
+
+  useEffect(() => {
+    const targetDate = new Date("2025-12-31T00:00:00").getTime();
+
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        clearInterval(interval);
+        return;
+      }
+
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    joinWaitlist.mutate(
+      { data: { email } },
+      {
+        onSuccess: () => {
+          toast({
+            title: "You're on the list!",
+            description: "Thanks for joining. We'll notify you when we launch.",
+          });
+          setEmail("");
+          queryClient.invalidateQueries({ queryKey: getGetWaitlistCountQueryKey() });
+        },
+        onError: (error) => {
+          let desc = "Failed to join waitlist. Please try again.";
+          if (error.error === "Already registered" || error.error?.includes("already")) {
+             desc = "You are already on the list!";
+          }
+          toast({
+            variant: "destructive",
+            title: "Waitlist Status",
+            description: desc,
+          });
+        },
+      }
+    );
+  };
+
   return (
-    <section id="waitlist" className="py-24 bg-background">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-4xl mx-auto bg-muted/50 rounded-3xl p-8 md:p-16 text-center border shadow-sm">
-          <div className="inline-flex items-center rounded-full border bg-background px-3 py-1 text-sm font-medium text-foreground mb-6 shadow-sm">
-            Coming Soon to App Store & Google Play
+    <section id="waitlist" className="bg-gradient-to-br from-[#0057FF] to-[#003ACC] py-24">
+      <div className="container mx-auto max-w-4xl px-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <div className="mb-8 inline-block rounded-full bg-white/20 px-4 py-1.5 text-sm font-semibold text-white backdrop-blur">
+            Launching Soon
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">Be the first to know when we launch</h2>
-          <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Athoo is launching soon. Join our waitlist to get early access, exclusive discounts, and launch updates directly to your inbox.
+          
+          <h2 className="mb-12 text-5xl font-black text-white md:text-6xl">
+            Be the First to Use Athoo
+          </h2>
+
+          <div className="mb-12 flex justify-center gap-4 md:gap-6">
+            {Object.entries(timeLeft).map(([unit, value]) => (
+              <div key={unit} className="flex w-20 flex-col items-center rounded-xl bg-white/10 p-4 backdrop-blur md:w-24">
+                <span className="text-3xl font-bold text-white md:text-4xl">
+                  {value.toString().padStart(2, '0')}
+                </span>
+                <span className="mt-1 text-xs uppercase tracking-wider text-gray-300">
+                  {unit}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <p className="mb-6 text-sm text-white/80">
+            Join {waitlistData?.count || "1,000"}+ people already waiting
           </p>
-          
-          <div className="flex justify-center mb-10">
-            <JoinWaitlistForm />
+
+          <form onSubmit={handleSubmit} className="mx-auto mb-12 flex max-w-xl flex-col sm:flex-row">
+            <input
+              type="email"
+              placeholder="Enter your email address"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-t-2xl sm:rounded-l-full sm:rounded-tr-none border-0 px-6 py-4 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+            <button
+              type="submit"
+              disabled={joinWaitlist.isPending}
+              className="flex w-full sm:w-auto items-center justify-center rounded-b-2xl sm:rounded-r-full sm:rounded-bl-none bg-[#FF8A00] px-8 py-4 font-bold text-white transition-colors hover:bg-orange-600 disabled:opacity-70"
+            >
+              {joinWaitlist.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "Join Waitlist"}
+            </button>
+          </form>
+
+          <div className="mb-12 flex justify-center gap-4">
+            <div className="glass flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white">
+              Coming on App Store
+            </div>
+            <div className="glass flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white">
+              Coming on Google Play
+            </div>
           </div>
-          
-          <div className="flex flex-wrap items-center justify-center gap-4">
-             {/* Fake App Store Badges */}
-             <div className="h-12 w-36 bg-foreground rounded-lg flex items-center justify-center text-background opacity-50 grayscale select-none">
-               <span className="text-xs font-semibold">App Store</span>
-             </div>
-             <div className="h-12 w-36 bg-foreground rounded-lg flex items-center justify-center text-background opacity-50 grayscale select-none">
-               <span className="text-xs font-semibold">Google Play</span>
-             </div>
+
+          <div className="flex justify-center gap-4">
+            <a href="https://instagram.com/athoo_services" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <SiInstagram className="h-5 w-5" />
+            </a>
+            <a href="https://facebook.com/athoo_services" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <SiFacebook className="h-5 w-5" />
+            </a>
+            <a href="https://tiktok.com/athoo.pk" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <SiTiktok className="h-5 w-5" />
+            </a>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
