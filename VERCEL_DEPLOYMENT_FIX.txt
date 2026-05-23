@@ -1,0 +1,9 @@
+Vercel deployment fixed.
+
+Recommended Vercel settings:
+Framework Preset: Vite
+Build Command: pnpm --filter @workspace/athoo run build
+Output Directory: artifacts/athoo/dist
+Install Command: pnpm install --frozen-lockfile=false
+
+If Vercel asks for Root Directory, keep repo root because vercel.json is included.

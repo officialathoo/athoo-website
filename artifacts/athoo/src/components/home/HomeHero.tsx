@@ -49,15 +49,15 @@ export default function HomeHero() {
 
         <motion.div initial={{ opacity: 0, scale: 0.94, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.8 }} className="relative mx-auto w-full max-w-[520px] pb-8 lg:pb-0">
           <div className="absolute inset-6 rounded-[3rem] bg-gradient-to-tr from-blue-600/30 to-orange-400/30 blur-3xl" />
-          <div className="relative rounded-[2.5rem] border border-white/70 bg-white/70 p-4 shadow-2xl shadow-blue-950/20 backdrop-blur-2xl sm:p-6">
-            <div className="absolute -left-2 top-20 z-20 rounded-2xl bg-white p-3 shadow-2xl sm:-left-8">
+          <div className="relative rounded-[2.5rem] border border-white/70 bg-white/80 p-3 shadow-2xl shadow-blue-950/20 backdrop-blur-2xl sm:p-5">
+            <div className="absolute left-2 top-12 z-20 max-w-[240px] rounded-2xl bg-white/95 p-3 shadow-2xl sm:-left-8 sm:top-20">
               <div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-green-500" /><span className="text-sm font-black">Verified Providers</span></div>
             </div>
-            <div className="absolute -right-2 bottom-28 z-20 rounded-2xl bg-white p-3 shadow-2xl sm:-right-8">
+            <div className="absolute right-2 bottom-20 z-20 rounded-2xl bg-white/95 p-3 shadow-2xl sm:-right-8 sm:bottom-28">
               <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-[#FF8A00]" /><span className="text-sm font-black">Coming Soon</span></div>
             </div>
-            <div className="overflow-hidden rounded-[2rem] border-[10px] border-[#081120] bg-[#081120] shadow-2xl">
-              <img src="/app-interface.png" alt="Athoo app interface preview" className="h-auto w-full rounded-[1.35rem] object-cover" />
+            <div className="mx-auto flex max-w-[310px] justify-center overflow-hidden rounded-[2rem] bg-transparent shadow-2xl sm:max-w-[360px]">
+              <img src="/app-interface.png" alt="Athoo app interface preview" className="h-auto w-full rounded-[1.6rem] object-contain" />
             </div>
           </div>
 

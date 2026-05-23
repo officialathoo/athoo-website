@@ -11,19 +11,19 @@ export default function Footer() {
           
           <div className="lg:col-span-1">
             <Link href="/" className="mb-6 inline-block">
-              <img src="/athoo-logo.png" alt="Athoo Logo" className="h-8 w-auto brightness-0 invert" />
+              <img src="/athoo-logo.png" alt="Athoo Logo" className="h-12 w-auto rounded-xl bg-white p-1 object-contain" />
             </Link>
             <p className="mb-8 text-sm leading-relaxed text-gray-400">
               Athoo is an upcoming Pakistani home services app. App launch, provider onboarding and 10+ service categories are coming soon.
             </p>
             <div className="flex gap-4">
-              <a href="https://instagram.com/athoo_services" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <a href="https://www.instagram.com/athoo_services/" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
                 <SiInstagram className="h-4 w-4" />
               </a>
-              <a href="https://facebook.com/athoo_services" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <a href="https://www.facebook.com/athoo_services/" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
                 <SiFacebook className="h-4 w-4" />
               </a>
-              <a href="https://tiktok.com/athoo.pk" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <a href="https://www.tiktok.com/@athoo.pk" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
                 <SiTiktok className="h-4 w-4" />
               </a>
             </div>
@@ -34,8 +34,8 @@ export default function Footer() {
             <ul className="space-y-4">
               <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">About</Link></li>
               <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">Launch Updates</Link></li>
-              <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">Waitlist</Link></li>
-              <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">Contact</Link></li>
+              <li><Link href="/#waitlist" className="text-sm text-gray-400 transition-colors hover:text-white">Waitlist</Link></li>
+              <li><Link href="/contact" className="text-sm text-gray-400 transition-colors hover:text-white">Contact</Link></li>
             </ul>
           </div>
 

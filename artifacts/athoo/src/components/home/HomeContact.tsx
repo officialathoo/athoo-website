@@ -39,13 +39,13 @@ export default function HomeContact() {
           <div className="mb-12">
             <p className="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-400">Follow Us</p>
             <div className="flex gap-4">
-              <a href="https://instagram.com/athoo_services" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <a href="https://www.instagram.com/athoo_services/" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
                 <SiInstagram className="h-5 w-5" />
               </a>
-              <a href="https://facebook.com/athoo_services" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <a href="https://www.facebook.com/athoo_services/" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
                 <SiFacebook className="h-5 w-5" />
               </a>
-              <a href="https://tiktok.com/athoo.pk" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <a href="https://www.tiktok.com/@athoo.pk" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
                 <SiTiktok className="h-5 w-5" />
               </a>
             </div>
