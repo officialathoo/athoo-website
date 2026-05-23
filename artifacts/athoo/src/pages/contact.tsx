@@ -6,8 +6,8 @@ export default function Contact() {
   return (
     <>
       <Helmet>
-        <title>Contact Athoo - Pakistan's Home Services</title>
-        <meta name="description" content="Get in touch with the Athoo team. We're here to help." />
+        <title>Contact Athoo — Launch Updates & Support</title>
+        <meta name="description" content="Contact Athoo for launch updates, provider waitlist support and general inquiries." />
       </Helmet>
       
       <div className="flex flex-col min-h-screen bg-white">

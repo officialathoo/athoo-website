@@ -1,6 +1,5 @@
 import { Link } from "wouter";
 import { SiInstagram, SiFacebook, SiTiktok } from "react-icons/si";
-import athooLogo from "@assets/icon_1779544245383.png";
 
 export default function Footer() {
   return (
@@ -12,10 +11,10 @@ export default function Footer() {
           
           <div className="lg:col-span-1">
             <Link href="/" className="mb-6 inline-block">
-              <img src={athooLogo} alt="Athoo Logo" className="h-8 w-auto brightness-0 invert" />
+              <img src="/athoo-logo.png" alt="Athoo Logo" className="h-8 w-auto brightness-0 invert" />
             </Link>
             <p className="mb-8 text-sm leading-relaxed text-gray-400">
-              Pakistan's trusted home services platform. Making everyday living simple, secure, and stress-free.
+              Athoo is an upcoming Pakistani home services app. App launch, provider onboarding and 10+ service categories are coming soon.
             </p>
             <div className="flex gap-4">
               <a href="https://instagram.com/athoo_services" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
@@ -34,9 +33,9 @@ export default function Footer() {
             <h3 className="mb-6 text-sm font-bold uppercase tracking-wider">Company</h3>
             <ul className="space-y-4">
               <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">About</Link></li>
-              <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">Careers</Link></li>
-              <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">Blog</Link></li>
-              <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">Press</Link></li>
+              <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">Launch Updates</Link></li>
+              <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">Waitlist</Link></li>
+              <li><Link href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">Contact</Link></li>
             </ul>
           </div>
 
@@ -55,8 +54,8 @@ export default function Footer() {
             <h3 className="mb-6 text-sm font-bold uppercase tracking-wider">For Providers</h3>
             <ul className="space-y-4">
               <li><Link href="/become-provider" className="text-sm text-gray-400 transition-colors hover:text-white">Become a Provider</Link></li>
-              <li><Link href="/become-provider" className="text-sm text-gray-400 transition-colors hover:text-white">Provider Login</Link></li>
-              <li><Link href="/become-provider" className="text-sm text-gray-400 transition-colors hover:text-white">Earnings</Link></li>
+              <li><Link href="/become-provider" className="text-sm text-gray-400 transition-colors hover:text-white">Provider Waitlist</Link></li>
+              <li><Link href="/become-provider" className="text-sm text-gray-400 transition-colors hover:text-white">Onboarding Soon</Link></li>
               <li><Link href="/contact" className="text-sm text-gray-400 transition-colors hover:text-white">Support</Link></li>
             </ul>
           </div>
@@ -74,7 +73,7 @@ export default function Footer() {
 
         <div className="mt-16 flex flex-col items-center justify-between border-t border-white/10 pt-8 sm:flex-row">
           <p className="mb-4 text-sm text-gray-500 sm:mb-0">
-            © 2025 Athoo. All rights reserved. | Built in Pakistan
+            © 2026 Athoo. All rights reserved. | Built in Pakistan
           </p>
           <div className="flex gap-6">
             <Link href="/privacy" className="text-sm text-gray-500 transition-colors hover:text-white">Privacy Policy</Link>

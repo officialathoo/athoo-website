@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, BellRing } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import athooLogo from "@assets/icon_1779544245383.png";
 
 export default function Navbar() {
   const [location] = useLocation();
@@ -11,12 +9,21 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const close = () => setIsMobileMenuOpen(false);
+  const scrollToWaitlist = () => {
+    close();
+    if (location !== "/") {
+      window.location.href = "/#waitlist";
+      return;
+    }
+    document.getElementById("waitlist")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -27,83 +34,44 @@ export default function Navbar() {
   ];
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "backdrop-blur-xl bg-white/90 border-b border-gray-100 shadow-sm"
-          : "bg-transparent"
-      }`}
-    >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center">
-          <img src={athooLogo} alt="Athoo Logo" className="h-10 w-auto object-contain" />
-          <span className="ml-2 text-xl font-bold text-[#081120]">Athoo</span>
+    <nav className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${isScrolled ? "border-b border-white/30 bg-white/85 shadow-lg shadow-blue-950/5 backdrop-blur-2xl" : "bg-white/55 backdrop-blur-xl"}`}>
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        <Link href="/" onClick={close} className="flex items-center gap-3">
+          <img src="/athoo-logo.png" alt="Athoo" className="h-10 w-10 rounded-xl object-contain sm:h-12 sm:w-12" />
+          <div className="leading-tight">
+            <span className="block text-xl font-black tracking-tight text-[#081120]">Athoo</span>
+            <span className="hidden text-[11px] font-bold uppercase tracking-wider text-blue-600 sm:block">Launching Soon</span>
+          </div>
         </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden items-center space-x-8 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              href={link.path}
-              className={`text-sm font-medium transition-colors ${
-                location === link.path
-                  ? "text-primary font-semibold"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
+            <Link key={link.path} href={link.path} className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${location === link.path ? "bg-blue-50 text-[#0057FF]" : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"}`}>
               {link.name}
             </Link>
           ))}
-          <Link
-            href="/#waitlist"
-            className="rounded-full bg-[#0057FF] px-6 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-blue-500/25"
-          >
-            Join Waitlist
-          </Link>
+          <button onClick={scrollToWaitlist} className="ml-2 inline-flex items-center gap-2 rounded-full bg-[#0057FF] px-5 py-3 text-sm font-black text-white shadow-xl shadow-blue-600/25 transition hover:-translate-y-0.5 hover:bg-blue-700">
+            <BellRing className="h-4 w-4" /> Join Waitlist
+          </button>
         </div>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          className="flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 md:hidden"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
+        <button aria-label="Open menu" className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-700 shadow-sm lg:hidden" onClick={() => setIsMobileMenuOpen((v) => !v)}>
           {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
-      {/* Mobile Nav */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "100vh", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-x-0 top-[72px] bottom-0 z-40 overflow-y-auto bg-white px-6 py-8 md:hidden"
-          >
-            <div className="flex flex-col space-y-6">
+          <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.2 }} className="fixed inset-x-0 top-[72px] z-50 mx-3 overflow-hidden rounded-[2rem] border border-white/60 bg-white/95 p-4 shadow-2xl shadow-blue-950/15 backdrop-blur-2xl lg:hidden">
+            <div className="grid gap-2">
               {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  href={link.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`text-2xl font-semibold transition-colors ${
-                    location === link.path ? "text-primary" : "text-gray-900"
-                  }`}
-                >
+                <Link key={link.path} href={link.path} onClick={close} className={`rounded-2xl px-5 py-4 text-lg font-black ${location === link.path ? "bg-blue-50 text-[#0057FF]" : "text-slate-900 hover:bg-slate-50"}`}>
                   {link.name}
                 </Link>
               ))}
-              <div className="pt-6">
-                <Link
-                  href="/#waitlist"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="inline-block w-full rounded-full bg-[#0057FF] py-4 text-center text-lg font-bold text-white transition-all active:scale-95"
-                >
-                  Join Waitlist
-                </Link>
-              </div>
+              <button onClick={scrollToWaitlist} className="mt-3 rounded-2xl bg-[#0057FF] px-5 py-4 text-lg font-black text-white shadow-xl shadow-blue-600/25 active:scale-95">
+                Join Waitlist
+              </button>
             </div>
           </motion.div>
         )}

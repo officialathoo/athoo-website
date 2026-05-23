@@ -40,8 +40,8 @@ export default function ContactForm() {
       {
         onSuccess: () => {
           toast({
-            title: "Message Sent",
-            description: "We've received your message and will get back to you soon.",
+            title: "Request Received",
+            description: "Thank you. Your request has been received. Athoo team will contact you soon.",
           });
           form.reset();
         },

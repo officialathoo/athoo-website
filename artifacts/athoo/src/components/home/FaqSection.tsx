@@ -9,31 +9,31 @@ export default function FaqSection() {
   const faqs = [
     {
       q: "What is Athoo?",
-      a: "Athoo is Pakistan's first trusted home services marketplace that connects you with verified professionals for your everyday needs.",
+      a: "Athoo is an upcoming Pakistani home services app designed to connect customers with verified local service providers after launch.",
     },
     {
       q: "When is Athoo launching?",
-      a: "Athoo is currently in pre-launch. Sign up for early access to be notified the moment we go live in 2025.",
+      a: "Athoo is currently in pre-launch. Sign up for early access to be notified the moment we launch.",
     },
     {
       q: "Which cities will Athoo cover?",
-      a: "We are starting with Karachi, Lahore, and Islamabad, with plans to expand to more cities rapidly.",
+      a: "Athoo is preparing launch coverage in Pakistan and will announce supported cities before launch.",
     },
     {
       q: "How do I become a provider?",
-      a: "Register your interest through our 'Become a Provider' page, complete the verification process, and you can start receiving jobs.",
+      a: "Join the provider waitlist. Our team will contact interested professionals when provider onboarding opens.",
     },
     {
       q: "Is Athoo free to use?",
-      a: "Downloading and using the Athoo app is completely free for customers. You only pay for the services you book.",
+      a: "Athoo is not launched yet. App availability and service details will be announced at launch.",
     },
     {
       q: "How are providers verified?",
-      a: "All providers go through background checks, skill tests, and document verification to ensure they meet our strict quality and safety standards.",
+      a: "Athoo plans a provider verification process including identity, documents, and skill checks before providers can join the platform.",
     },
     {
       q: "What services does Athoo offer?",
-      a: "We offer services including Electrician, Plumber, AC Service, Carpenter, Painter, Cleaning, Appliance Repair, and general Home Maintenance.",
+      a: "Athoo is preparing 10+ service categories including electrician, plumber, AC service, carpenter, painter, cleaning, appliance repair, mason, welder and more.",
     },
     {
       q: "How do I contact Athoo?",

@@ -35,8 +35,8 @@ export default function JoinWaitlistForm() {
       {
         onSuccess: () => {
           toast({
-            title: "You're on the list!",
-            description: "Thanks for joining. We'll notify you when we launch.",
+            title: "Waitlist Joined",
+            description: "Thank you. You are on the Athoo launch waitlist.",
           });
           form.reset();
           queryClient.invalidateQueries({ queryKey: getGetWaitlistCountQueryKey() });

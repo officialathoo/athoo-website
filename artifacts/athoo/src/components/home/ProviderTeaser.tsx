@@ -19,17 +19,17 @@ export default function ProviderTeaser() {
           </div>
           
           <h2 className="mb-8 text-4xl font-black md:text-5xl lg:text-6xl">
-            Grow Your Income with Athoo
+            Join the Athoo Provider Waitlist
           </h2>
           
           <ul className="mb-12 space-y-4 text-lg font-medium text-white/90">
             <li className="flex items-center gap-3">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-sm">✓</span>
-              More Customers
+              Future customer access
             </li>
             <li className="flex items-center gap-3">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-sm">✓</span>
-              Flexible Hours
+              Flexible work opportunities
             </li>
             <li className="flex items-center gap-3">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-sm">✓</span>
@@ -58,19 +58,19 @@ export default function ProviderTeaser() {
           className="flex flex-col justify-center gap-6 bg-gray-50 px-8 py-24 lg:px-24"
         >
           <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-xl">
-            <div className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wider">Average Monthly Earnings</div>
-            <div className="text-4xl font-black text-gray-900">PKR 50,000+</div>
+            <div className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wider">Future Earning Opportunity</div>
+            <div className="text-4xl font-black text-gray-900">Coming Soon</div>
           </div>
           
           <div className="grid grid-cols-2 gap-6">
             <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
               <div className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wider">Verified Providers</div>
-              <div className="text-3xl font-black text-[#0057FF]">1,000+</div>
+              <div className="text-3xl font-black text-[#0057FF]">Verification</div>
             </div>
             
             <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-              <div className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wider">App Download</div>
-              <div className="text-3xl font-black text-green-500">Free</div>
+              <div className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wider">App Launch</div>
+              <div className="text-3xl font-black text-green-500">Soon</div>
             </div>
           </div>
         </motion.div>

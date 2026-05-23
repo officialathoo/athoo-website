@@ -19,7 +19,7 @@ export default function WaitlistSection() {
   });
 
   useEffect(() => {
-    const targetDate = new Date("2025-12-31T00:00:00").getTime();
+    const targetDate = new Date("2026-12-31T00:00:00").getTime();
 
     const interval = setInterval(() => {
       const now = new Date().getTime();
@@ -50,8 +50,8 @@ export default function WaitlistSection() {
       {
         onSuccess: () => {
           toast({
-            title: "You're on the list!",
-            description: "Thanks for joining. We'll notify you when we launch.",
+            title: "Waitlist Joined",
+            description: "Thank you. You are on the Athoo launch waitlist.",
           });
           setEmail("");
           queryClient.invalidateQueries({ queryKey: getGetWaitlistCountQueryKey() });
@@ -85,7 +85,7 @@ export default function WaitlistSection() {
           </div>
           
           <h2 className="mb-12 text-5xl font-black text-white md:text-6xl">
-            Be the First to Use Athoo
+            Get Athoo Launch Updates
           </h2>
 
           <div className="mb-12 flex justify-center gap-4 md:gap-6">
@@ -102,7 +102,7 @@ export default function WaitlistSection() {
           </div>
 
           <p className="mb-6 text-sm text-white/80">
-            Join {waitlistData?.count || "1,000"}+ people already waiting
+            Join the Athoo launch waitlist
           </p>
 
           <form onSubmit={handleSubmit} className="mx-auto mb-12 flex max-w-xl flex-col sm:flex-row">
@@ -125,10 +125,10 @@ export default function WaitlistSection() {
 
           <div className="mb-12 flex justify-center gap-4">
             <div className="glass flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white">
-              Coming on App Store
+              App Store Coming Soon
             </div>
             <div className="glass flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white">
-              Coming on Google Play
+              Google Play Coming Soon
             </div>
           </div>
 

@@ -5,16 +5,16 @@ import { Link } from "wouter";
 
 export default function About() {
   const pillars = [
-    { title: "Trust", desc: "Every professional is background-checked and skill-verified. We bring only the most reliable people into your home.", icon: Shield, color: "text-blue-500", bg: "bg-blue-50" },
-    { title: "Speed", desc: "No more waiting for days. Our smart matching system connects you with the right professional in minutes.", icon: Zap, color: "text-orange-500", bg: "bg-orange-50" },
-    { title: "Growth", desc: "We empower local tradespeople with a digital platform to grow their business, manage bookings, and increase earnings.", icon: TrendingUp, color: "text-green-500", bg: "bg-green-50" },
+    { title: "Trust", desc: "Athoo plans a verification process for providers before they can join the platform.", icon: Shield, color: "text-blue-500", bg: "bg-blue-50" },
+    { title: "Speed", desc: "Athoo is being designed for faster, easier connection with local professionals after launch.", icon: Zap, color: "text-orange-500", bg: "bg-orange-50" },
+    { title: "Growth", desc: "We aim to empower local tradespeople with a digital platform to grow professionally after launch.", icon: TrendingUp, color: "text-green-500", bg: "bg-green-50" },
   ];
 
   return (
     <>
       <Helmet>
-        <title>About Athoo - Pakistan's Home Services Platform</title>
-        <meta name="description" content="Learn about Athoo's mission to transform the home services industry in Pakistan." />
+        <title>About Athoo — Upcoming Home Services Platform in Pakistan</title>
+        <meta name="description" content="Learn about Athoo, an upcoming Pakistani home services app launching soon." />
       </Helmet>
       
       <div className="flex flex-col min-h-screen bg-white">
@@ -28,7 +28,7 @@ export default function About() {
           >
             <h1 className="text-4xl md:text-6xl font-black mb-6">Building Trust in Home Services</h1>
             <p className="text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto">
-              We are on a mission to connect millions of Pakistanis with reliable, verified service professionals, bringing transparency to an unorganized industry.
+              Athoo is an upcoming Pakistani home services app designed to make future access to trusted local professionals simpler, safer, and more reliable.
             </p>
           </motion.div>
         </section>
@@ -49,13 +49,13 @@ export default function About() {
               <div className="p-8 rounded-3xl bg-blue-50 border border-blue-100">
                 <h3 className="text-2xl font-bold text-blue-600 mb-4">Our Mission</h3>
                 <p className="text-gray-700 leading-relaxed">
-                  To empower local professionals by providing them with a digital platform to grow their business, while offering customers a safe, seamless, and reliable way to book home services.
+                  To empower local professionals with a digital platform while preparing a safer, simpler way for customers to access home services after launch.
                 </p>
               </div>
               <div className="p-8 rounded-3xl bg-orange-50 border border-orange-100">
                 <h3 className="text-2xl font-bold text-orange-600 mb-4">Our Vision</h3>
                 <p className="text-gray-700 leading-relaxed">
-                  To become Pakistan's most trusted everyday app for all household needs, setting new standards for service quality, safety, and customer satisfaction across the country.
+                  To become one of Pakistan's most trusted everyday apps for household needs, with clear standards for quality, safety and customer experience.
                 </p>
               </div>
             </div>
@@ -105,7 +105,7 @@ export default function About() {
               href="/#waitlist"
               className="inline-block bg-[#0057FF] text-white font-bold text-lg px-10 py-4 rounded-full hover:bg-blue-700 transition-colors shadow-xl shadow-blue-500/20"
             >
-              Join the Waitlist
+              Join Waitlist
             </Link>
           </motion.div>
         </section>

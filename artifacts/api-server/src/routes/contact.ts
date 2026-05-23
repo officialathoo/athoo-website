@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { db, contactsTable } from "@workspace/db";
 import { SubmitContactBody } from "@workspace/api-zod";
+import { getRequestMeta, notifyAthoo } from "../lib/submissions";
 
 const router = Router();
-
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 5;
 const RATE_WINDOW_MS = 60 * 1000;
@@ -21,8 +21,8 @@ function checkRateLimit(ip: string): boolean {
 }
 
 router.post("/contact", async (req, res) => {
-  const ip = (req.headers["x-forwarded-for"] as string) || req.socket.remoteAddress || "unknown";
-  if (!checkRateLimit(ip)) {
+  const meta = getRequestMeta(req);
+  if (!checkRateLimit(meta.ip)) {
     res.status(429).json({ error: "Too many requests. Please try again later." });
     return;
   }
@@ -33,19 +33,23 @@ router.post("/contact", async (req, res) => {
     return;
   }
 
+  let savedToDb = false;
   try {
     await db.insert(contactsTable).values({
-      name: parsed.data.name,
-      email: parsed.data.email,
-      phone: parsed.data.phone ?? null,
-      subject: parsed.data.subject ?? null,
-      message: parsed.data.message,
+      name: parsed.data.name.trim(),
+      email: parsed.data.email.trim(),
+      phone: parsed.data.phone?.trim() || null,
+      subject: parsed.data.subject?.trim() || null,
+      message: parsed.data.message.trim(),
     });
-    res.status(201).json({ success: true, message: "Your message has been sent. We will get back to you soon!" });
+    savedToDb = true;
   } catch (err) {
-    req.log.error({ err }, "Failed to save contact");
-    res.status(500).json({ error: "Something went wrong. Please try again." });
+    req.log.warn({ err }, "Database unavailable; continuing with email/fallback storage");
   }
+
+  const notification = await notifyAthoo({ type: "Contact", data: { ...parsed.data, sourcePage: "Contact Form", savedToDb }, ...meta });
+  req.log.info({ notification }, "Contact submission processed");
+  res.status(201).json({ success: true, message: "Thank you. Your request has been received. Athoo team will contact you soon." });
 });
 
 export default router;

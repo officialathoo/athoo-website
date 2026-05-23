@@ -5,19 +5,19 @@ import ProviderInterestForm from "@/components/forms/ProviderInterestForm";
 
 export default function BecomeProvider() {
   const benefits = [
-    { title: "Consistent Income", desc: "Get a steady stream of job requests in your local area without spending money on marketing.", icon: TrendingUp, color: "text-blue-500", bg: "bg-blue-50" },
-    { title: "Flexible Schedule", desc: "Work when you want. You are your own boss—accept jobs that fit your availability.", icon: Clock, color: "text-orange-500", bg: "bg-orange-50" },
-    { title: "Zero Registration Fees", desc: "Signing up is completely free. We only make money when you make money.", icon: Banknote, color: "text-green-500", bg: "bg-green-50" },
-    { title: "Verified Customers", desc: "We verify customers just like we verify you, ensuring a safe working environment.", icon: ShieldCheck, color: "text-purple-500", bg: "bg-purple-50" },
-    { title: "Easy Payouts", desc: "Receive your earnings directly into your bank or mobile wallet without long delays.", icon: Briefcase, color: "text-amber-500", bg: "bg-amber-50" },
-    { title: "Smart App", desc: "Manage everything from our dedicated provider app—navigation, chat, and earnings.", icon: Smartphone, color: "text-cyan-500", bg: "bg-cyan-50" },
+    { title: "Consistent Income", desc: "Get notified when Athoo opens provider onboarding and future job opportunities.", icon: TrendingUp, color: "text-blue-500", bg: "bg-blue-50" },
+    { title: "Flexible Schedule", desc: "Athoo is being designed to support flexible service opportunities after launch.", icon: Clock, color: "text-orange-500", bg: "bg-orange-50" },
+    { title: "Zero Registration Fees", desc: "Joining the provider waitlist is free during pre-launch.", icon: Banknote, color: "text-green-500", bg: "bg-green-50" },
+    { title: "Verified Customers", desc: "Athoo is planning a safer platform experience with provider and customer trust checks.", icon: ShieldCheck, color: "text-purple-500", bg: "bg-purple-50" },
+    { title: "Easy Payouts", desc: "Payment and payout features will be announced before launch.", icon: Briefcase, color: "text-amber-500", bg: "bg-amber-50" },
+    { title: "Smart App", desc: "The provider app experience is being prepared for launch.", icon: Smartphone, color: "text-cyan-500", bg: "bg-cyan-50" },
   ];
 
   return (
     <>
       <Helmet>
-        <title>Become a Service Provider - Athoo Pakistan</title>
-        <meta name="description" content="Join Athoo as a service provider and grow your home services business in Pakistan. Flexible hours, verified customers, and great earnings." />
+        <title>Become an Athoo Provider — Provider Waitlist Opening Soon</title>
+        <meta name="description" content="Join the Athoo provider waitlist. Provider onboarding is opening soon for skilled professionals in Pakistan." />
       </Helmet>
       
       <div className="flex flex-col min-h-screen bg-white">
@@ -33,19 +33,19 @@ export default function BecomeProvider() {
               <div className="mb-6 inline-table rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-semibold w-max text-orange-400">
                 For Professionals
               </div>
-              <h1 className="text-4xl md:text-6xl font-black mb-6">Earn With Athoo</h1>
+              <h1 className="text-4xl md:text-6xl font-black mb-6">Join the Athoo Provider Waitlist</h1>
               <p className="text-xl text-gray-400 leading-relaxed mb-10 max-w-lg">
-                Are you a skilled electrician, plumber, or handyman? Join Pakistan's fastest-growing network of trusted professionals and boost your income.
+                Are you a skilled electrician, plumber, AC technician, carpenter or handyman? Provider onboarding is opening soon. Join the waitlist and our team will contact you.
               </p>
               
               <div className="grid grid-cols-3 gap-6 pt-6 border-t border-white/10">
                 <div>
-                  <div className="text-3xl font-bold text-white mb-1">500+</div>
-                  <div className="text-sm text-gray-500">Providers</div>
+                  <div className="text-3xl font-bold text-white mb-1">Soon</div>
+                  <div className="text-sm text-gray-500">Onboarding</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-orange-500 mb-1">50k</div>
-                  <div className="text-sm text-gray-500">Avg Earnings</div>
+                  <div className="text-3xl font-bold text-orange-500 mb-1">Future</div>
+                  <div className="text-sm text-gray-500">Opportunities</div>
                 </div>
                 <div>
                   <div className="text-3xl font-bold text-white mb-1">10+</div>
@@ -60,7 +60,7 @@ export default function BecomeProvider() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="bg-white text-gray-900 rounded-3xl p-8 shadow-2xl"
             >
-              <h3 className="text-2xl font-bold mb-6">Apply Now</h3>
+              <h3 className="text-2xl font-bold mb-6">Join Provider Waitlist</h3>
               <ProviderInterestForm />
             </motion.div>
           </div>
@@ -70,7 +70,7 @@ export default function BecomeProvider() {
         <section className="py-24 px-6 max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why Partner with Us?</h2>
-            <p className="text-lg text-gray-500">Everything you need to grow your service business.</p>
+            <p className="text-lg text-gray-500">Join early and get notified when onboarding opens.</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -110,8 +110,8 @@ export default function BecomeProvider() {
                </div>
                <div className="relative">
                  <div className="w-16 h-16 rounded-full bg-orange-500 text-white flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg">3</div>
-                 <h3 className="text-xl font-bold text-gray-900 mb-2">Start Earning</h3>
-                 <p className="text-gray-600">Download the provider app and start accepting jobs immediately.</p>
+                 <h3 className="text-xl font-bold text-gray-900 mb-2">Launch Updates</h3>
+                 <p className="text-gray-600">Get notified when the Athoo provider app and onboarding officially open.</p>
                </div>
              </div>
           </div>

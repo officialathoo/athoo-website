@@ -46,8 +46,8 @@ export default function ProviderInterestForm() {
       {
         onSuccess: () => {
           toast({
-            title: "Application Submitted",
-            description: "Thanks for your interest! Our team will contact you soon.",
+            title: "Provider Waitlist Joined",
+            description: "Thank you. Your provider waitlist request has been received. Athoo team will contact you soon.",
           });
           form.reset();
         },
@@ -175,7 +175,7 @@ export default function ProviderInterestForm() {
           ) : (
             <Briefcase className="mr-2 h-5 w-5" />
           )}
-          Apply to Become a Provider
+          Join Provider Waitlist
         </Button>
       </form>
     </Form>

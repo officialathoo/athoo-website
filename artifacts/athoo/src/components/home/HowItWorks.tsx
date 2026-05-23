@@ -6,15 +6,15 @@ export default function HowItWorks() {
   const [activeTab, setActiveTab] = useState<"customers" | "providers">("customers");
 
   const customerSteps = [
-    { icon: Smartphone, color: "bg-blue-50 text-blue-600", title: "Open Athoo App", desc: "Download the app and create your free account in seconds." },
-    { icon: Grid3x3, color: "bg-orange-50 text-orange-600", title: "Choose Your Service", desc: "Select what you need help with from our 8 core categories." },
-    { icon: Zap, color: "bg-green-50 text-green-600", title: "Get Connected Instantly", desc: "We match you with a top-rated professional nearby." },
+    { icon: Smartphone, color: "bg-blue-50 text-blue-600", title: "Open Athoo App", desc: "Join the waitlist and get notified when the Athoo app launches." },
+    { icon: Grid3x3, color: "bg-orange-50 text-orange-600", title: "Choose Your Service", desc: "Explore 10+ planned service categories for everyday home needs." },
+    { icon: Zap, color: "bg-green-50 text-green-600", title: "Get Connected Instantly", desc: "After launch, Athoo will help connect customers with verified local professionals." },
   ];
 
   const providerSteps = [
     { icon: FileCheck, color: "bg-blue-50 text-blue-600", title: "Register & Upload Docs", desc: "Sign up and provide your identification and skill proofs." },
     { icon: ShieldCheck, color: "bg-green-50 text-green-600", title: "Get Verified by Team", desc: "Our team reviews your profile to ensure trust and safety." },
-    { icon: TrendingUp, color: "bg-orange-50 text-orange-600", title: "Receive Jobs & Earn", desc: "Start getting job requests directly on your phone." },
+    { icon: TrendingUp, color: "bg-orange-50 text-orange-600", title: "Receive Jobs & Earn", desc: "Get notified when provider onboarding opens and prepare to receive future job opportunities." },
   ];
 
   const currentSteps = activeTab === "customers" ? customerSteps : providerSteps;

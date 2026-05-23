@@ -3,10 +3,10 @@ import { CheckCircle2 } from "lucide-react";
 
 export default function AppShowcase() {
   const features = [
-    "Book Any Service in Minutes",
-    "Real-Time Provider Tracking",
-    "Verified, Rated Professionals",
-    "Secure & Transparent Process"
+    "Service Request Flow Preview",
+    "Real-Time Update Experience",
+    "Verified Provider Network",
+    "Transparent Future Process"
   ];
 
   return (
@@ -26,7 +26,7 @@ export default function AppShowcase() {
                 The Athoo App Experience
               </h2>
               <p className="text-xl leading-relaxed text-gray-400">
-                Your entire home, managed from one place. Our upcoming app makes finding and booking trusted professionals effortless.
+                Athoo is still in pre-launch. This preview shows the customer and provider experience we are preparing for Pakistan.
               </p>
             </div>
 
@@ -61,7 +61,7 @@ export default function AppShowcase() {
               </div>
               <div className="h-[500px] w-full bg-gray-50 overflow-hidden flex flex-col rounded-b-3xl">
                 <div className="bg-[#0057FF] p-6 pt-10 text-white">
-                  <h3 className="font-bold text-lg">Book Service</h3>
+                  <h3 className="font-bold text-lg">Request Preview</h3>
                   <div className="mt-4 h-10 w-full rounded-lg bg-white/20" />
                 </div>
                 <div className="p-4 space-y-4">
@@ -92,7 +92,7 @@ export default function AppShowcase() {
               <div className="h-[500px] w-full bg-gray-900 overflow-hidden flex flex-col rounded-b-3xl">
                 <div className="p-6 pt-12 space-y-6">
                   <div className="bg-gray-800 rounded-2xl p-4 text-center">
-                    <p className="text-gray-400 text-xs">New Request</p>
+                    <p className="text-gray-400 text-xs">Future Request</p>
                     <p className="text-white font-bold text-xl mt-1">Electrical Repair</p>
                   </div>
                   <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4">
