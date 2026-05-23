@@ -62,24 +62,24 @@ export default function AppShowcase() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="relative min-h-[600px] w-full sm:min-h-[680px]"
+            className="relative min-h-[620px] w-full sm:min-h-[700px]"
           >
             <div className="absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-blue-500/20 via-white to-orange-400/20 blur-3xl" />
 
             <motion.div
               animate={{ y: [0, -12, 0], rotate: [-6, -4, -6] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute left-0 top-12 hidden w-[250px] rounded-[2.1rem] border border-white/80 bg-white p-3 shadow-2xl shadow-blue-950/15 sm:block lg:left-4"
+              className="absolute left-0 top-24 w-[205px] rotate-[-8deg] rounded-[2.1rem] border border-white/80 bg-white p-2 shadow-2xl shadow-blue-950/15 sm:top-12 sm:w-[250px] sm:p-3 lg:left-4"
             >
-              <img src="/app-interface-clean.png" alt="Athoo customer app preview" className="app-preview-image h-auto w-full rounded-[1.6rem]" />
+              <img src="/app-interface-clean-sm.webp" alt="Athoo customer app preview" width="420" height="906" loading="lazy" decoding="async" className="app-preview-image h-auto w-full rounded-[1.6rem]" />
             </motion.div>
 
             <motion.div
               animate={{ y: [0, 14, 0], rotate: [5, 7, 5] }}
               transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute right-0 top-0 w-[300px] rounded-[2.4rem] border border-white/90 bg-white p-3 shadow-2xl shadow-blue-950/20 sm:right-8 sm:w-[340px] lg:right-4"
+              className="absolute right-0 top-0 w-[245px] rotate-[5deg] rounded-[2.4rem] border border-white/90 bg-white p-2 shadow-2xl shadow-blue-950/20 sm:right-8 sm:w-[340px] sm:p-3 lg:right-4"
             >
-              <img src="/app-interface-clean.png" alt="Athoo provider app preview" className="app-preview-image h-auto w-full rounded-[1.8rem]" />
+              <img src="/app-interface-clean.webp" alt="Athoo provider app preview" width="720" height="1553" loading="lazy" decoding="async" className="app-preview-image h-auto w-full rounded-[1.8rem]" />
               <div className="absolute -left-4 top-16 rounded-2xl bg-white px-4 py-3 text-sm font-black text-[#081120] shadow-xl ring-1 ring-slate-100 sm:-left-8">
                 <div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-green-500" /> Verified Providers</div>
               </div>
@@ -93,7 +93,7 @@ export default function AppShowcase() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.25, duration: 0.55 }}
-              className="absolute bottom-0 left-1/2 w-[92%] max-w-xl -translate-x-1/2 rounded-[2rem] border border-white/80 bg-white/85 p-5 shadow-2xl shadow-blue-950/10 backdrop-blur-xl"
+              className="absolute bottom-0 left-1/2 w-[94%] max-w-xl -translate-x-1/2 rounded-[2rem] border border-white/80 bg-white/90 p-4 shadow-2xl shadow-blue-950/10 backdrop-blur-xl sm:p-5"
             >
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div className="rounded-2xl bg-blue-50 p-3"><div className="text-xl font-black text-[#0057FF]">10+</div><div className="text-xs font-bold text-slate-500">Categories</div></div>

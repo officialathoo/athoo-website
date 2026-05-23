@@ -37,7 +37,7 @@ export default function Navbar() {
     <nav className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${isScrolled ? "border-b border-white/30 bg-white/85 shadow-lg shadow-blue-950/5 backdrop-blur-2xl" : "bg-white/55 backdrop-blur-xl"}`}>
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link href="/" onClick={close} className="flex items-center gap-3">
-          <img src="/athoo-logo.png" alt="Athoo" className="h-10 w-10 rounded-xl object-contain sm:h-12 sm:w-12" />
+          <img src="/athoo-logo.webp" alt="Athoo" className="h-10 w-10 rounded-xl object-contain sm:h-12 sm:w-12" />
           <div className="leading-tight">
             <span className="block text-xl font-black tracking-tight text-[#081120]">Athoo</span>
             <span className="hidden text-[11px] font-bold uppercase tracking-wider text-blue-600 sm:block">Launching Soon</span>

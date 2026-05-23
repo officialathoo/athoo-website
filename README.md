@@ -1,20 +1,21 @@
-# Athoo Website — Clean SEO Deployment Build
+# Athoo Website
 
-Official Athoo pre-launch website for Pakistan's upcoming smart home services app.
+Clean, mobile-first, SEO-ready Vite/React website for Athoo — Pakistan's smart home services app launching soon.
 
-## Deploy on Vercel
+## Vercel Settings
 
-Use these settings:
+Use these settings when deploying:
 
-- Framework Preset: Vite
+- Framework Preset: `Vite`
 - Root Directory: leave empty / repo root
+- Install Command: `pnpm install --frozen-lockfile=false`
 - Build Command: `pnpm run build`
 - Output Directory: `dist/public`
-- Install Command: `pnpm install --frozen-lockfile=false`
 
-## Email form setup
+## Email Forms
 
-For reliable form delivery, add these Vercel Environment Variables:
+Forms submit to `/api/submit` and are configured for `official.athoo@gmail.com`.
+For reliable production delivery, add these environment variables in Vercel:
 
 ```env
 RESEND_API_KEY=your_resend_api_key
@@ -22,27 +23,24 @@ EMAIL_TO=official.athoo@gmail.com
 EMAIL_FROM=Athoo Website <onboarding@resend.dev>
 ```
 
-Without Resend, the forms fall back to FormSubmit/mailto, but Resend is recommended for production reliability.
+Without Resend, the website still accepts submissions and uses FormSubmit/mail fallback.
 
-## Included SEO setup
+## Included SEO
 
-- SEO-friendly titles and descriptions
-- Open Graph metadata
-- Twitter card metadata
-- Organization schema
-- WebSite schema
-- MobileApplication schema
-- sitemap.xml
-- robots.txt
-- site.webmanifest
-- canonical URL
-- clean Vercel headers
-- optimized Vite build output
+- Optimized titles and descriptions
+- Open Graph and Twitter cards
+- Organization, Website, and MobileApplication schema
+- Sitemap and robots.txt
+- Clean URLs
+- Mobile-first responsive layout
+- Optimized WebP app preview assets
+- Lazy-loaded below-fold home sections
+- Reduced render-blocking external fonts
 
-## Social links
+## Commands
 
-- Instagram: https://www.instagram.com/athoo_services/
-- Facebook: https://www.facebook.com/share/17YFFojFAc/?mibextid=wwXIfr
-- TikTok: https://www.tiktok.com/@athoo.pk
-- Email: official.athoo@gmail.com
-- Phone/WhatsApp: +92 339 0051068
+```bash
+pnpm install --frozen-lockfile=false
+pnpm run build
+pnpm run preview
+```

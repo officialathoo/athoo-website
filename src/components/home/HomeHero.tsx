@@ -57,7 +57,7 @@ export default function HomeHero() {
               <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-[#FF8A00]" /><span className="text-sm font-black">Coming Soon</span></div>
             </div>
             <div className="mx-auto flex max-w-[310px] justify-center overflow-hidden rounded-[2rem] bg-white shadow-2xl sm:max-w-[360px]">
-              <img src="/app-interface-clean.png" alt="Athoo app interface preview" className="app-preview-image h-auto w-full rounded-[1.6rem] object-contain" />
+              <img src="/app-interface-clean.webp" alt="Athoo app interface preview" width="720" height="1553" fetchPriority="high" decoding="async" className="app-preview-image h-auto w-full rounded-[1.6rem] object-contain" />
             </div>
           </div>
 
