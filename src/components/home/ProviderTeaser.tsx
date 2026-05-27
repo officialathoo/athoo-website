@@ -55,22 +55,34 @@ export default function ProviderTeaser() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="flex flex-col justify-center gap-6 bg-gray-50 px-8 py-24 lg:px-24"
+          className="flex flex-col justify-center gap-4 bg-gray-50 px-5 py-16 sm:gap-6 sm:px-8 sm:py-24 lg:px-24"
         >
-          <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-xl">
-            <div className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wider">Future Earning Opportunity</div>
-            <div className="text-4xl font-black text-gray-900">Coming Soon</div>
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl sm:p-8">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 sm:text-sm">
+              Future Earning Opportunity
+            </div>
+            <div className="text-4xl font-black leading-tight text-gray-900">
+              Coming Soon
+            </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-6">
-            <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-              <div className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wider">Verified Providers</div>
-              <div className="text-3xl font-black text-[#0057FF]">Verification</div>
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
+            <div className="min-h-[145px] overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 sm:text-sm">
+                Verified Providers
+              </div>
+              <div className="text-2xl font-black leading-tight break-words text-[#0057FF] sm:text-3xl">
+                Verification
+              </div>
             </div>
             
-            <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-              <div className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wider">App Launch</div>
-              <div className="text-3xl font-black text-green-500">Soon</div>
+            <div className="min-h-[145px] overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 sm:text-sm">
+                App Launch
+              </div>
+              <div className="text-2xl font-black leading-tight break-words text-green-500 sm:text-3xl">
+                Soon
+              </div>
             </div>
           </div>
         </motion.div>
