@@ -17,6 +17,7 @@ import Contact from "@/pages/contact";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import NotFound from "@/pages/not-found";
+import Admin from "@/pages/admin";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,17 @@ function ScrollToTop() {
 
 
 function Router() {
+  const [location] = useLocation();
+
+  if (location.startsWith("/admin")) {
+    return (
+      <Switch>
+        <Route path="/admin" component={Admin} />
+        <Route component={NotFound} />
+      </Switch>
+    );
+  }
+
   return (
     <MainLayout>
       <Switch>
