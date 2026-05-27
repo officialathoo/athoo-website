@@ -5,13 +5,20 @@
     "rootDir": "src",
     "types": ["node"]
   },
-  "include": ["src"],
+  "include": [
+    "src/app.ts",
+    "src/index.ts",
+    "src/server.ts",
+    "src/lib/logger.ts",
+    "src/lib/dbInit.ts",
+    "src/routes/index.ts",
+    "src/routes/health.ts",
+    "src/routes/submit.ts",
+    "src/routes/public.ts",
+    "src/routes/admin-panel.ts"
+  ],
   "references": [
-    {
-      "path": "../../lib/db"
-    },
-    {
-      "path": "../../lib/api-zod"
-    }
+    { "path": "../../lib/db" },
+    { "path": "../../lib/api-zod" }
   ]
 }

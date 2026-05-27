@@ -1,5 +1,5 @@
 import { pool } from "@workspace/db";
-import { logger } from "./logger";
+import { logger } from "./logger.js";
 
 export async function ensureSchema(): Promise<void> {
   const client = await pool.connect();
@@ -72,6 +72,20 @@ export async function ensureSchema(): Promise<void> {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )`);
     await client.query(`CREATE INDEX IF NOT EXISTS activity_logs_created_at_idx ON admin_activity_logs (created_at DESC)`);
+
+    // Admin notifications
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS admin_notifications (
+        id BIGSERIAL PRIMARY KEY,
+        admin_email TEXT,
+        type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        message TEXT NOT NULL,
+        link_to TEXT,
+        is_read BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )`);
+    await client.query(`CREATE INDEX IF NOT EXISTS admin_notifications_created_at_idx ON admin_notifications (created_at DESC)`);
 
     // Settings
     await client.query(`

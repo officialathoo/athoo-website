@@ -28,6 +28,18 @@ ALTER TABLE athoo_admin_users ADD COLUMN IF NOT EXISTS login_count INT NOT NULL 
 CREATE TABLE IF NOT EXISTS admin_activity_logs (id BIGSERIAL PRIMARY KEY, admin_email TEXT, action TEXT NOT NULL, target_type TEXT, target_id TEXT, details JSONB NOT NULL DEFAULT '{}'::jsonb, ip_address TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
 CREATE INDEX IF NOT EXISTS activity_logs_created_at_idx ON admin_activity_logs (created_at DESC);
 
+CREATE TABLE IF NOT EXISTS admin_notifications (
+  id BIGSERIAL PRIMARY KEY,
+  admin_email TEXT,
+  type TEXT NOT NULL,
+  title TEXT NOT NULL,
+  message TEXT NOT NULL,
+  link_to TEXT,
+  is_read BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS admin_notifications_created_at_idx ON admin_notifications (created_at DESC);
+
 CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, value JSONB NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
 
 CREATE TABLE IF NOT EXISTS athoo_email_logs (id BIGSERIAL PRIMARY KEY, lead_id BIGINT, recipient TEXT NOT NULL, subject TEXT NOT NULL, body TEXT, status TEXT NOT NULL DEFAULT 'pending', sent_by TEXT, provider_response JSONB NOT NULL DEFAULT '{}'::jsonb, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
@@ -35,3 +47,25 @@ ALTER TABLE athoo_email_logs ADD COLUMN IF NOT EXISTS sent_by TEXT;
 
 CREATE TABLE IF NOT EXISTS athoo_email_templates (id BIGSERIAL PRIMARY KEY, name TEXT NOT NULL UNIQUE, subject TEXT NOT NULL, body TEXT NOT NULL, category TEXT NOT NULL DEFAULT 'general', created_by TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
 CREATE UNIQUE INDEX IF NOT EXISTS athoo_email_templates_name_idx ON athoo_email_templates (name);
+
+
+-- Default settings
+INSERT INTO app_settings (key, value) VALUES
+('maintenance_mode', '{"enabled":false,"message":"Athoo website is under maintenance. Please check back soon."}'::jsonb),
+('support_email', '"official.athoo@gmail.com"'::jsonb),
+('support_phone', '"+92 339 0051068"'::jsonb),
+('site_title', '"Athoo — Pakistan Smart Home Services"'::jsonb),
+('site_description', '"Athoo is an upcoming Pakistani home services app for customers and verified providers."'::jsonb),
+('whatsapp_number', '"923390051068"'::jsonb),
+('social_instagram', '"https://instagram.com/athoo_services"'::jsonb),
+('social_facebook', '"https://facebook.com/athoo_services"'::jsonb),
+('social_tiktok', '"https://tiktok.com/@athoo.pk"'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
+-- Default email templates
+INSERT INTO athoo_email_templates (name, subject, body, category) VALUES
+('Waitlist Welcome', 'Welcome to Athoo Waitlist!', 'Hi {{name}}, thank you for joining the Athoo waitlist.', 'waitlist'),
+('Provider Onboarding', 'Athoo Provider Application Received', 'Hi {{name}}, thank you for registering as a service provider on Athoo.', 'provider')
+ON CONFLICT (name) DO NOTHING;
+
+-- Optional initial admin seed. Password is created automatically at runtime from ADMIN_PASSWORD by ensureSchema().

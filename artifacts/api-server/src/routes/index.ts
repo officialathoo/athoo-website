@@ -8,8 +8,8 @@ import publicRouter from "./public.js";
 const router = Router();
 
 router.use("/health", healthRouter);
-router.use("/submit", submitRouter);
-router.use("/admin", adminPanelRouter);
-router.use("/public", publicRouter);
+router.use("/", submitRouter);
+router.use("/", adminPanelRouter);
+router.use("/", publicRouter);
 
 export default router;

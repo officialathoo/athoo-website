@@ -1,7 +1,7 @@
 import { pgTable, text, serial, timestamp, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
-import { adminsTable } from "./admins";
+import { adminsTable } from "./admins.js";
 
 export const emailTemplatesTable = pgTable("email_templates", {
   id: serial("id").primaryKey(),
