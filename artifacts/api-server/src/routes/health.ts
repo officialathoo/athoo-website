@@ -1,11 +1,13 @@
-import { Router, type IRouter } from "express";
-import { HealthCheckResponse } from "@workspace/api-zod";
+import { Router, type Request, type Response } from "express";
 
-const router: IRouter = Router();
+const router = Router();
 
-router.get("/healthz", (_req, res) => {
-  const data = HealthCheckResponse.parse({ status: "ok" });
-  res.json(data);
+router.get("/", (_req: Request, res: Response) => {
+  res.json({
+    status: "ok",
+    service: "athoo-api",
+    timestamp: new Date().toISOString(),
+  });
 });
 
 export default router;
