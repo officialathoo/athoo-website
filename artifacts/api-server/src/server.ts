@@ -1,6 +1,6 @@
-import app from "./app";
-import { logger } from "./lib/logger";
-import { ensureSchema } from "./lib/dbInit";
+import app from "./app.js";
+import { logger } from "./lib/logger.js";
+import { ensureSchema } from "./lib/dbInit.js";
 
 const rawPort = process.env["PORT"] || "8080";
 
