@@ -1,14 +1,15 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import app from "../artifacts/api-server/src/index.js";
 
-export default async function handler(
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export default function handler(
   req: VercelRequest,
   res: VercelResponse,
 ) {
-  return new Promise<void>((resolve, reject) => {
-    app(req as any, res as any, (err?: unknown) => {
-      if (err) reject(err);
-      else resolve();
-    });
-  });
+  return (app as any)(req, res);
 }
