@@ -1,65 +1,45 @@
-# Athoo Website
+# Athoo Website Professional Admin Edition
 
-Athoo marketing website built with Vite + React, now including a secure serverless lead backend, Neon database storage, admin dashboard, and optional Resend email notifications.
+This version keeps the existing Athoo frontend style and adds a professional lead-management backend.
+
+## Added
+- Secure lead saving to Neon PostgreSQL
+- Professional admin dashboard with Athoo logo/sidebar
+- Lead CRM with search, filters, status, priority, assignment and notes
+- Filtered CSV export
+- Bulk/optional email system using Resend
+- Admin email notification support on form submissions
+- Super Admin / Admin / Manager / Custom user structure
+- Admin creation and role management
+- Maintenance-mode settings storage
+- Activity logs
+- Improved FAQ and complete Athoo overview content
+- Mobile-friendly responsive fixes and lightweight 3D hover effects
 
 ## Local setup
-
-```bash
-npm install
-cp .env.example .env.local
-npm run dev
+```powershell
+pnpm install
+copy .env.example .env.local
+vercel dev
 ```
 
-## Build
+## Vercel settings
+Install command: `pnpm install --frozen-lockfile=false`
+Build command: `pnpm run build`
+Output directory: `dist`
 
-```bash
-npm run build
-```
+Add env variables in Vercel Production/Preview/Development:
+- DATABASE_URL
+- ADMIN_PASSWORD
+- AUTH_SECRET
+- SUPER_ADMIN_EMAIL
+- LEAD_NOTIFY_TO
+- LEAD_EMAIL_FROM
+- RESEND_API_KEY
+- RATE_LIMIT_PER_MINUTE
 
-## Admin dashboard
+## Neon
+Run `database/schema.sql` in Neon SQL editor once. The API also auto-creates/updates the schema on first request.
 
-After deployment, open:
-
-```txt
-/admin
-```
-
-Login using the `ADMIN_PASSWORD` environment variable.
-
-## Required deployment environment variables
-
-Add these in Vercel Project Settings → Environment Variables:
-
-```env
-DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DB?sslmode=require"
-ADMIN_PASSWORD="your-strong-admin-password"
-AUTH_SECRET="your-long-random-secret"
-```
-
-Optional but recommended for automatic lead emails:
-
-```env
-RESEND_API_KEY="re_xxxxxxxxxxxxxxxxxxxxx"
-LEAD_NOTIFY_TO="official.athoo@gmail.com"
-LEAD_EMAIL_FROM="Athoo Website <onboarding@resend.dev>"
-RATE_LIMIT_PER_MINUTE="10"
-```
-
-## Database
-
-The serverless API automatically creates the required `website_leads` table and indexes. Manual SQL is available at:
-
-```txt
-database/schema.sql
-```
-
-## Features added
-
-- Form submissions save to PostgreSQL.
-- Admin dashboard at `/admin`.
-- Search and filter leads.
-- CSV export.
-- Automatic email notification support via Resend.
-- Server-side validation and sanitization.
-- Basic rate limiting.
-- Security headers.
+## Admin login
+Use the ADMIN_PASSWORD for simple super-admin login. After login, you can add named admin users with email/password roles.

@@ -53,6 +53,7 @@ export default async function handler(req, res) {
     const cleanPayload = Object.fromEntries(Object.entries(body).map(([k, v]) => [sanitize(k, 80), sanitize(v, 2500)]));
     const db = sql();
     await ensureSchema(db);
+    const duplicate = await db`SELECT id FROM website_leads WHERE email = ${sanitize(body.email, 255) || ''} AND email <> '' LIMIT 1`;
     const rows = await db`
       INSERT INTO website_leads (
         form_type, name, email, phone, subject, message, service, city, experience,
@@ -64,7 +65,11 @@ export default async function handler(req, res) {
         ${sanitize(body.city, 120) || null}, ${sanitize(body.experience, 800) || null},
         ${sanitize(body.source, 500) || sanitize(req.headers.referer, 500) || null}, ${getIp(req)},
         ${sanitize(req.headers['user-agent'], 500) || null}, ${JSON.stringify(cleanPayload)}
-      ) RETURNING id, form_type, source, payload`;
+      ) RETURNING id, form_type, source, payload, email, name`;
+
+    if (duplicate.length) {
+      await db`UPDATE website_leads SET admin_notes = COALESCE(admin_notes || '\n', '') || ${`Possible duplicate of lead #${duplicate[0].id}`}, updated_at = NOW() WHERE id = ${rows[0].id}`;
+    }
 
     const lead = rows[0];
     sendEmail(lead).catch((err) => console.error('Email failed:', err.message));

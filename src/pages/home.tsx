@@ -7,6 +7,7 @@ import TrustSafety from "@/components/home/TrustSafety";
 import WaitlistSection from "@/components/home/WaitlistSection";
 import ProviderTeaser from "@/components/home/ProviderTeaser";
 import FaqSection from "@/components/home/FaqSection";
+import CompleteInfoSection from "@/components/home/CompleteInfoSection";
 import HomeContact from "@/components/home/HomeContact";
 import { Helmet } from "react-helmet-async";
 
@@ -29,6 +30,7 @@ export default function Home() {
           <WaitlistSection />
         </div>
         <ProviderTeaser />
+        <CompleteInfoSection />
         <FaqSection />
         <HomeContact />
       </div>
