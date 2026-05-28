@@ -1,5 +1,7 @@
+/// <reference path="./globals.d.ts" />
+
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import crypto from "node:crypto";
+import crypto from "crypto";
 import pg from "pg";
 
 const { Pool } = pg;
