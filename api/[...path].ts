@@ -1,6 +1,4 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import app from "../artifacts/api-server/src/index.js";
-import { ensureSchema } from "../artifacts/api-server/src/lib/dbInit.js";
 
 export const config = {
   api: {
@@ -8,21 +6,56 @@ export const config = {
   },
 };
 
-let schemaReady: Promise<void> | null = null;
+let schemaReady = false;
 
 async function ensureSchemaOnce() {
-  if (!schemaReady) {
-    schemaReady = ensureSchema().catch((error) => {
-      console.warn("Athoo schema init warning:", error?.message || error);
-    });
+  if (schemaReady) return;
+
+  try {
+    const dbInit = await import(
+      "../artifacts/api-server/src/lib/dbInit.js"
+    );
+
+    if (dbInit?.ensureSchema) {
+      await dbInit.ensureSchema();
+    }
+
+    schemaReady = true;
+  } catch (error: any) {
+    console.warn(
+      "Athoo schema init warning:",
+      error?.message || error,
+    );
   }
-  await schemaReady;
 }
 
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse,
 ) {
-  await ensureSchemaOnce();
-  return (app as any)(req, res);
+  try {
+    await ensureSchemaOnce();
+
+    const mod = await import(
+      "../artifacts/api-server/src/index.js"
+    );
+
+    const app = mod.default;
+
+    if (!app) {
+      return res.status(500).json({
+        ok: false,
+        error: "Express app not found",
+      });
+    }
+
+    return app(req, res);
+  } catch (error: any) {
+    console.error("Athoo API fatal error:", error);
+
+    return res.status(500).json({
+      ok: false,
+      error: error?.message || "Internal server error",
+    });
+  }
 }
