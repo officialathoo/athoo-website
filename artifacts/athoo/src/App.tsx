@@ -31,6 +31,36 @@ function ScrollToTop() {
 }
 
 
+function MaintenanceGate({ children }: { children: React.ReactNode }) {
+  const [location] = useLocation();
+  const [state, setState] = React.useState<{ loading: boolean; enabled: boolean; message: string }>({ loading: true, enabled: false, message: "Athoo website is under maintenance. Please check back soon." });
+
+  React.useEffect(() => {
+    let alive = true;
+    fetch("/api/public/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!alive) return;
+        setState({ loading: false, enabled: Boolean(data?.maintenanceMode), message: data?.maintenanceMessage || "Athoo website is under maintenance. Please check back soon." });
+      })
+      .catch(() => alive && setState((s) => ({ ...s, loading: false })));
+    return () => { alive = false; };
+  }, []);
+
+  if (location.startsWith("/admin") || state.loading || !state.enabled) return <>{children}</>;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#0057FF] via-blue-700 to-[#FF8A00] px-6 py-16 text-white flex items-center justify-center">
+      <div className="max-w-xl rounded-[2rem] bg-white/10 p-8 text-center shadow-2xl backdrop-blur-md border border-white/20">
+        <img src="/athoo-logo.png" alt="Athoo" className="mx-auto mb-6 h-20 w-20 rounded-3xl bg-white p-2 shadow-xl" />
+        <h1 className="text-4xl font-black">Athoo is under maintenance</h1>
+        <p className="mt-4 text-lg text-white/90">{state.message}</p>
+        <p className="mt-6 text-sm text-white/75">We are improving the website. Please check back soon.</p>
+      </div>
+    </div>
+  );
+}
+
 function Router() {
   const [location] = useLocation();
 
@@ -66,7 +96,7 @@ function App() {
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <ScrollToTop />
-            <Router />
+            <MaintenanceGate><Router /></MaintenanceGate>
           </WouterRouter>
           <Toaster />
         </TooltipProvider>

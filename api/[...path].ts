@@ -184,6 +184,14 @@ async function ensureSchema() {
       note TEXT,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
+
+    ALTER TABLE athoo_admin_users ADD COLUMN IF NOT EXISTS login_count INT NOT NULL DEFAULT 0;
+    ALTER TABLE athoo_admin_users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+    ALTER TABLE website_leads ADD COLUMN IF NOT EXISTS priority TEXT NOT NULL DEFAULT 'normal';
+    ALTER TABLE website_leads ADD COLUMN IF NOT EXISTS assigned_to TEXT;
+    ALTER TABLE website_leads ADD COLUMN IF NOT EXISTS admin_notes TEXT;
+    ALTER TABLE website_leads ADD COLUMN IF NOT EXISTS last_contacted_at TIMESTAMPTZ;
+    ALTER TABLE website_leads ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';
     CREATE INDEX IF NOT EXISTS website_leads_created_at_idx ON website_leads (created_at DESC);
     CREATE INDEX IF NOT EXISTS website_leads_status_idx ON website_leads (status);
     CREATE INDEX IF NOT EXISTS website_leads_email_idx ON website_leads (email);
@@ -320,6 +328,174 @@ async function saveLead(req: VercelRequest, res: VercelResponse, formTypeDefault
   return json(res, 200, { ok: true, id: result.rows[0]?.id });
 }
 
+async function handleLeadUpdate(req: VercelRequest, res: VercelResponse, admin: Record<string, any>) {
+  if (!hasPermission(admin, "manage_leads")) return json(res, 403, { ok: false, error: "Permission denied" });
+  const body = await readBody(req);
+  const ids = (Array.isArray(body.ids) ? body.ids : [body.id]).map((x: any) => Number(x)).filter(Boolean);
+  if (!ids.length) return json(res, 400, { ok: false, error: "No lead selected" });
+  const status = sanitize(body.status, 40);
+  const priority = sanitize(body.priority, 40);
+  const assignedTo = sanitize(body.assignedTo, 255);
+  const adminNotes = sanitize(body.adminNotes, 2500);
+  if (status) await getPool().query(`UPDATE website_leads SET status=$1, updated_at=NOW() WHERE id = ANY($2)`, [status, ids]);
+  if (priority) await getPool().query(`UPDATE website_leads SET priority=$1, updated_at=NOW() WHERE id = ANY($2)`, [priority, ids]);
+  if (assignedTo || body.assignedTo === "") await getPool().query(`UPDATE website_leads SET assigned_to=$1, updated_at=NOW() WHERE id = ANY($2)`, [assignedTo || null, ids]);
+  if (adminNotes || body.adminNotes === "") await getPool().query(`UPDATE website_leads SET admin_notes=$1, updated_at=NOW() WHERE id = ANY($2)`, [adminNotes || null, ids]);
+  await logActivity(req, admin, "lead_update", "website_leads", ids.join(","), { status, priority, assignedTo, count: ids.length });
+  return json(res, 200, { ok: true });
+}
+
+async function handleExport(req: VercelRequest, res: VercelResponse, admin: Record<string, any>) {
+  if (!hasPermission(admin, "export_leads")) return json(res, 403, { ok: false, error: "Permission denied" });
+  const q = req.query;
+  const search = sanitize(q.search, 120);
+  const status = sanitize(q.status, 40);
+  const formType = sanitize(q.formType, 80);
+  const rows = await getPool().query(
+    `SELECT id, form_type, name, email, phone, subject, message, service, city, experience, source, status, priority, assigned_to, admin_notes, last_contacted_at, created_at
+     FROM website_leads
+     WHERE ($1='' OR name ILIKE $2 OR email ILIKE $2 OR phone ILIKE $2 OR message ILIKE $2 OR service ILIKE $2 OR city ILIKE $2)
+       AND ($3='' OR status=$3)
+       AND ($4='' OR form_type=$4)
+     ORDER BY created_at DESC LIMIT 10000`, [search, `%${search}%`, status, formType]);
+  const headers = ["id","form_type","name","email","phone","subject","message","service","city","experience","source","status","priority","assigned_to","admin_notes","last_contacted_at","created_at"];
+  const csvValue = (v: any) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const csv = [headers.join(","), ...rows.rows.map((r: any) => headers.map(h => csvValue(r[h])).join(","))].join("\n");
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", 'attachment; filename="athoo-filtered-leads.csv"');
+  return res.status(200).send(csv);
+}
+
+async function handleSettingsPost(req: VercelRequest, res: VercelResponse, admin: Record<string, any>) {
+  if (!hasPermission(admin, "manage_settings")) return json(res, 403, { ok: false, error: "Permission denied" });
+  const body = await readBody(req);
+  const maintenance = { enabled: Boolean(body.maintenanceEnabled), message: sanitize(body.maintenanceMessage, 500) || "Athoo website is under maintenance. Please check back soon." };
+  const supportEmail = sanitize(body.supportEmail, 255) || process.env.LEAD_NOTIFY_TO || "official.athoo@gmail.com";
+  const supportPhone = sanitize(body.supportPhone, 50) || "+92 339 0051068";
+  for (const [key, value] of Object.entries({ maintenance_mode: maintenance, support_email: supportEmail, support_phone: supportPhone })) {
+    await getPool().query(`INSERT INTO app_settings (key,value,updated_at) VALUES ($1,$2,NOW()) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=NOW()`, [key, JSON.stringify(value)]);
+  }
+  await logActivity(req, admin, "settings_update", "app_settings", "global", { maintenance });
+  return json(res, 200, { ok: true });
+}
+
+async function handleAdminsPost(req: VercelRequest, res: VercelResponse, admin: Record<string, any>) {
+  if (!hasPermission(admin, "manage_settings")) return json(res, 403, { ok: false, error: "Permission denied" });
+  const body = await readBody(req);
+  const name = sanitize(body.name, 120);
+  const email = sanitize(body.email, 255).toLowerCase();
+  const role = sanitize(body.role, 50) || "manager";
+  const password = String(body.password || "");
+  const isActive = body.isActive !== false;
+  const defaultPerms: Record<string, any> = { super_admin:{all:true}, admin:{view_leads:true,manage_leads:true,export_leads:true,send_email:true,manage_settings:true}, manager:{view_leads:true,manage_leads:true,export_leads:true,send_email:true}, marketing:{view_leads:true,send_email:true}, support:{view_leads:true,manage_leads:true} };
+  const permissions = role === "custom" ? (body.permissions || {}) : (defaultPerms[role] || defaultPerms.manager);
+  if (!name || !email || !/^\S+@\S+\.\S+$/.test(email)) return json(res, 400, { ok:false, error:"Valid name and email are required" });
+  if (body.id) {
+    const id = Number(body.id);
+    if (password) await getPool().query(`UPDATE athoo_admin_users SET name=$1,email=$2,role=$3,permissions=$4,password_hash=$5,is_active=$6,updated_at=NOW() WHERE id=$7`, [name,email,role,JSON.stringify(permissions),hashPassword(password),isActive,id]);
+    else await getPool().query(`UPDATE athoo_admin_users SET name=$1,email=$2,role=$3,permissions=$4,is_active=$5,updated_at=NOW() WHERE id=$6`, [name,email,role,JSON.stringify(permissions),isActive,id]);
+    await logActivity(req, admin, "admin_user_update", "admin_user", String(id), { email, role });
+  } else {
+    if (!password || password.length < 8) return json(res, 400, { ok:false, error:"Password must be at least 8 characters" });
+    await getPool().query(`INSERT INTO athoo_admin_users (name,email,role,permissions,password_hash,is_active) VALUES ($1,$2,$3,$4,$5,$6)`, [name,email,role,JSON.stringify(permissions),hashPassword(password),isActive]);
+    await logActivity(req, admin, "admin_user_create", "admin_user", email, { role });
+  }
+  return json(res, 200, { ok:true });
+}
+
+async function handleDeleteAdmin(req: VercelRequest, res: VercelResponse, admin: Record<string, any>, path: string) {
+  if (admin.role !== "super_admin") return json(res, 403, { ok:false, error:"Only super admins can delete users" });
+  const id = Number(path.split("/").pop());
+  if (!id) return json(res, 400, { ok:false, error:"Invalid admin id" });
+  if (id === Number(admin.id)) return json(res, 400, { ok:false, error:"Cannot delete yourself" });
+  await getPool().query(`DELETE FROM athoo_admin_users WHERE id=$1`, [id]);
+  await logActivity(req, admin, "admin_user_delete", "admin_user", String(id), {});
+  return json(res, 200, { ok:true });
+}
+
+async function handleBulkEmail(req: VercelRequest, res: VercelResponse, admin: Record<string, any>) {
+  if (!hasPermission(admin, "send_email")) return json(res, 403, { ok:false, error:"Permission denied" });
+  const body = await readBody(req);
+  const ids = (Array.isArray(body.ids) ? body.ids : []).map((x:any)=>Number(x)).filter(Boolean);
+  const subject = sanitize(body.subject, 200);
+  const message = sanitize(body.message, 5000);
+  if (!ids.length) return json(res, 400, { ok:false, error:"Select at least one lead" });
+  if (!subject || !message) return json(res, 400, { ok:false, error:"Subject and message are required" });
+  const leads = await getPool().query(`SELECT id,name,email,form_type,service,city FROM website_leads WHERE id=ANY($1) AND email IS NOT NULL AND email<>'' LIMIT 250`, [ids]);
+  if (!leads.rows.length) return json(res, 400, { ok:false, error:"Selected leads do not have email addresses" });
+  let Resend: any = null;
+  if (process.env.RESEND_API_KEY) { try { ({ Resend } = await import("resend")); } catch {} }
+  const resend = Resend ? new Resend(process.env.RESEND_API_KEY) : null;
+  const from = process.env.LEAD_EMAIL_FROM || "Athoo Website <onboarding@resend.dev>";
+  let sent = 0, skipped = 0;
+  for (const lead of leads.rows) {
+    const personalized = message.replaceAll("{{name}}", String(lead.name || "there")).replaceAll("{{email}}", String(lead.email || "")).replaceAll("{{service}}", String(lead.service || "")).replaceAll("{{city}}", String(lead.city || "")).replaceAll("{{form_type}}", String(lead.form_type || ""));
+    const html = `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111"><p>${sanitize(personalized, 5000).replace(/\n/g,"<br/>")}</p><hr/><p style="font-size:12px;color:#666">Athoo | official.athoo@gmail.com | +92 339 0051068</p></div>`;
+    if (resend) {
+      const response = await resend.emails.send({ from, to: lead.email, subject, html });
+      await getPool().query(`INSERT INTO athoo_email_logs (lead_id,recipient,subject,body,status,provider_response,sent_by) VALUES ($1,$2,$3,$4,'sent',$5,$6)`, [lead.id, lead.email, subject, message, JSON.stringify(response), admin.email || null]);
+      sent++;
+    } else {
+      await getPool().query(`INSERT INTO athoo_email_logs (lead_id,recipient,subject,body,status,provider_response,sent_by) VALUES ($1,$2,$3,$4,'skipped_no_resend_key','{}'::jsonb,$5)`, [lead.id, lead.email, subject, message, admin.email || null]);
+      skipped++;
+    }
+  }
+  await getPool().query(`UPDATE website_leads SET last_contacted_at=NOW(), status=CASE WHEN status='new' THEN 'contacted' ELSE status END WHERE id=ANY($1)`, [leads.rows.map((l:any)=>l.id)]);
+  await logActivity(req, admin, "bulk_email", "website_leads", ids.join(","), { sent, skipped, subject });
+  return json(res, 200, { ok:true, sent, skipped, note: resend ? "Emails sent." : "No RESEND_API_KEY configured. Emails were logged but not sent." });
+}
+
+async function handleLeadNotes(req: VercelRequest, res: VercelResponse, admin: Record<string, any>, path: string) {
+  const leadId = Number(path.split("/").pop());
+  if (!leadId) return json(res, 400, { ok:false, error:"Invalid lead id" });
+  const rows = await getPool().query(`SELECT id, admin_email, note, created_at FROM lead_notes WHERE lead_id=$1 ORDER BY created_at DESC`, [leadId]);
+  return json(res, 200, { ok:true, rows: rows.rows });
+}
+
+async function handleLeadNotePost(req: VercelRequest, res: VercelResponse, admin: Record<string, any>) {
+  if (!hasPermission(admin, "manage_leads")) return json(res, 403, { ok:false, error:"Permission denied" });
+  const body = await readBody(req);
+  const leadId = Number(body.leadId);
+  const note = sanitize(body.note, 2000);
+  if (!leadId || !note) return json(res, 400, { ok:false, error:"Lead ID and note are required" });
+  await getPool().query(`INSERT INTO lead_notes (lead_id,admin_email,note) VALUES ($1,$2,$3)`, [leadId, admin.email || null, note]);
+  await logActivity(req, admin, "lead_note_add", "website_leads", String(leadId), { note: note.slice(0,80) });
+  return json(res, 200, { ok:true });
+}
+
+async function handleCmsGet(res: VercelResponse) {
+  const rows = await getPool().query(`SELECT key,value FROM app_settings WHERE key LIKE 'cms_%' OR key LIKE 'site_%' OR key LIKE 'social_%' OR key IN ('support_email','support_phone','whatsapp_number') ORDER BY key`);
+  return json(res, 200, { ok:true, cms: Object.fromEntries(rows.rows.map((r:any)=>[r.key,r.value])) });
+}
+
+async function handleCmsPost(req: VercelRequest, res: VercelResponse, admin: Record<string, any>) {
+  if (!hasPermission(admin, "manage_settings")) return json(res, 403, { ok:false, error:"Permission denied" });
+  const body = await readBody(req);
+  const allowed = ["cms_hero","cms_contact","cms_about","site_title","site_description","social_instagram","social_facebook","social_linkedin","social_tiktok","support_email","support_phone","whatsapp_number","cms_faq"];
+  for (const key of allowed) if (body[key] !== undefined) await getPool().query(`INSERT INTO app_settings (key,value,updated_at) VALUES ($1,$2,NOW()) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=NOW()`, [key, JSON.stringify(body[key])]);
+  await logActivity(req, admin, "cms_update", "app_settings", "cms", {});
+  return json(res, 200, { ok:true });
+}
+
+async function handleTemplatePost(req: VercelRequest, res: VercelResponse, admin: Record<string, any>) {
+  if (!hasPermission(admin, "send_email")) return json(res, 403, { ok:false, error:"Permission denied" });
+  const body = await readBody(req);
+  const name = sanitize(body.name, 120), subject = sanitize(body.subject, 200), bodyText = sanitize(body.body, 5000), category = sanitize(body.category, 50) || "general";
+  if (!name || !subject || !bodyText) return json(res, 400, { ok:false, error:"Name, subject and body are required" });
+  if (body.id) await getPool().query(`UPDATE athoo_email_templates SET name=$1,subject=$2,body=$3,category=$4,updated_at=NOW() WHERE id=$5`, [name,subject,bodyText,category,Number(body.id)]);
+  else await getPool().query(`INSERT INTO athoo_email_templates (name,subject,body,category,created_by) VALUES ($1,$2,$3,$4,$5)`, [name,subject,bodyText,category,admin.email || null]);
+  await logActivity(req, admin, body.id ? "template_update" : "template_create", "email_template", name, {});
+  return json(res, 200, { ok:true });
+}
+
+async function handleDeleteTemplate(req: VercelRequest, res: VercelResponse, admin: Record<string, any>, path: string) {
+  if (!hasPermission(admin, "send_email")) return json(res, 403, { ok:false, error:"Permission denied" });
+  const id = Number(path.split("/").pop());
+  await getPool().query(`DELETE FROM athoo_email_templates WHERE id=$1`, [id]);
+  await logActivity(req, admin, "template_delete", "email_template", String(id), {});
+  return json(res, 200, { ok:true });
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     await ensureSchemaOnce();
@@ -332,8 +508,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (method === "POST" && (path === "/submit" || path === "/public/lead")) return await saveLead(req, res, "Website Lead");
     if (method === "POST" && path === "/public/contact") return await saveLead(req, res, "Contact Form");
     if (method === "POST" && path === "/public/waitlist") return await saveLead(req, res, "Provider Waitlist");
-    if (method === "GET" && path === "/public/settings") return json(res, 200, { ok: true, siteTitle: "Athoo", contactEmail: process.env.LEAD_NOTIFY_TO || "official.athoo@gmail.com", contactPhone: "+92 339 0051068", whatsapp: "+92 339 0051068", maintenanceMode: false });
-    if (method === "GET" && path === "/public/cms") return json(res, 200, { ok: true, cms: {} });
+    if (method === "GET" && path === "/public/settings") {
+      const rows = await getPool().query(`SELECT key,value FROM app_settings WHERE key IN ('site_title','site_description','support_email','support_phone','whatsapp_number','maintenance_mode') OR key LIKE 'social_%'`);
+      const map = Object.fromEntries(rows.rows.map((r:any)=>[r.key,r.value]));
+      return json(res, 200, { ok:true, siteTitle: map.site_title || "Athoo", siteDescription: map.site_description || "Athoo connects customers with trusted local service providers.", contactEmail: map.support_email || process.env.LEAD_NOTIFY_TO || "official.athoo@gmail.com", contactPhone: map.support_phone || "+92 339 0051068", whatsapp: map.whatsapp_number || "+92 339 0051068", instagramUrl: map.social_instagram || "https://instagram.com/athoo_services", facebookUrl: map.social_facebook || "https://facebook.com/athoo_services", tiktokUrl: map.social_tiktok || "https://tiktok.com/@athoo.pk", maintenanceMode: Boolean(map.maintenance_mode?.enabled), maintenanceMessage: map.maintenance_mode?.message || "Athoo website is under maintenance. Please check back soon." });
+    }
+    if (method === "GET" && path === "/public/cms") return await handleCmsGet(res);
 
     const admin = requireAdmin(req);
     if (!admin) return json(res, 401, { ok: false, error: "Unauthorized" });
@@ -360,6 +540,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const rows = await getPool().query(`SELECT id, name, subject, body, category, created_by, created_at, updated_at FROM athoo_email_templates ORDER BY category, name`);
       return json(res, 200, { ok: true, rows: rows.rows });
     }
+
+
+    if (method === "POST" && path === "/admin/lead-update") return await handleLeadUpdate(req, res, admin);
+    if (method === "GET" && path === "/admin/export") return await handleExport(req, res, admin);
+    if (method === "POST" && path === "/admin/settings") return await handleSettingsPost(req, res, admin);
+    if (method === "POST" && path === "/admin/admins") return await handleAdminsPost(req, res, admin);
+    if (method === "DELETE" && path.startsWith("/admin/admins/")) return await handleDeleteAdmin(req, res, admin, path);
+    if (method === "POST" && path === "/admin/bulk-email") return await handleBulkEmail(req, res, admin);
+    if (method === "GET" && path.startsWith("/admin/lead-notes/")) return await handleLeadNotes(req, res, admin, path);
+    if (method === "POST" && path === "/admin/lead-note") return await handleLeadNotePost(req, res, admin);
+    if (method === "GET" && path === "/admin/cms") return await handleCmsGet(res);
+    if (method === "POST" && path === "/admin/cms") return await handleCmsPost(req, res, admin);
+    if (method === "POST" && path === "/admin/templates") return await handleTemplatePost(req, res, admin);
+    if (method === "DELETE" && path.startsWith("/admin/templates/")) return await handleDeleteTemplate(req, res, admin, path);
 
     return json(res, 404, { ok: false, error: `API route not found: ${method} ${path}` });
   } catch (error: any) {
