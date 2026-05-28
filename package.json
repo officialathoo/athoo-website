@@ -17,7 +17,9 @@
   "devDependencies": {
     "prettier": "^3.8.3",
     "typescript": "~5.9.3",
-    "@vercel/node": "^5.5.6"
+    "@vercel/node": "^5.5.6",
+    "@types/node": "^24.10.1",
+    "@types/pg": "^8.16.0"
   },
   "packageManager": "pnpm@10.33.3",
   "dependencies": {
