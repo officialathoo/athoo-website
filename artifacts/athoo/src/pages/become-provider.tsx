@@ -1,9 +1,18 @@
 import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, TrendingUp, Clock, ShieldCheck, Banknote, Smartphone, Briefcase } from "lucide-react";
 import ProviderInterestForm from "@/components/forms/ProviderInterestForm";
 
 export default function BecomeProvider() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const shouldScroll = window.location.hash === "#provider-form" || window.location.search.includes("cta=provider");
+    if (!shouldScroll) return;
+    window.setTimeout(() => {
+      document.getElementById("provider-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 120);
+  }, []);
   const benefits = [
     { title: "Consistent Income", desc: "Get notified when Athoo opens provider onboarding and future job opportunities.", icon: TrendingUp, color: "text-blue-500", bg: "bg-blue-50" },
     { title: "Flexible Schedule", desc: "Athoo is being designed to support flexible service opportunities after launch.", icon: Clock, color: "text-orange-500", bg: "bg-orange-50" },
@@ -58,7 +67,8 @@ export default function BecomeProvider() {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-white text-gray-900 rounded-3xl p-8 shadow-2xl"
+              id="provider-form"
+              className="bg-white text-gray-900 rounded-3xl p-8 shadow-2xl scroll-mt-28"
             >
               <h3 className="text-2xl font-bold mb-6">Join Provider Waitlist</h3>
               <ProviderInterestForm />

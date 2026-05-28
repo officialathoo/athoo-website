@@ -10,8 +10,17 @@ import FaqSection from "@/components/home/FaqSection";
 import CompleteInfoSection from "@/components/home/CompleteInfoSection";
 import HomeContact from "@/components/home/HomeContact";
 import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 
 export default function Home() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const shouldScroll = window.location.hash === "#waitlist" || window.location.search.includes("cta=waitlist");
+    if (!shouldScroll) return;
+    window.setTimeout(() => {
+      document.getElementById("waitlist")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 120);
+  }, []);
   return (
     <>
       <Helmet>
