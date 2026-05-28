@@ -6,7 +6,7 @@ import pg from "pg";
 
 const { Pool } = pg;
 
-let pool: pg.Pool | null = null;
+let pool: any = null;
 let schemaReady: Promise<void> | null = null;
 
 function getPool() {
