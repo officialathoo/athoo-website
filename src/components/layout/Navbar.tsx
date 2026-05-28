@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, BellRing } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { goToWaitlist } from "@/lib/navigation";
 
 export default function Navbar() {
   const [location] = useLocation();
@@ -18,11 +19,7 @@ export default function Navbar() {
   const close = () => setIsMobileMenuOpen(false);
   const scrollToWaitlist = () => {
     close();
-    if (location !== "/") {
-      window.location.href = "/#waitlist";
-      return;
-    }
-    document.getElementById("waitlist")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    goToWaitlist();
   };
 
   const navLinks = [
@@ -50,7 +47,7 @@ export default function Navbar() {
               {link.name}
             </Link>
           ))}
-          <button onClick={scrollToWaitlist} className="ml-2 inline-flex items-center gap-2 rounded-full bg-[#0057FF] px-5 py-3 text-sm font-black text-white shadow-xl shadow-blue-600/25 transition hover:-translate-y-0.5 hover:bg-blue-700">
+          <button onClick={scrollToWaitlist} className="ml-2 inline-flex items-center gap-2 rounded-full bg-[#0057FF] px-5 py-3 text-sm font-black text-white shadow-xl shadow-blue-600/25 transition hover:-translate-y-0.5 hover:bg-blue-700 pointer-events-auto touch-manipulation">
             <BellRing className="h-4 w-4" /> Join Waitlist
           </button>
         </div>
@@ -69,7 +66,7 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
-              <button onClick={scrollToWaitlist} className="mt-3 rounded-2xl bg-[#0057FF] px-5 py-4 text-lg font-black text-white shadow-xl shadow-blue-600/25 active:scale-95">
+              <button onClick={scrollToWaitlist} className="mt-3 rounded-2xl bg-[#0057FF] px-5 py-4 text-lg font-black text-white shadow-xl shadow-blue-600/25 active:scale-95 pointer-events-auto touch-manipulation">
                 Join Waitlist
               </button>
             </div>

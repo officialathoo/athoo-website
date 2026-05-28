@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Shield, Zap, TrendingUp } from "lucide-react";
-import { Link } from "wouter";
+import { goToWaitlist } from "@/lib/navigation";
 
 export default function About() {
   const pillars = [
@@ -101,12 +101,13 @@ export default function About() {
             <p className="text-lg text-gray-600 leading-relaxed mb-12">
               We understand the local context. From neighborhood dynamics to the specific challenges of load shedding and infrastructure, Athoo is designed specifically to address the unique needs of Pakistani households. We are building technology that works for our people.
             </p>
-            <Link
-              href="/#waitlist"
-              className="inline-block bg-[#0057FF] text-white font-bold text-lg px-10 py-4 rounded-full hover:bg-blue-700 transition-colors shadow-xl shadow-blue-500/20"
+            <button
+              type="button"
+              onClick={goToWaitlist}
+              className="inline-block bg-[#0057FF] text-white font-bold text-lg px-10 py-4 rounded-full hover:bg-blue-700 transition-colors shadow-xl shadow-blue-500/20 pointer-events-auto touch-manipulation"
             >
               Join Waitlist
-            </Link>
+            </button>
           </motion.div>
         </section>
 
