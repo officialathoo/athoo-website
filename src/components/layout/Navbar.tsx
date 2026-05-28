@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, BellRing } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { goToWaitlist } from "@/lib/navigation";
+import { handleWaitlistClick } from "@/lib/navigation";
 
 export default function Navbar() {
   const [location] = useLocation();
@@ -19,7 +19,7 @@ export default function Navbar() {
   const close = () => setIsMobileMenuOpen(false);
   const scrollToWaitlist = () => {
     close();
-    goToWaitlist();
+    handleWaitlistClick();
   };
 
   const navLinks = [

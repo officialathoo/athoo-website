@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { BellRing, ChevronRight, MapPin, ShieldCheck, Sparkles, Users } from "lucide-react";
-import { goToPath, goToWaitlist } from "@/lib/navigation";
+import { handlePathClick, handleWaitlistClick } from "@/lib/navigation";
 
 export default function HomeHero() {
   return (
@@ -25,12 +25,12 @@ export default function HomeHero() {
           </p>
 
           <div className="grid gap-3 sm:flex sm:justify-center lg:justify-start">
-            <button type="button" onClick={goToWaitlist} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#0057FF] px-7 py-4 text-base font-black text-white shadow-2xl shadow-blue-600/25 transition hover:-translate-y-1 hover:bg-blue-700 pointer-events-auto touch-manipulation">
+            <a href="/#waitlist" onClick={(event) => handleWaitlistClick(event)} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#0057FF] px-7 py-4 text-base font-black text-white shadow-2xl shadow-blue-600/25 transition hover:-translate-y-1 hover:bg-blue-700 pointer-events-auto touch-manipulation">
               <BellRing className="h-5 w-5" /> Notify Me When Athoo Launches
-            </button>
-            <button type="button" onClick={() => goToPath("/become-provider")} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-7 py-4 text-base font-black text-slate-900 shadow-lg backdrop-blur transition hover:-translate-y-1 hover:border-orange-300 hover:text-[#FF8A00] pointer-events-auto touch-manipulation">
+            </a>
+            <a href="/become-provider" onClick={(event) => handlePathClick("/become-provider", event)} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-7 py-4 text-base font-black text-slate-900 shadow-lg backdrop-blur transition hover:-translate-y-1 hover:border-orange-300 hover:text-[#FF8A00] pointer-events-auto touch-manipulation">
               Become a Provider <ChevronRight className="h-5 w-5" />
-            </button>
+            </a>
           </div>
 
           <div className="grid grid-cols-3 gap-3 pt-3 text-left">

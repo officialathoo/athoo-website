@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Shield, Zap, TrendingUp } from "lucide-react";
-import { goToWaitlist } from "@/lib/navigation";
+import { handleWaitlistClick } from "@/lib/navigation";
 
 export default function About() {
   const pillars = [
@@ -103,7 +103,7 @@ export default function About() {
             </p>
             <button
               type="button"
-              onClick={goToWaitlist}
+              onClick={(event) => handleWaitlistClick(event)}
               className="inline-block bg-[#0057FF] text-white font-bold text-lg px-10 py-4 rounded-full hover:bg-blue-700 transition-colors shadow-xl shadow-blue-500/20 pointer-events-auto touch-manipulation"
             >
               Join Waitlist

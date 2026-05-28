@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { goToPath } from "@/lib/navigation";
+import { handlePathClick } from "@/lib/navigation";
 
 export default function ProviderTeaser() {
   return (
@@ -11,7 +11,7 @@ export default function ProviderTeaser() {
           <ul className="mb-10 space-y-4 text-base font-medium text-white/90 sm:mb-12 sm:text-lg">
             {['Future customer access','Flexible work opportunities','Easy Verification','Professional Growth'].map((item) => <li key={item} className="flex items-center gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm">✓</span>{item}</li>)}
           </ul>
-          <button type="button" onClick={() => goToPath("/become-provider")} className="inline-flex w-max items-center justify-center rounded-full bg-white px-8 py-4 text-base font-bold text-[#FF8A00] transition-transform hover:scale-105 pointer-events-auto touch-manipulation">Join Provider Waitlist</button>
+          <a href="/become-provider" onClick={(event) => handlePathClick("/become-provider", event)} className="inline-flex w-max items-center justify-center rounded-full bg-white px-8 py-4 text-base font-bold text-[#FF8A00] transition-transform hover:scale-105 pointer-events-auto touch-manipulation">Join Provider Waitlist</a>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="flex flex-col justify-center gap-4 bg-gray-50 px-5 py-16 sm:gap-6 sm:px-8 sm:py-24 lg:px-24">

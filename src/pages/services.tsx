@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Zap, Droplets, Wind, Hammer, PaintRoller, Sparkles, Tv, Home, BrickWall, Wrench } from "lucide-react";
-import { goToWaitlist } from "@/lib/navigation";
+import { handleWaitlistClick } from "@/lib/navigation";
 
 const SERVICES = [
   { id: "electrician", name: "Electrician", desc: "Electrical wiring, fixture installation, repair support and inspection services planned for homes and businesses.", icon: Zap, color: "from-blue-500 to-cyan-400" },
@@ -50,7 +50,7 @@ export default function Services() {
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="text-3xl font-black sm:text-4xl">Be first to know when Athoo launches</h2>
             <p className="mt-4 text-lg text-blue-100">Join the waitlist for launch updates, service announcements and provider onboarding news.</p>
-            <button type="button" onClick={goToWaitlist} className="mt-8 inline-flex min-h-14 items-center justify-center rounded-2xl bg-[#FF8A00] px-8 py-4 font-black text-white shadow-xl shadow-orange-500/25 pointer-events-auto touch-manipulation">Join Waitlist</button>
+            <button type="button" onClick={(event) => handleWaitlistClick(event)} className="mt-8 inline-flex min-h-14 items-center justify-center rounded-2xl bg-[#FF8A00] px-8 py-4 font-black text-white shadow-xl shadow-orange-500/25 pointer-events-auto touch-manipulation">Join Waitlist</button>
           </div>
         </section>
       </main>

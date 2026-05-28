@@ -243,3 +243,13 @@ img { max-width: 100%; height: auto; }
     padding-bottom: 7rem;
   }
 }
+
+/* Mobile tap reliability fix for sticky CTAs */
+a[href], button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fixed a, .fixed button {
+  pointer-events: auto;
+}
