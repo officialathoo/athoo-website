@@ -1,15 +1,14 @@
-import { Router } from "express";
-
+import { Router, type IRouter } from "express";
 import healthRouter from "./health.js";
 import submitRouter from "./submit.js";
-import adminPanelRouter from "./admin-panel.js";
 import publicRouter from "./public.js";
+import adminPanelRouter from "./admin-panel.js";
 
-const router = Router();
+const router: IRouter = Router();
 
-router.use("/health", healthRouter);
-router.use("/", submitRouter);
-router.use("/", adminPanelRouter);
-router.use("/", publicRouter);
+router.use(healthRouter);
+router.use(submitRouter);
+router.use(publicRouter);
+router.use(adminPanelRouter);
 
 export default router;

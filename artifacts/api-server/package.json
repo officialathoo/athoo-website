@@ -8,7 +8,7 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/server.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "db:schema": "node -e \"import('./dist/index.mjs').catch(()=>{})\""
+    "db:schema": "node -e \"import('./dist/server.mjs').catch(()=>{})\""
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",

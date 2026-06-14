@@ -7,7 +7,6 @@
   },
   "include": [
     "src/app.ts",
-    "src/index.ts",
     "src/server.ts",
     "src/lib/logger.ts",
     "src/lib/dbInit.ts",

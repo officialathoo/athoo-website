@@ -104,19 +104,12 @@ async function logActivity(
     await pool.query(
       `INSERT INTO admin_activity_logs (admin_email, action, target_type, target_id, details, ip_address)
        VALUES ($1,$2,$3,$4,$5,$6)`,
-      [admin.email || null, action, targetType, targetId, JSON.stringify(details), getIp(req)]
+      [admin.email || null, action, targetType, targetId, JSON.stringify(details), getIp(req)],
     );
   } catch (err: any) {
     logger.warn({ err: err.message }, "Activity log failed");
   }
 }
-
-const rolePermissions: Record<string, Record<string, boolean>> = {
-  super_admin: { all: true },
-  admin: { view_leads: true, manage_leads: true, export_leads: true, send_email: true, manage_settings: true },
-  manager: { view_leads: true, manage_leads: true, export_leads: true, send_email: true },
-  custom: {},
-};
 
 router.post("/admin/login", async (req: any, res: any) => {
   if (!rateLimit(req, "admin-login", 10)) {
@@ -133,35 +126,23 @@ router.post("/admin/login", async (req: any, res: any) => {
     if (submittedEmail) {
       const result = await pool.query(
         `SELECT id, name, email, role, permissions, password_hash, is_active
-         FROM athoo_admin_users
-         WHERE lower(email) = $1
-         LIMIT 1`,
-        [submittedEmail]
+         FROM athoo_admin_users WHERE lower(email) = $1 LIMIT 1`,
+        [submittedEmail],
       );
-
       admin = result.rows[0] || null;
-
       if (!admin || !admin.is_active || !verifyPassword(submittedPassword, String(admin.password_hash || ""))) {
         return res.status(401).json({ ok: false, error: "Invalid email or password" });
       }
     } else {
       const result = await pool.query(
         `SELECT id, name, email, role, permissions, password_hash, is_active
-         FROM athoo_admin_users
-         WHERE role = 'super_admin' AND is_active = true
-         ORDER BY id ASC
-         LIMIT 1`
+         FROM athoo_admin_users WHERE role = 'super_admin' AND is_active = true ORDER BY id ASC LIMIT 1`,
       );
-
       admin = result.rows[0] || null;
-
-      if (!admin) {
-        return res.status(401).json({ ok: false, error: "No admin account found" });
-      }
+      if (!admin) return res.status(401).json({ ok: false, error: "No admin account found" });
 
       const configuredPassword = process.env.ADMIN_PASSWORD;
       let ok = false;
-
       if (admin.password_hash) {
         ok = verifyPassword(submittedPassword, String(admin.password_hash));
       } else if (configuredPassword) {
@@ -169,17 +150,13 @@ router.post("/admin/login", async (req: any, res: any) => {
           submittedPassword.length === configuredPassword.length &&
           crypto.timingSafeEqual(Buffer.from(submittedPassword), Buffer.from(configuredPassword));
       }
-
-      if (!ok) {
-        return res.status(401).json({ ok: false, error: "Invalid password" });
-      }
+      if (!ok) return res.status(401).json({ ok: false, error: "Invalid password" });
     }
 
     await pool.query(`UPDATE athoo_admin_users SET last_login_at = NOW() WHERE email = $1`, [admin.email]);
     await logActivity(req, admin, "admin_login", "admin_user", String(admin.id), { role: admin.role });
 
     const permissions = (admin.permissions as Record<string, boolean>) || { all: true };
-
     return res.json({
       ok: true,
       token: signToken({ id: admin.id, name: admin.name, email: admin.email, role: admin.role, permissions }),
@@ -213,16 +190,13 @@ router.get("/admin/leads", async (req: any, res: any) => {
               status, priority, assigned_to, admin_notes, last_contacted_at, created_at, updated_at
        FROM website_leads
        WHERE ($1 = '' OR name ILIKE $2 OR email ILIKE $2 OR phone ILIKE $2 OR message ILIKE $2 OR service ILIKE $2 OR city ILIKE $2)
-         AND ($3 = '' OR status = $3)
-         AND ($4 = '' OR form_type = $4)
-         AND ($5 = '' OR city ILIKE $6)
-         AND ($7 = '' OR assigned_to = $7)
+         AND ($3 = '' OR status = $3) AND ($4 = '' OR form_type = $4)
+         AND ($5 = '' OR city ILIKE $6) AND ($7 = '' OR assigned_to = $7)
          AND ($8 = '' OR priority = $8)
          AND ($9 = '' OR created_at >= $9::timestamptz)
          AND ($10 = '' OR created_at < ($10::date + INTERVAL '1 day'))
-       ORDER BY created_at DESC
-       LIMIT $11 OFFSET $12`,
-      [search, `%${search}%`, status, formType, city, `%${city}%`, assignedTo, priority, dateFrom || "", dateTo || "", limit, offset]
+       ORDER BY created_at DESC LIMIT $11 OFFSET $12`,
+      [search, `%${search}%`, status, formType, city, `%${city}%`, assignedTo, priority, dateFrom || "", dateTo || "", limit, offset],
     );
 
     const stats = await pool.query(
@@ -232,14 +206,11 @@ router.get("/admin/leads", async (req: any, res: any) => {
               count(*) FILTER (WHERE form_type = 'Waitlist Signup')::int AS waitlist,
               count(*) FILTER (WHERE form_type = 'Contact Form')::int AS contacts,
               count(*) FILTER (WHERE status = 'new')::int AS new_leads
-       FROM website_leads`
+       FROM website_leads`,
     );
 
     const admins = await pool.query(
-      `SELECT name, email, role, is_active
-       FROM athoo_admin_users
-       WHERE is_active = true
-       ORDER BY role, name`
+      `SELECT name, email, role, is_active FROM athoo_admin_users WHERE is_active = true ORDER BY role, name`,
     );
 
     return res.json({ ok: true, rows: rows.rows, stats: stats.rows[0], admins: admins.rows });
@@ -257,7 +228,6 @@ router.post("/admin/lead-update", async (req: any, res: any) => {
   try {
     const body = req.body || {};
     const ids = (Array.isArray(body.ids) ? body.ids : [body.id]).map((x: unknown) => Number(x)).filter(Boolean);
-
     if (!ids.length) return res.status(400).json({ ok: false, error: "No lead selected" });
 
     const status = sanitize(body.status, 40);
@@ -271,7 +241,6 @@ router.post("/admin/lead-update", async (req: any, res: any) => {
     if (adminNotes || body.adminNotes === "") await pool.query(`UPDATE website_leads SET admin_notes = $1, updated_at = NOW() WHERE id = ANY($2)`, [adminNotes || null, ids]);
 
     await logActivity(req, admin, "lead_update", "website_leads", ids.join(","), { status, priority, assignedTo, count: ids.length });
-
     return res.json({ ok: true });
   } catch (err: any) {
     logger.error({ err: err.message }, "Lead update failed");
@@ -296,13 +265,11 @@ router.get("/admin/export", async (req: any, res: any) => {
               source, status, priority, assigned_to, admin_notes, last_contacted_at, created_at
        FROM website_leads
        WHERE ($1 = '' OR name ILIKE $2 OR email ILIKE $2 OR phone ILIKE $2 OR message ILIKE $2)
-         AND ($3 = '' OR status = $3)
-         AND ($4 = '' OR form_type = $4)
+         AND ($3 = '' OR status = $3) AND ($4 = '' OR form_type = $4)
          AND ($5 = '' OR created_at >= $5::timestamptz)
          AND ($6 = '' OR created_at < ($6::date + INTERVAL '1 day'))
-       ORDER BY created_at DESC
-       LIMIT 10000`,
-      [search, `%${search}%`, status, formType, dateFrom || "", dateTo || ""]
+       ORDER BY created_at DESC LIMIT 10000`,
+      [search, `%${search}%`, status, formType, dateFrom || "", dateTo || ""],
     );
 
     const headers = ["id", "form_type", "name", "email", "phone", "subject", "message", "service", "city", "experience", "source", "status", "priority", "assigned_to", "admin_notes", "last_contacted_at", "created_at"];
@@ -310,7 +277,7 @@ router.get("/admin/export", async (req: any, res: any) => {
     const csv = [headers.join(","), ...rows.rows.map((r: Record<string, unknown>) => headers.map((h) => csvValue(r[h])).join(","))].join("\n");
 
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
-    res.setHeader("Content-Disposition", `attachment; filename="athoo-filtered-leads.csv"`);
+    res.setHeader("Content-Disposition", `attachment; filename="athoo-leads.csv"`);
     return res.send(csv);
   } catch (err: any) {
     logger.error({ err: err.message }, "Export failed");
@@ -333,11 +300,9 @@ router.post("/admin/bulk-email", async (req: any, res: any) => {
     if (!subject || !message) return res.status(400).json({ ok: false, error: "Subject and message are required" });
 
     const leads = await pool.query(
-      `SELECT id, name, email, form_type, service, city
-       FROM website_leads
-       WHERE id = ANY($1) AND email IS NOT NULL AND email <> ''
-       LIMIT 250`,
-      [ids]
+      `SELECT id, name, email, form_type, service, city FROM website_leads
+       WHERE id = ANY($1) AND email IS NOT NULL AND email <> '' LIMIT 250`,
+      [ids],
     );
 
     if (!leads.rows.length) return res.status(400).json({ ok: false, error: "Selected leads do not have email addresses" });
@@ -351,140 +316,45 @@ router.post("/admin/bulk-email", async (req: any, res: any) => {
         .replaceAll("{{form_type}}", String(lead.form_type || ""));
 
     const hasResend = Boolean(process.env.RESEND_API_KEY);
-    let Resend: any = null;
-
+    let ResendClass: any = null;
     if (hasResend) {
       try {
-        ({ Resend } = (await import("resend")) as any);
+        ({ Resend: ResendClass } = (await import("resend")) as any);
       } catch {
-        Resend = null;
+        ResendClass = null;
       }
     }
 
-    const resend = Resend ? new Resend(process.env.RESEND_API_KEY) : null;
+    const resend = ResendClass ? new ResendClass(process.env.RESEND_API_KEY) : null;
     const from = process.env.LEAD_EMAIL_FROM || "Athoo Website <onboarding@resend.dev>";
-
     let sent = 0;
     let skipped = 0;
 
     for (const lead of leads.rows) {
-      const html = `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111"><p>${renderTemplate(message, lead).replace(/\n/g, "<br/>")}</p><hr/><p style="font-size:12px;color:#666">Athoo | official.athoo@gmail.com | +92 339 0051068</p></div>`;
-
+      const html = `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111"><p>${renderTemplate(message, lead).replace(/\n/g, "<br/>")}</p><hr/><p style="font-size:12px;color:#666">Athoo | official@athoo.pk | +92 339 0051068</p></div>`;
       if (resend) {
         const response = await resend.emails.send({ from, to: lead.email, subject, html });
         await pool.query(
           `INSERT INTO athoo_email_logs (lead_id, recipient, subject, body, status, provider_response)
            VALUES ($1,$2,$3,$4,'sent',$5)`,
-          [lead.id, lead.email, subject, message, JSON.stringify(response)]
+          [lead.id, lead.email, subject, message, JSON.stringify(response)],
         );
         sent++;
       } else {
         await pool.query(
           `INSERT INTO athoo_email_logs (lead_id, recipient, subject, body, status, provider_response)
-           VALUES ($1,$2,$3,$4,'skipped_no_resend_key','{}'::jsonb)`,
-          [lead.id, lead.email, subject, message]
+           VALUES ($1,$2,$3,$4,'skipped',$5)`,
+          [lead.id, lead.email, subject, message, JSON.stringify({ reason: "no_resend_key" })],
         );
         skipped++;
       }
     }
 
-    await pool.query(
-      `UPDATE website_leads
-       SET last_contacted_at = NOW(),
-           status = CASE WHEN status = 'new' THEN 'contacted' ELSE status END
-       WHERE id = ANY($1)`,
-      [leads.rows.map((l: Record<string, unknown>) => l.id)]
-    );
-
-    await logActivity(req, admin, "bulk_email", "website_leads", ids.join(","), { sent, skipped, subject });
-
-    return res.json({
-      ok: true,
-      sent,
-      skipped,
-      note: hasResend ? "Emails sent." : "No RESEND_API_KEY configured. Emails were logged but not sent.",
-    });
+    await logActivity(req, admin, "bulk_email_sent", "website_leads", ids.join(","), { subject, sent, skipped });
+    return res.json({ ok: true, sent, skipped });
   } catch (err: any) {
     logger.error({ err: err.message }, "Bulk email failed");
-    return res.status(500).json({ ok: false, error: "Could not send email" });
-  }
-});
-
-router.get("/admin/admins", async (req: any, res: any) => {
-  const admin = requireAdmin(req, res);
-  if (!admin) return;
-  if (!hasPermission(admin, "manage_settings")) return res.status(403).json({ ok: false, error: "Permission denied" });
-
-  try {
-    const rows = await pool.query(
-      `SELECT id, name, email, role, permissions, is_active, last_login_at, created_at
-       FROM athoo_admin_users
-       ORDER BY id DESC`
-    );
-
-    return res.json({ ok: true, rows: rows.rows });
-  } catch (err: any) {
-    logger.error({ err: err.message }, "Load admins failed");
-    return res.status(500).json({ ok: false, error: "Could not load admins" });
-  }
-});
-
-router.post("/admin/admins", async (req: any, res: any) => {
-  const admin = requireAdmin(req, res);
-  if (!admin) return;
-  if (!hasPermission(admin, "manage_settings")) return res.status(403).json({ ok: false, error: "Permission denied" });
-
-  try {
-    const body = req.body || {};
-    const name = sanitize(body.name, 120);
-    const email = sanitize(body.email, 255).toLowerCase();
-    const role = sanitize(body.role, 50) || "manager";
-    const password = String(body.password || "");
-    const isActive = body.isActive !== false;
-    const permissions = role === "custom" ? (body.permissions || {}) : (rolePermissions[role] || rolePermissions.manager);
-
-    if (!name || !email || !/^\S+@\S+\.\S+$/.test(email)) {
-      return res.status(400).json({ ok: false, error: "Valid name and email are required" });
-    }
-
-    if (body.id) {
-      const id = Number(body.id);
-
-      if (password) {
-        await pool.query(
-          `UPDATE athoo_admin_users
-           SET name=$1, email=$2, role=$3, permissions=$4, password_hash=$5, is_active=$6
-           WHERE id=$7`,
-          [name, email, role, JSON.stringify(permissions), hashPassword(password), isActive, id]
-        );
-      } else {
-        await pool.query(
-          `UPDATE athoo_admin_users
-           SET name=$1, email=$2, role=$3, permissions=$4, is_active=$5
-           WHERE id=$6`,
-          [name, email, role, JSON.stringify(permissions), isActive, id]
-        );
-      }
-
-      await logActivity(req, admin, "admin_user_update", "admin_user", String(id), { email, role });
-    } else {
-      if (!password || password.length < 8) {
-        return res.status(400).json({ ok: false, error: "Password must be at least 8 characters" });
-      }
-
-      await pool.query(
-        `INSERT INTO athoo_admin_users (name, email, role, permissions, password_hash, is_active)
-         VALUES ($1,$2,$3,$4,$5,$6)`,
-        [name, email, role, JSON.stringify(permissions), hashPassword(password), isActive]
-      );
-
-      await logActivity(req, admin, "admin_user_create", "admin_user", email, { role });
-    }
-
-    return res.json({ ok: true });
-  } catch (err: any) {
-    logger.error({ err: err.message }, "Save admin failed");
-    return res.status(500).json({ ok: false, error: "Could not save admin user" });
+    return res.status(500).json({ ok: false, error: "Could not send emails" });
   }
 });
 
@@ -493,11 +363,10 @@ router.get("/admin/settings", async (req: any, res: any) => {
   if (!admin) return;
 
   try {
-    const rows = await pool.query(`SELECT key, value, updated_at FROM app_settings ORDER BY key`);
+    const rows = await pool.query(`SELECT key, value FROM app_settings ORDER BY key`);
     const settings = Object.fromEntries(rows.rows.map((r: Record<string, unknown>) => [r.key, r.value]));
     return res.json({ ok: true, settings });
-  } catch (err: any) {
-    logger.error({ err: err.message }, "Load settings failed");
+  } catch {
     return res.status(500).json({ ok: false, error: "Could not load settings" });
   }
 });
@@ -509,143 +378,17 @@ router.post("/admin/settings", async (req: any, res: any) => {
 
   try {
     const body = req.body || {};
-    const maintenance = {
-      enabled: Boolean(body.maintenanceEnabled),
-      message: sanitize(body.maintenanceMessage, 500) || "Athoo website is under maintenance. Please check back soon.",
-    };
-
-    const supportEmail = sanitize(body.supportEmail, 255) || process.env.LEAD_NOTIFY_TO || "official.athoo@gmail.com";
-    const supportPhone = sanitize(body.supportPhone, 50) || "+92 339 0051068";
-
-    await pool.query(
-      `INSERT INTO app_settings (key, value, updated_at)
-       VALUES ('maintenance_mode',$1,NOW())
-       ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=NOW()`,
-      [JSON.stringify(maintenance)]
-    );
-
-    await pool.query(
-      `INSERT INTO app_settings (key, value, updated_at)
-       VALUES ('support_email',$1,NOW())
-       ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=NOW()`,
-      [JSON.stringify(supportEmail)]
-    );
-
-    await pool.query(
-      `INSERT INTO app_settings (key, value, updated_at)
-       VALUES ('support_phone',$1,NOW())
-       ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=NOW()`,
-      [JSON.stringify(supportPhone)]
-    );
-
-    await logActivity(req, admin, "settings_update", "app_settings", "global", { maintenance });
-
+    for (const [key, val] of Object.entries(body)) {
+      await pool.query(
+        `INSERT INTO app_settings (key, value, updated_at) VALUES ($1,$2,NOW())
+         ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=NOW()`,
+        [sanitize(key, 100), JSON.stringify(val)],
+      );
+    }
+    await logActivity(req, admin, "settings_update", "app_settings", null, {});
     return res.json({ ok: true });
-  } catch (err: any) {
-    logger.error({ err: err.message }, "Save settings failed");
-    return res.status(500).json({ ok: false, error: "Could not save settings" });
-  }
-});
-
-router.get("/admin/activity", async (req: any, res: any) => {
-  const admin = requireAdmin(req, res);
-  if (!admin) return;
-  if (!hasPermission(admin, "manage_settings")) return res.status(403).json({ ok: false, error: "Permission denied" });
-
-  try {
-    const limit = Math.min(Number(req.query.limit || 200), 500);
-    const rows = await pool.query(
-      `SELECT admin_email, action, target_type, target_id, details, ip_address, created_at
-       FROM admin_activity_logs
-       ORDER BY created_at DESC
-       LIMIT $1`,
-      [limit]
-    );
-
-    return res.json({ ok: true, rows: rows.rows });
-  } catch (err: any) {
-    logger.error({ err: err.message }, "Load activity failed");
-    return res.status(500).json({ ok: false, error: "Could not load activity" });
-  }
-});
-
-router.get("/admin/analytics", async (req: any, res: any) => {
-  const admin = requireAdmin(req, res);
-  if (!admin) return;
-
-  try {
-    const [daily, byForm, byStatus, byCity, weekly, totals] = await Promise.all([
-      pool.query(`
-        SELECT TO_CHAR(created_at::date, 'Mon DD') AS day, created_at::date AS raw_date, COUNT(*)::int AS count
-        FROM website_leads
-        WHERE created_at >= NOW() - INTERVAL '30 days'
-        GROUP BY created_at::date
-        ORDER BY created_at::date ASC
-      `),
-      pool.query(`SELECT form_type AS name, COUNT(*)::int AS value FROM website_leads GROUP BY form_type ORDER BY value DESC`),
-      pool.query(`SELECT status AS name, COUNT(*)::int AS value FROM website_leads GROUP BY status ORDER BY value DESC`),
-      pool.query(`SELECT COALESCE(city,'Unknown') AS name, COUNT(*)::int AS value FROM website_leads WHERE city IS NOT NULL AND city <> '' GROUP BY city ORDER BY value DESC LIMIT 10`),
-      pool.query(`
-        SELECT TO_CHAR(DATE_TRUNC('week', created_at), 'Mon DD') AS week, DATE_TRUNC('week', created_at) AS raw_week, COUNT(*)::int AS count
-        FROM website_leads
-        WHERE created_at >= NOW() - INTERVAL '12 weeks'
-        GROUP BY DATE_TRUNC('week', created_at)
-        ORDER BY raw_week ASC
-      `),
-      pool.query(`
-        SELECT
-          COUNT(*)::int AS total,
-          COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days')::int AS this_week,
-          COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '14 days' AND created_at < NOW() - INTERVAL '7 days')::int AS last_week,
-          COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days')::int AS this_month,
-          COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int AS today,
-          COUNT(*) FILTER (WHERE status = 'new')::int AS new_leads,
-          COUNT(*) FILTER (WHERE form_type = 'Provider Waitlist')::int AS providers,
-          COUNT(*) FILTER (WHERE form_type = 'Waitlist Signup')::int AS waitlist,
-          COUNT(*) FILTER (WHERE form_type = 'Contact Form')::int AS contacts,
-          COUNT(*) FILTER (WHERE status = 'approved')::int AS approved,
-          COUNT(*) FILTER (WHERE status = 'rejected')::int AS rejected
-        FROM website_leads
-      `),
-    ]);
-
-    return res.json({
-      ok: true,
-      daily: daily.rows,
-      byForm: byForm.rows,
-      byStatus: byStatus.rows,
-      byCity: byCity.rows,
-      weekly: weekly.rows,
-      totals: totals.rows[0],
-    });
-  } catch (err: any) {
-    logger.error({ err: err.message }, "Analytics failed");
-    return res.status(500).json({ ok: false, error: "Could not load analytics" });
-  }
-});
-
-router.get("/admin/cms", async (req: any, res: any) => {
-  const admin = requireAdmin(req, res);
-  if (!admin) return;
-
-  try {
-    const rows = await pool.query(
-      `SELECT key, value
-       FROM app_settings
-       WHERE key LIKE 'cms_%'
-          OR key LIKE 'site_%'
-          OR key LIKE 'social_%'
-          OR key = 'support_email'
-          OR key = 'support_phone'
-          OR key = 'whatsapp_number'
-       ORDER BY key`
-    );
-
-    const cms = Object.fromEntries(rows.rows.map((r: Record<string, unknown>) => [r.key, r.value]));
-
-    return res.json({ ok: true, cms });
   } catch {
-    return res.status(500).json({ ok: false, error: "Could not load CMS" });
+    return res.status(500).json({ ok: false, error: "Could not save settings" });
   }
 });
 
@@ -656,46 +399,20 @@ router.post("/admin/cms", async (req: any, res: any) => {
 
   try {
     const body = req.body || {};
-    const allowed = ["cms_hero", "cms_contact", "cms_about", "site_title", "site_description", "social_instagram", "social_facebook", "social_linkedin", "support_email", "support_phone", "whatsapp_number", "cms_faq"];
-
+    const allowed = ["cms_hero", "cms_contact", "cms_about", "site_title", "site_description", "social_instagram", "social_facebook", "social_linkedin", "social_tiktok", "support_email", "support_phone", "whatsapp_number", "cms_faq", "launch_date"];
     for (const key of allowed) {
       if (body[key] !== undefined) {
         await pool.query(
-          `INSERT INTO app_settings (key, value, updated_at)
-           VALUES ($1, $2, NOW())
+          `INSERT INTO app_settings (key, value, updated_at) VALUES ($1,$2,NOW())
            ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=NOW()`,
-          [key, JSON.stringify(body[key])]
+          [key, JSON.stringify(body[key])],
         );
       }
     }
-
     await logActivity(req, admin, "cms_update", "app_settings", "cms", {});
-
     return res.json({ ok: true });
   } catch {
     return res.status(500).json({ ok: false, error: "Could not save CMS" });
-  }
-});
-
-router.get("/public/cms", async (_req: any, res: any) => {
-  try {
-    const rows = await pool.query(
-      `SELECT key, value
-       FROM app_settings
-       WHERE key LIKE 'cms_%'
-          OR key LIKE 'site_%'
-          OR key LIKE 'social_%'
-          OR key = 'support_email'
-          OR key = 'support_phone'
-          OR key = 'whatsapp_number'
-          OR key = 'maintenance_mode'`
-    );
-
-    const cms = Object.fromEntries(rows.rows.map((r: Record<string, unknown>) => [r.key, r.value]));
-
-    return res.json({ ok: true, cms });
-  } catch {
-    return res.json({ ok: false, cms: {} });
   }
 });
 
@@ -706,10 +423,8 @@ router.get("/admin/templates", async (req: any, res: any) => {
   try {
     const rows = await pool.query(
       `SELECT id, name, subject, body, category, created_by, created_at, updated_at
-       FROM athoo_email_templates
-       ORDER BY category, name`
+       FROM athoo_email_templates ORDER BY category, name`,
     );
-
     return res.json({ ok: true, rows: rows.rows });
   } catch {
     return res.status(500).json({ ok: false, error: "Could not load templates" });
@@ -734,21 +449,17 @@ router.post("/admin/templates", async (req: any, res: any) => {
 
     if (body.id) {
       await pool.query(
-        `UPDATE athoo_email_templates
-         SET name=$1, subject=$2, body=$3, category=$4, updated_at=NOW()
-         WHERE id=$5`,
-        [name, subject, bodyText, category, Number(body.id)]
+        `UPDATE athoo_email_templates SET name=$1, subject=$2, body=$3, category=$4, updated_at=NOW() WHERE id=$5`,
+        [name, subject, bodyText, category, Number(body.id)],
       );
     } else {
       await pool.query(
-        `INSERT INTO athoo_email_templates (name, subject, body, category, created_by)
-         VALUES ($1,$2,$3,$4,$5)`,
-        [name, subject, bodyText, category, String(admin.email)]
+        `INSERT INTO athoo_email_templates (name, subject, body, category, created_by) VALUES ($1,$2,$3,$4,$5)`,
+        [name, subject, bodyText, category, String(admin.email)],
       );
     }
 
     await logActivity(req, admin, body.id ? "template_update" : "template_create", "email_template", name, {});
-
     return res.json({ ok: true });
   } catch {
     return res.status(500).json({ ok: false, error: "Could not save template" });
@@ -776,11 +487,8 @@ router.get("/admin/email-logs", async (req: any, res: any) => {
   try {
     const rows = await pool.query(
       `SELECT id, lead_id, recipient, subject, status, sent_by, created_at
-       FROM athoo_email_logs
-       ORDER BY created_at DESC
-       LIMIT 200`
+       FROM athoo_email_logs ORDER BY created_at DESC LIMIT 200`,
     );
-
     return res.json({ ok: true, rows: rows.rows });
   } catch {
     return res.status(500).json({ ok: false, error: "Could not load email logs" });
@@ -793,13 +501,9 @@ router.get("/admin/lead-notes/:leadId", async (req: any, res: any) => {
 
   try {
     const rows = await pool.query(
-      `SELECT id, admin_email, note, created_at
-       FROM lead_notes
-       WHERE lead_id=$1
-       ORDER BY created_at DESC`,
-      [Number(req.params.leadId)]
+      `SELECT id, admin_email, note, created_at FROM lead_notes WHERE lead_id=$1 ORDER BY created_at DESC`,
+      [Number(req.params.leadId)],
     );
-
     return res.json({ ok: true, rows: rows.rows });
   } catch {
     return res.status(500).json({ ok: false, error: "Could not load notes" });
@@ -815,12 +519,10 @@ router.post("/admin/lead-note", async (req: any, res: any) => {
     const body = req.body || {};
     const leadId = Number(body.leadId);
     const note = sanitize(body.note, 2000);
-
     if (!leadId || !note) return res.status(400).json({ ok: false, error: "Lead ID and note are required" });
 
     await pool.query(`INSERT INTO lead_notes (lead_id, admin_email, note) VALUES ($1,$2,$3)`, [leadId, String(admin.email), note]);
     await logActivity(req, admin, "lead_note_add", "website_leads", String(leadId), { note: note.slice(0, 80) });
-
     return res.json({ ok: true });
   } catch {
     return res.status(500).json({ ok: false, error: "Could not save note" });
@@ -834,14 +536,9 @@ router.delete("/admin/admins/:id", async (req: any, res: any) => {
 
   try {
     const id = Number(req.params.id);
-
-    if (id === Number(admin.id)) {
-      return res.status(400).json({ ok: false, error: "Cannot delete yourself" });
-    }
-
+    if (id === Number(admin.id)) return res.status(400).json({ ok: false, error: "Cannot delete yourself" });
     await pool.query(`DELETE FROM athoo_admin_users WHERE id=$1`, [id]);
     await logActivity(req, admin, "admin_user_delete", "admin_user", String(id), {});
-
     return res.json({ ok: true });
   } catch {
     return res.status(500).json({ ok: false, error: "Could not delete admin" });
