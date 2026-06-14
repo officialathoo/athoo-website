@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://athoo.pk/sitemap.xml

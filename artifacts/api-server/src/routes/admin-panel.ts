@@ -2,6 +2,7 @@ import { Router } from "express";
 import crypto from "node:crypto";
 import { pool } from "@workspace/db";
 import { logger } from "../lib/logger.js";
+import { sendMail, isSmtpConfigured } from "../lib/mailer.js";
 
 const router = Router();
 
@@ -315,36 +316,25 @@ router.post("/admin/bulk-email", async (req: any, res: any) => {
         .replaceAll("{{city}}", String(lead.city || ""))
         .replaceAll("{{form_type}}", String(lead.form_type || ""));
 
-    const hasResend = Boolean(process.env.RESEND_API_KEY);
-    let ResendClass: any = null;
-    if (hasResend) {
-      try {
-        ({ Resend: ResendClass } = (await import("resend")) as any);
-      } catch {
-        ResendClass = null;
-      }
-    }
-
-    const resend = ResendClass ? new ResendClass(process.env.RESEND_API_KEY) : null;
-    const from = process.env.LEAD_EMAIL_FROM || "Athoo Website <onboarding@resend.dev>";
+    const smtpReady = isSmtpConfigured();
     let sent = 0;
     let skipped = 0;
 
     for (const lead of leads.rows) {
       const html = `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111"><p>${renderTemplate(message, lead).replace(/\n/g, "<br/>")}</p><hr/><p style="font-size:12px;color:#666">Athoo | official@athoo.pk | +92 339 0051068</p></div>`;
-      if (resend) {
-        const response = await resend.emails.send({ from, to: lead.email, subject, html });
+      if (smtpReady) {
+        await sendMail({ to: lead.email, subject, html });
         await pool.query(
           `INSERT INTO athoo_email_logs (lead_id, recipient, subject, body, status, provider_response)
            VALUES ($1,$2,$3,$4,'sent',$5)`,
-          [lead.id, lead.email, subject, message, JSON.stringify(response)],
+          [lead.id, lead.email, subject, message, JSON.stringify({ provider: "smtp" })],
         );
         sent++;
       } else {
         await pool.query(
           `INSERT INTO athoo_email_logs (lead_id, recipient, subject, body, status, provider_response)
            VALUES ($1,$2,$3,$4,'skipped',$5)`,
-          [lead.id, lead.email, subject, message, JSON.stringify({ reason: "no_resend_key" })],
+          [lead.id, lead.email, subject, message, JSON.stringify({ reason: "smtp_not_configured" })],
         );
         skipped++;
       }

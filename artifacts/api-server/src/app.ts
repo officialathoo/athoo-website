@@ -30,11 +30,18 @@ app.use(
   }),
 );
 
+const DEFAULT_CORS_ORIGINS = [
+  "https://athoo.pk",
+  "https://www.athoo.pk",
+  "https://admin.athoo.pk",
+  "http://localhost:5173",
+];
+
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN
       ? process.env.CORS_ORIGIN.split(",").map((x) => x.trim())
-      : true,
+      : DEFAULT_CORS_ORIGINS,
     credentials: true,
   }),
 );

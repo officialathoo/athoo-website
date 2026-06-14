@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { pool } from "@workspace/db";
 import { logger } from "../lib/logger.js";
+import { sendMail, ADMIN_EMAIL, SUPPORT_EMAIL } from "../lib/mailer.js";
 
 const router = Router();
 
@@ -68,25 +69,65 @@ function validate(formType: string, body: Record<string, unknown>): string[] {
   return errors;
 }
 
-async function sendNotificationEmail(lead: Record<string, any>): Promise<void> {
-  if (!process.env.RESEND_API_KEY) return;
-  try {
-    const { Resend } = (await import("resend")) as any;
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    const to = process.env.LEAD_NOTIFY_TO || "official@athoo.pk";
-    const from = process.env.LEAD_EMAIL_FROM || "Athoo Website <onboarding@resend.dev>";
-    const payload = lead.payload || {};
-    const lines = Object.entries(payload)
-      .map(([k, v]) => `<tr><td style="padding:6px;border:1px solid #ddd"><b>${k}</b></td><td style="padding:6px;border:1px solid #ddd">${sanitize(v, 1000)}</td></tr>`)
-      .join("");
-    await resend.emails.send({
-      from,
-      to,
-      subject: `New Athoo ${lead.form_type}`,
-      html: `<h2>New Athoo Website Lead</h2><p><b>Form:</b> ${lead.form_type}</p><table style="border-collapse:collapse">${lines}</table>`,
+function tableRows(payload: Record<string, unknown>): string {
+  return Object.entries(payload)
+    .filter(([k]) => !["formType", "submittedAt", "source"].includes(k))
+    .map(
+      ([k, v]) =>
+        `<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>${k}</b></td>` +
+        `<td style="padding:6px 12px;border:1px solid #ddd">${sanitize(String(v ?? ""), 1000)}</td></tr>`,
+    )
+    .join("");
+}
+
+async function sendEmails(lead: Record<string, any>): Promise<void> {
+  const payload =
+    typeof lead.payload === "string"
+      ? (JSON.parse(lead.payload) as Record<string, unknown>)
+      : ((lead.payload || {}) as Record<string, unknown>);
+  const formType: string = lead.form_type || "";
+  const userEmail: string = lead.email || "";
+  const userName: string = lead.name || "there";
+
+  const notifyTo = formType === "Contact Form" ? SUPPORT_EMAIL : ADMIN_EMAIL;
+  const rows = tableRows(payload);
+
+  await sendMail({
+    to: notifyTo,
+    subject: `New Athoo ${formType}`,
+    html: `<div style="font-family:Arial,sans-serif;color:#111"><h2 style="color:#0057FF">New ${formType}</h2><table style="border-collapse:collapse;width:100%">${rows}</table><p style="font-size:12px;color:#999;margin-top:16px">Athoo Admin | official@athoo.pk</p></div>`,
+  });
+
+  if (!userEmail) return;
+
+  if (formType === "Waitlist Signup") {
+    await sendMail({
+      to: userEmail,
+      replyTo: ADMIN_EMAIL,
+      subject: "You're on the Athoo Waitlist!",
+      html: `<div style="font-family:Arial,sans-serif;max-width:600px;color:#111">
+        <h2 style="color:#0057FF">Welcome to the Athoo Waitlist</h2>
+        <p>Hi ${userName},</p>
+        <p>Thank you for joining the Athoo waitlist. We'll notify you as soon as our app launches in Rawalpindi and Islamabad.</p>
+        <p>Stay updated:<br/>
+        📸 Instagram: <a href="https://instagram.com/athoo_services">@athoo_services</a><br/>
+        📘 Facebook: <a href="https://facebook.com/Athoo.Services/">Athoo.Services</a><br/>
+        🎵 TikTok: <a href="https://tiktok.com/@athoo.pk">@athoo.pk</a></p>
+        <p style="color:#666;font-size:12px">Athoo | official@athoo.pk | +92 339 0051068</p>
+      </div>`,
     });
-  } catch (err: any) {
-    logger.warn({ err: err?.message || err }, "Email notification failed");
+  } else if (formType === "Provider Waitlist") {
+    await sendMail({
+      to: userEmail,
+      replyTo: ADMIN_EMAIL,
+      subject: "Provider Application Received — Athoo",
+      html: `<div style="font-family:Arial,sans-serif;max-width:600px;color:#111">
+        <h2 style="color:#0057FF">Application Received</h2>
+        <p>Hi ${userName},</p>
+        <p>Thank you for your interest in becoming an Athoo Service Partner. Our team will review your application and contact you shortly on your provided phone number.</p>
+        <p style="color:#666;font-size:12px">Athoo | official@athoo.pk | +92 339 0051068</p>
+      </div>`,
+    });
   }
 }
 
@@ -122,7 +163,7 @@ router.post("/submit", async (req: any, res: any) => {
         form_type, name, email, phone, subject, message, service, city,
         experience, source, ip_address, user_agent, payload
       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
-      RETURNING id, form_type, payload`,
+      RETURNING id, form_type, name, email, payload`,
       [
         formType,
         sanitize(body.name, 120) || null,
@@ -149,7 +190,7 @@ router.post("/submit", async (req: any, res: any) => {
       );
     }
 
-    sendNotificationEmail(lead).catch(() => {});
+    sendEmails(lead).catch(() => {});
 
     return res.json({ ok: true, id: lead.id });
   } catch (err: any) {

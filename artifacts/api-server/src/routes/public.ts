@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { pool } from "@workspace/db";
 import { logger } from "../lib/logger.js";
+import { sendMail, ADMIN_EMAIL, SUPPORT_EMAIL } from "../lib/mailer.js";
 
 const router = Router();
 
@@ -77,10 +78,37 @@ router.post("/public/waitlist", async (req: any, res: any) => {
     );
 
     const lead = result.rows[0];
+
     await createAdminNotification(
       `New provider waitlist submission from ${name} (${city}).`,
       `/admin/leads/${lead.id}`,
     );
+
+    sendMail({
+      to: ADMIN_EMAIL,
+      subject: `New Provider Waitlist — ${name} (${city})`,
+      html: `<div style="font-family:Arial,sans-serif;color:#111"><h2 style="color:#0057FF">New Provider Waitlist Submission</h2>
+<table style="border-collapse:collapse;width:100%">
+<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Name</b></td><td style="padding:6px 12px;border:1px solid #ddd">${name}</td></tr>
+<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Email</b></td><td style="padding:6px 12px;border:1px solid #ddd">${email}</td></tr>
+<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Phone</b></td><td style="padding:6px 12px;border:1px solid #ddd">${phone}</td></tr>
+<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Service</b></td><td style="padding:6px 12px;border:1px solid #ddd">${serviceCategory}</td></tr>
+<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>City</b></td><td style="padding:6px 12px;border:1px solid #ddd">${city}</td></tr>
+</table>
+<p style="font-size:12px;color:#999;margin-top:16px">Lead ID: ${lead.id} | Athoo Admin</p></div>`,
+    }).catch(() => {});
+
+    sendMail({
+      to: email,
+      replyTo: ADMIN_EMAIL,
+      subject: "Provider Application Received — Athoo",
+      html: `<div style="font-family:Arial,sans-serif;max-width:600px;color:#111">
+<h2 style="color:#0057FF">Application Received</h2>
+<p>Hi ${name},</p>
+<p>Thank you for your interest in becoming an Athoo Service Partner. Our team will review your application and contact you shortly on your provided phone number.</p>
+<p style="color:#666;font-size:12px">Athoo | official@athoo.pk | +92 339 0051068</p>
+</div>`,
+    }).catch(() => {});
 
     return res.status(201).json({
       ok: true,
@@ -132,10 +160,26 @@ router.post("/public/contact", async (req: any, res: any) => {
     );
 
     const lead = result.rows[0];
+
     await createAdminNotification(
       `New contact form submission from ${name}.`,
       `/admin/leads/${lead.id}`,
     );
+
+    sendMail({
+      to: SUPPORT_EMAIL,
+      subject: `Contact Form — ${subject || name}`,
+      html: `<div style="font-family:Arial,sans-serif;color:#111"><h2 style="color:#0057FF">New Contact Form Submission</h2>
+<table style="border-collapse:collapse;width:100%">
+<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Name</b></td><td style="padding:6px 12px;border:1px solid #ddd">${name}</td></tr>
+<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Email</b></td><td style="padding:6px 12px;border:1px solid #ddd">${email}</td></tr>
+${phone ? `<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Phone</b></td><td style="padding:6px 12px;border:1px solid #ddd">${phone}</td></tr>` : ""}
+${subject ? `<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Subject</b></td><td style="padding:6px 12px;border:1px solid #ddd">${subject}</td></tr>` : ""}
+<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Message</b></td><td style="padding:6px 12px;border:1px solid #ddd">${message.replace(/\n/g, "<br>")}</td></tr>
+</table>
+<p style="font-size:12px;color:#999;margin-top:16px">Lead ID: ${lead.id} | Athoo Admin</p></div>`,
+      replyTo: email,
+    }).catch(() => {});
 
     return res.status(201).json({
       ok: true,
