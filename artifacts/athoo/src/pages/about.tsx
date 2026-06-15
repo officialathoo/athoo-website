@@ -67,6 +67,24 @@ export default function About() {
           content="Learn about Athoo — Pakistan's upcoming home services platform connecting customers with verified professionals in Rawalpindi and Islamabad. Our mission, vision, and commitments."
         />
         <link rel="canonical" href="https://athoo.pk/about" />
+        <meta property="og:title" content="About Athoo — Building Trusted Home Services in Pakistan" />
+        <meta property="og:description" content="Learn about Athoo — Pakistan's upcoming home services platform connecting customers with verified professionals in Rawalpindi and Islamabad." />
+        <meta property="og:url" content="https://athoo.pk/about" />
+        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Athoo" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="About Athoo — Building Trusted Home Services in Pakistan" />
+        <meta name="twitter:description" content="Learn about Athoo — Pakistan's upcoming home services platform connecting customers with verified professionals in Rawalpindi and Islamabad." />
+        <meta name="twitter:image" content="https://athoo.pk/opengraph.jpg" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://athoo.pk/" },
+            { "@type": "ListItem", "position": 2, "name": "About Athoo", "item": "https://athoo.pk/about" }
+          ]
+        })}</script>
       </Helmet>
 
       <div className="flex flex-col min-h-screen bg-white">

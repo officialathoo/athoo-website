@@ -64,6 +64,24 @@ export default function Contact() {
           content="Contact Athoo for general inquiries, customer support, provider registration help, or business partnerships. Email us at info@athoo.pk or message on WhatsApp."
         />
         <link rel="canonical" href="https://athoo.pk/contact" />
+        <meta property="og:title" content="Contact Athoo — Get in Touch | Rawalpindi & Islamabad" />
+        <meta property="og:description" content="Contact Athoo for general inquiries, customer support, provider registration help, or business partnerships. Email info@athoo.pk or WhatsApp us." />
+        <meta property="og:url" content="https://athoo.pk/contact" />
+        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Athoo" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Contact Athoo — Get in Touch" />
+        <meta name="twitter:description" content="Contact Athoo for inquiries, support, or provider help. Email info@athoo.pk or WhatsApp us." />
+        <meta name="twitter:image" content="https://athoo.pk/opengraph.jpg" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://athoo.pk/" },
+            { "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://athoo.pk/contact" }
+          ]
+        })}</script>
       </Helmet>
 
       <div className="min-h-screen bg-white">

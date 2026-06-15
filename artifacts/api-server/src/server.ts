@@ -1,14 +1,9 @@
-import { loadEnvFiles } from "./lib/env.js";
-
-loadEnvFiles();
-
-const [{ default: app }, { logger }, { ensureSchema }] = await Promise.all([
-  import("./app.js"),
-  import("./lib/logger.js"),
-  import("./lib/dbInit.js"),
-]);
+import app from "./app.js";
+import { logger } from "./lib/logger.js";
+import { ensureSchema } from "./lib/dbInit.js";
 
 const rawPort = process.env["PORT"] || "8080";
+
 const port = Number(rawPort);
 
 if (Number.isNaN(port) || port <= 0) {

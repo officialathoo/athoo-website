@@ -5,17 +5,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { HelmetProvider } from "react-helmet-async";
 
-// Layout
 import MainLayout from "@/components/layout/MainLayout";
 
-// Eagerly loaded public pages (critical path)
+// Only Home is eager — it's the critical first-paint route
 import Home from "@/pages/home";
-import About from "@/pages/about";
-import Services from "@/pages/services";
-import Contact from "@/pages/contact";
-import NotFound from "@/pages/not-found";
 
-// Lazy loaded pages (non-critical)
+// All other public pages — lazy loaded on demand
+const About = lazy(() => import("@/pages/about"));
+const Services = lazy(() => import("@/pages/services"));
+const Contact = lazy(() => import("@/pages/contact"));
 const BecomeProvider = lazy(() => import("@/pages/become-provider"));
 const HowItWorks = lazy(() => import("@/pages/how-it-works"));
 const Support = lazy(() => import("@/pages/support"));
@@ -25,11 +23,19 @@ const FAQ = lazy(() => import("@/pages/faq"));
 const CookiePolicy = lazy(() => import("@/pages/cookie-policy"));
 const Blogs = lazy(() => import("@/pages/blogs"));
 const BlogPost = lazy(() => import("@/pages/blog-post"));
+const NotFound = lazy(() => import("@/pages/not-found"));
 
-// Admin — lazy loaded, separate bundle
+// Admin — separate chunk, never bundled with public site
 const Admin = lazy(() => import("@/pages/admin"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      retry: 1,
+    },
+  },
+});
 
 function PageLoader() {
   return (

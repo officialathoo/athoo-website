@@ -96,6 +96,24 @@ export default function SupportPage() {
           content="Get help from the Athoo support team. Customer support, provider registration help, booking assistance, complaints, and technical issues — we're here to help."
         />
         <link rel="canonical" href="https://athoo.pk/support" />
+        <meta property="og:title" content="Support — Athoo Help Centre" />
+        <meta property="og:description" content="Get help from the Athoo support team. Customer support, provider help, booking assistance, complaints, and technical issues." />
+        <meta property="og:url" content="https://athoo.pk/support" />
+        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Athoo" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Support — Athoo Help Centre" />
+        <meta name="twitter:description" content="Get help from the Athoo support team — customer support, provider help, and technical assistance." />
+        <meta name="twitter:image" content="https://athoo.pk/opengraph.jpg" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://athoo.pk/" },
+            { "@type": "ListItem", "position": 2, "name": "Support", "item": "https://athoo.pk/support" }
+          ]
+        })}</script>
       </Helmet>
 
       <div className="min-h-screen bg-white">

@@ -8,6 +8,15 @@ export default function Terms() {
         <title>Terms & Conditions — Athoo</title>
         <meta name="description" content="Athoo's Terms & Conditions — the rules governing use of the Athoo platform for customers and service providers." />
         <link rel="canonical" href="https://athoo.pk/terms" />
+        <meta property="og:title" content="Terms & Conditions — Athoo" />
+        <meta property="og:description" content="Athoo's Terms & Conditions — the rules governing use of the Athoo platform for customers and service providers." />
+        <meta property="og:url" content="https://athoo.pk/terms" />
+        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Athoo" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Terms & Conditions — Athoo" />
+        <meta name="twitter:description" content="The rules governing use of the Athoo platform for customers and service providers." />
       </Helmet>
 
       <div className="bg-white min-h-screen py-24 px-6">

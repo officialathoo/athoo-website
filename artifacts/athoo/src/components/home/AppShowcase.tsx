@@ -71,7 +71,7 @@ export default function AppShowcase() {
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
               className="absolute left-0 top-12 hidden w-[250px] rounded-[2.1rem] border border-white/80 bg-white p-3 shadow-2xl shadow-blue-950/15 sm:block lg:left-4"
             >
-              <img src="/app-interface-clean.png" alt="Athoo customer app preview" className="app-preview-image h-auto w-full rounded-[1.6rem]" />
+              <img src="/app-interface-clean.webp" alt="Athoo customer app preview" className="app-preview-image h-auto w-full rounded-[1.6rem]" />
             </motion.div>
 
             <motion.div
@@ -79,7 +79,7 @@ export default function AppShowcase() {
               transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
               className="absolute right-0 top-0 w-[300px] rounded-[2.4rem] border border-white/90 bg-white p-3 shadow-2xl shadow-blue-950/20 sm:right-8 sm:w-[340px] lg:right-4"
             >
-              <img src="/app-interface-clean.png" alt="Athoo provider app preview" className="app-preview-image h-auto w-full rounded-[1.8rem]" />
+              <img src="/app-interface-clean.webp" alt="Athoo provider app preview" className="app-preview-image h-auto w-full rounded-[1.8rem]" />
               <div className="absolute -left-4 top-16 rounded-2xl bg-white px-4 py-3 text-sm font-black text-[#081120] shadow-xl ring-1 ring-slate-100 sm:-left-8">
                 <div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-green-500" /> Verified Providers</div>
               </div>

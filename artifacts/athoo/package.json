@@ -72,6 +72,8 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "@types/dompurify": "^3.2.0",
+    "dompurify": "^3.4.10",
     "react-helmet-async": "^3.0.0"
   }
 }

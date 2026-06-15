@@ -8,6 +8,15 @@ export default function CookiePolicy() {
         <title>Cookie Policy — Athoo</title>
         <meta name="description" content="Learn how Athoo uses cookies and similar technologies on its website." />
         <link rel="canonical" href="https://athoo.pk/cookie-policy" />
+        <meta property="og:title" content="Cookie Policy — Athoo" />
+        <meta property="og:description" content="Learn how Athoo uses cookies and similar technologies on its website." />
+        <meta property="og:url" content="https://athoo.pk/cookie-policy" />
+        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Athoo" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Cookie Policy — Athoo" />
+        <meta name="twitter:description" content="How Athoo uses cookies and similar technologies on its website." />
       </Helmet>
 
       <div className="bg-white min-h-screen py-24 px-6">

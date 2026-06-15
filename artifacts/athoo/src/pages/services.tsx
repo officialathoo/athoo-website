@@ -188,6 +188,38 @@ export default function Services() {
           content="Athoo is launching 10+ home service categories in Rawalpindi and Islamabad — electrician, plumber, AC repair, cleaning, carpentry, painting, appliance repair and more. All providers verified."
         />
         <link rel="canonical" href="https://athoo.pk/services" />
+        <meta property="og:title" content="Athoo Services — Home Service Categories in Rawalpindi & Islamabad" />
+        <meta property="og:description" content="Athoo is launching 10+ home service categories — electrician, plumber, AC repair, cleaning, carpentry, painting, appliance repair and more. All providers verified." />
+        <meta property="og:url" content="https://athoo.pk/services" />
+        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Athoo" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Athoo Services — Home Service Categories in Rawalpindi & Islamabad" />
+        <meta name="twitter:description" content="Athoo is launching 10+ home service categories — electrician, plumber, AC repair, cleaning, carpentry, painting and more." />
+        <meta name="twitter:image" content="https://athoo.pk/opengraph.jpg" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://athoo.pk/" },
+            { "@type": "ListItem", "position": 2, "name": "Services", "item": "https://athoo.pk/services" }
+          ]
+        })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": "Athoo Home Services",
+          "description": "Home service categories available through Athoo in Rawalpindi and Islamabad",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Electrician Services", "url": "https://athoo.pk/services#electrician" },
+            { "@type": "ListItem", "position": 2, "name": "Plumber Services", "url": "https://athoo.pk/services#plumber" },
+            { "@type": "ListItem", "position": 3, "name": "AC Repair & Service", "url": "https://athoo.pk/services#ac" },
+            { "@type": "ListItem", "position": 4, "name": "House Cleaning", "url": "https://athoo.pk/services#cleaning" },
+            { "@type": "ListItem", "position": 5, "name": "Carpentry", "url": "https://athoo.pk/services#carpentry" },
+            { "@type": "ListItem", "position": 6, "name": "Painting", "url": "https://athoo.pk/services#painting" }
+          ]
+        })}</script>
       </Helmet>
 
       <main className="min-h-screen bg-white overflow-hidden">

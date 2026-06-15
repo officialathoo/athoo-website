@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -62,7 +63,31 @@ const providerSteps = [
 
 export default function HowItWorksPage() {
   return (
-    <div className="pt-12 pb-24">
+    <>
+      <Helmet>
+        <title>How Athoo Works — Platform Overview | Athoo</title>
+        <meta name="description" content="Learn how Athoo works for customers and service providers in Rawalpindi and Islamabad. Browse services, get matched with verified professionals, and confirm bookings easily." />
+        <link rel="canonical" href="https://athoo.pk/how-it-works" />
+        <meta property="og:title" content="How Athoo Works — Platform Overview" />
+        <meta property="og:description" content="Learn how Athoo works for customers and service providers in Pakistan." />
+        <meta property="og:url" content="https://athoo.pk/how-it-works" />
+        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Athoo" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="How Athoo Works — Platform Overview" />
+        <meta name="twitter:description" content="Learn how Athoo works for customers and service providers in Pakistan." />
+        <meta name="twitter:image" content="https://athoo.pk/opengraph.jpg" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://athoo.pk/" },
+            { "@type": "ListItem", "position": 2, "name": "How It Works", "item": "https://athoo.pk/how-it-works" }
+          ]
+        })}</script>
+      </Helmet>
+      <div className="pt-12 pb-24">
       <div className="bg-primary/5 py-16 mb-16">
         <div className="container mx-auto px-4 md:px-6 text-center">
           <motion.h1 
@@ -174,5 +199,6 @@ export default function HowItWorksPage() {
         </Tabs>
       </div>
     </div>
+    </>
   );
 }

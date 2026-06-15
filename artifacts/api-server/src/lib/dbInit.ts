@@ -121,6 +121,182 @@ export async function ensureSchema(): Promise<void> {
       )`);
     await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS athoo_email_templates_name_idx ON athoo_email_templates (name)`);
 
+    // Blog posts table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS blog_posts (
+        id BIGSERIAL PRIMARY KEY,
+        title TEXT NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        excerpt TEXT,
+        content TEXT,
+        category TEXT NOT NULL DEFAULT 'Insights',
+        author TEXT NOT NULL DEFAULT 'Athoo Team',
+        status TEXT NOT NULL DEFAULT 'draft',
+        featured BOOLEAN NOT NULL DEFAULT FALSE,
+        cover_image TEXT,
+        read_time TEXT,
+        meta_title TEXT,
+        meta_description TEXT,
+        published_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )`);
+    await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS blog_posts_slug_idx ON blog_posts (slug)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS blog_posts_status_idx ON blog_posts (status)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS blog_posts_published_at_idx ON blog_posts (published_at DESC NULLS LAST)`);
+    await client.query(`ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS cover_image TEXT`);
+    await client.query(`ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS read_time TEXT`);
+    await client.query(`ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS meta_title TEXT`);
+    await client.query(`ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS meta_description TEXT`);
+    await client.query(`ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT FALSE`);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS blog_categories (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        slug TEXT NOT NULL UNIQUE,
+        description TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS blog_tags (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        slug TEXT NOT NULL UNIQUE,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS blog_post_tags (
+        post_id INTEGER NOT NULL REFERENCES blog_posts(id) ON DELETE CASCADE,
+        tag_id INTEGER NOT NULL REFERENCES blog_tags(id) ON DELETE CASCADE,
+        PRIMARY KEY (post_id, tag_id)
+      )
+    `);
+    await client.query(`CREATE INDEX IF NOT EXISTS blog_post_tags_post_idx ON blog_post_tags (post_id)`);
+
+    const defaultCategories: [string, string][] = [
+      ["Insights", "insights"], ["About Athoo", "about-athoo"], ["Customer Tips", "customer-tips"],
+      ["Trust & Safety", "trust-and-safety"], ["Provider Tips", "provider-tips"], ["News", "news"],
+    ];
+    for (const [name, slug] of defaultCategories) {
+      await client.query(
+        `INSERT INTO blog_categories (name, slug) VALUES ($1, $2) ON CONFLICT (name) DO NOTHING`,
+        [name, slug]
+      );
+    }
+
+    // media_library table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS media_library (
+        id SERIAL PRIMARY KEY,
+        url TEXT NOT NULL,
+        alt TEXT,
+        caption TEXT,
+        type TEXT NOT NULL DEFAULT 'image',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    await client.query(`CREATE INDEX IF NOT EXISTS media_library_type_idx ON media_library (type)`);
+
+    // cms_pages table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS cms_pages (
+        id SERIAL PRIMARY KEY,
+        slug TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        content JSONB NOT NULL DEFAULT '[]',
+        status TEXT NOT NULL DEFAULT 'draft',
+        meta_title TEXT,
+        meta_description TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    // cms_sections table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS cms_sections (
+        id SERIAL PRIMARY KEY,
+        page_id INTEGER REFERENCES cms_pages(id) ON DELETE CASCADE,
+        section_key TEXT NOT NULL,
+        content JSONB NOT NULL DEFAULT '{}',
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    // roles table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS roles (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        label TEXT NOT NULL,
+        description TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    // role_permissions table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS role_permissions (
+        id SERIAL PRIMARY KEY,
+        role_id INTEGER NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+        permission TEXT NOT NULL,
+        UNIQUE (role_id, permission)
+      )
+    `);
+
+    // Seed default roles
+    const defaultRoles: [string, string, string, string[]][] = [
+      ["super_admin", "Super Admin", "Full system access", ["all"]],
+      ["admin", "Admin", "Full access except user management", ["leads","blogs","email","settings","media","faq","seo"]],
+      ["manager", "Manager", "Manage leads and content", ["leads","blogs","media"]],
+      ["custom", "Custom", "Custom permissions defined per user", []],
+    ];
+    for (const [rName, rLabel, rDesc, rPerms] of defaultRoles) {
+      const rRow = await client.query(
+        `INSERT INTO roles (name, label, description) VALUES ($1,$2,$3) ON CONFLICT (name) DO UPDATE SET label=$2, description=$3 RETURNING id`,
+        [rName, rLabel, rDesc]
+      );
+      const roleId = rRow.rows[0].id;
+      for (const perm of rPerms) {
+        await client.query(
+          `INSERT INTO role_permissions (role_id, permission) VALUES ($1,$2) ON CONFLICT DO NOTHING`,
+          [roleId, perm]
+        );
+      }
+    }
+
+    // updated_at trigger function
+    await client.query(`
+      CREATE OR REPLACE FUNCTION update_updated_at_column()
+      RETURNS TRIGGER AS $$
+      BEGIN NEW.updated_at = NOW(); RETURN NEW; END;
+      $$ language 'plpgsql'
+    `);
+
+    // Apply updated_at triggers
+    for (const tbl of ["media_library", "cms_pages", "cms_sections", "blog_posts"]) {
+      await client.query(`
+        DO $$ BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_trigger WHERE tgname = '${tbl}_updated_at'
+          ) THEN
+            CREATE TRIGGER ${tbl}_updated_at
+              BEFORE UPDATE ON ${tbl}
+              FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+          END IF;
+        END $$
+      `);
+    }
+
+    // tags column on blog_posts
+    await client.query(`ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}'`);
+
     const adminEmail = process.env.ADMIN_EMAIL || process.env.LEAD_NOTIFY_TO || "official@athoo.pk";
     const adminPassword = process.env.ADMIN_PASSWORD || "athoo-admin-change-me";
 
@@ -134,7 +310,7 @@ export async function ensureSchema(): Promise<void> {
       ["social_instagram", "https://instagram.com/athoo_services"],
       ["social_facebook", "https://facebook.com/Athoo.Services/"],
       ["social_tiktok", "https://tiktok.com/@athoo.pk"],
-      ["social_linkedin", ""],
+      ["social_linkedin", "https://linkedin.com/company/123424195"],
       ["launch_date", "2026-09-01"],
       ["cms_hero", { title: "Pakistan's Smart Home Services App", subtitle: "Athoo is preparing to connect customers with trusted local service providers across Pakistan. Join the waitlist and get launch updates first.", cta_customer: "Join Waitlist", cta_provider: "Become a Provider", badge: "App Launching Soon in Pakistan" }],
       ["cms_contact", { email: "official@athoo.pk", phone: "+92 339 0051068", whatsapp: "923390051068", address: "Rawalpindi & Islamabad, Pakistan" }],

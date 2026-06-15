@@ -8,6 +8,15 @@ export default function Privacy() {
         <title>Privacy Policy — Athoo</title>
         <meta name="description" content="Athoo's Privacy Policy — how we collect, use, and protect your personal data as a customer or service provider on the Athoo platform." />
         <link rel="canonical" href="https://athoo.pk/privacy" />
+        <meta property="og:title" content="Privacy Policy — Athoo" />
+        <meta property="og:description" content="Athoo's Privacy Policy — how we collect, use, and protect your personal data as a customer or service provider on the Athoo platform." />
+        <meta property="og:url" content="https://athoo.pk/privacy" />
+        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Athoo" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Privacy Policy — Athoo" />
+        <meta name="twitter:description" content="How Athoo collects, uses, and protects your personal data." />
       </Helmet>
 
       <div className="bg-white min-h-screen py-24 px-6">

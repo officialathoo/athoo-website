@@ -4,7 +4,7 @@ import { FaLinkedin } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="athoo-navy text-white">
+    <footer className="athoo-navy pb-20 text-white md:pb-0">
       <div className="h-1 w-full bg-gradient-to-r from-[#0057FF] via-[#8A2BE2] to-[#FF8A00]" />
 
       <div className="container mx-auto max-w-7xl px-6 py-16 lg:py-20">

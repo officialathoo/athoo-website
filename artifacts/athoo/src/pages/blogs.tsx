@@ -1,15 +1,50 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Calendar, Clock, ArrowRight, Search } from "lucide-react";
 import { BLOG_POSTS, BLOG_CATEGORIES } from "@/lib/blogData";
 
+type ApiBlogPost = {
+  id: number; title: string; slug: string; excerpt: string; category: string;
+  author: string; status: string; featured: boolean; cover_image: string | null;
+  read_time: string | null; published_at: string | null; created_at: string;
+};
+
+function toDisplayPost(p: ApiBlogPost) {
+  return {
+    slug: p.slug,
+    title: p.title,
+    excerpt: p.excerpt || "",
+    category: p.category,
+    author: p.author,
+    publishedAt: p.published_at || p.created_at,
+    readTime: p.read_time || "5 min read",
+    featured: p.featured,
+  };
+}
+
 export default function Blogs() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [posts, setPosts] = useState(BLOG_POSTS);
+  const [categories, setCategories] = useState(["All", ...BLOG_CATEGORIES]);
 
-  const filtered = BLOG_POSTS.filter((post) => {
+  useEffect(() => {
+    fetch("/api/public/blog/posts?limit=50")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.ok && Array.isArray(data.posts) && data.posts.length > 0) {
+          const mapped = data.posts.map(toDisplayPost);
+          setPosts(mapped);
+          const cats: string[] = Array.from(new Set(mapped.map((p: any) => String(p.category))));
+          setCategories(["All", ...cats]);
+        }
+      })
+      .catch(() => {/* fallback to static */});
+  }, []);
+
+  const filtered = posts.filter((post) => {
     const matchesSearch =
       !search ||
       post.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -28,6 +63,16 @@ export default function Blogs() {
           content="Read Athoo's blog for tips on hiring home service professionals, platform updates, and insights on the home services market in Rawalpindi and Islamabad."
         />
         <link rel="canonical" href="https://athoo.pk/blogs" />
+        <meta property="og:title" content="Athoo Blog — Home Services Insights for Pakistan" />
+        <meta property="og:description" content="Tips, guides and platform updates from the Athoo team." />
+        <meta property="og:url" content="https://athoo.pk/blogs" />
+        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Athoo" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Athoo Blog — Home Services Insights for Pakistan" />
+        <meta name="twitter:description" content="Tips, guides and platform updates from the Athoo team." />
+        <meta name="twitter:image" content="https://athoo.pk/opengraph.jpg" />
       </Helmet>
 
       <div className="min-h-screen bg-white">
@@ -65,7 +110,7 @@ export default function Blogs() {
               />
             </div>
             <div className="flex gap-2 flex-wrap justify-center">
-              {["All", ...BLOG_CATEGORIES].map((cat) => (
+              {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}

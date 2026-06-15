@@ -132,6 +132,24 @@ export default function BecomeProvider() {
         <title>Become an Athoo Provider — Join Pakistan's Home Services Platform</title>
         <meta name="description" content="Join Athoo as a verified service provider in Rawalpindi and Islamabad. Register your interest as an electrician, plumber, AC technician, carpenter, or other home service professional." />
         <link rel="canonical" href="https://athoo.pk/become-provider" />
+        <meta property="og:title" content="Become an Athoo Provider — Join Pakistan's Home Services Platform" />
+        <meta property="og:description" content="Join Athoo as a verified service provider in Rawalpindi and Islamabad. Register as an electrician, plumber, AC technician, carpenter, or other home service professional." />
+        <meta property="og:url" content="https://athoo.pk/become-provider" />
+        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Athoo" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Become an Athoo Provider — Join Pakistan's Home Services Platform" />
+        <meta name="twitter:description" content="Register as a verified home service provider on Athoo — electrician, plumber, AC technician, carpenter and more." />
+        <meta name="twitter:image" content="https://athoo.pk/opengraph.jpg" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://athoo.pk/" },
+            { "@type": "ListItem", "position": 2, "name": "Become a Provider", "item": "https://athoo.pk/become-provider" }
+          ]
+        })}</script>
       </Helmet>
 
       <div className="flex flex-col min-h-screen bg-white">
