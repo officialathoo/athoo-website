@@ -13,11 +13,13 @@
     <meta name="author" content="Athoo" />
     <link rel="canonical" href="https://athoo.pk/" />
 
-    <link rel="icon" href="/favicon.ico?v=athoo-20260614" sizes="any" />
-    <link rel="shortcut icon" href="/favicon.ico?v=athoo-20260614" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=athoo-20260614" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=athoo-20260614" />
-    <link rel="manifest" href="/site.webmanifest?v=athoo-20260614" />
+    <link rel="icon" href="/favicon.ico?v=athoo-20260617" sizes="any" />
+    <link rel="shortcut icon" href="/favicon.ico?v=athoo-20260617" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=athoo-20260617" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png?v=athoo-20260617" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png?v=athoo-20260617" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=athoo-20260617" />
+    <link rel="manifest" href="/site.webmanifest?v=athoo-20260617" />
 
     <meta property="og:site_name" content="Athoo" />
     <meta property="og:type" content="website" />
@@ -32,13 +34,13 @@
     <meta name="twitter:description" content="Join Athoo's launch waitlist for 10+ home service categories coming soon in Rawalpindi and Islamabad." />
     <meta name="twitter:image" content="https://athoo.pk/opengraph.jpg" />
 
-    <!-- Google Analytics GA4 — replace G-XXXXXXXXXX with your Measurement ID from analytics.google.com -->
+    <!-- Replace G-XXXXXXXXXX with your real GA4 Measurement ID, or remove this block if you are not using Google Analytics yet. -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX');
+      gtag("js", new Date());
+      gtag("config", "G-XXXXXXXXXX");
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -51,7 +53,7 @@
         "@type": "Organization",
         "name": "Athoo",
         "url": "https://athoo.pk/",
-        "logo": "https://athoo.pk/athoo-logo.png",
+        "logo": "https://athoo.pk/android-chrome-512x512.png",
         "email": "official@athoo.pk",
         "telephone": "+923390051068",
         "address": {
@@ -68,6 +70,7 @@
         ]
       }
     </script>
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -78,6 +81,7 @@
         "inLanguage": "en"
       }
     </script>
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -86,10 +90,14 @@
         "operatingSystem": "Android, iOS",
         "applicationCategory": "LifestyleApplication",
         "description": "Upcoming home services app for Rawalpindi and Islamabad with 10+ service categories planned.",
-        "offers": { "@type": "Offer", "availability": "https://schema.org/PreOrder" }
+        "offers": {
+          "@type": "Offer",
+          "availability": "https://schema.org/PreOrder"
+        }
       }
     </script>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

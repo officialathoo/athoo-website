@@ -1,1 +1,0 @@
-- [Athoo website project](athoo-project.md) — key decisions, domain, emails, stack, env vars needed for this project
