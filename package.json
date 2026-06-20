@@ -1,25 +1,33 @@
 {
-  "name": "workspace",
+  "name": "athoo-website-production",
   "version": "0.0.0",
-  "license": "MIT",
-  "scripts": {
-    "dev:web": "pnpm --filter @workspace/athoo run dev",
-    "dev:api": "pnpm --filter @workspace/api-server run dev",
-    "build": "pnpm run typecheck && pnpm run build:api && pnpm run build:web",
-    "build:web": "pnpm --filter @workspace/athoo run build",
-    "build:api": "pnpm --filter @workspace/api-server run build",
-    "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm --filter @workspace/api-server run typecheck && pnpm --filter @workspace/athoo run typecheck",
-    "start:api": "pnpm --filter @workspace/api-server run start",
-    "db:schema": "pnpm --filter @workspace/api-server run db:schema"
-  },
   "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm run dev:website",
+    "dev:web": "pnpm run dev:website",
+    "dev:website": "pnpm --filter @athoo/website run dev",
+    "dev:api": "pnpm --filter @athoo/api run dev",
+    "build": "pnpm run typecheck && pnpm run build:api && pnpm run build:web",
+    "build:web": "pnpm --filter @athoo/website run build && node scripts/copy-website-dist.mjs",
+    "build:website": "pnpm run build:web",
+    "build:api": "pnpm --filter @athoo/api run build",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "typecheck:libs": "tsc --build",
+    "start:api": "pnpm --filter @athoo/api run start",
+    "db:schema": "pnpm --filter @athoo/db run push",
+    "lint": "pnpm -r --if-present run lint",
+    "clean": "node scripts/clean.mjs"
+  },
   "devDependencies": {
-    "prettier": "^3.8.3",
-    "typescript": "~5.9.3",
+    "typescript": "^5.9.0",
     "@vercel/node": "^5.5.6",
     "@types/node": "^24.0.0",
-    "@types/pg": "^8.15.5"
+    "prettier": "^3.8.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
   },
   "dependencies": {
     "pg": "^8.16.3"

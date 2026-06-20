@@ -1,0 +1,32 @@
+# Athoo Coturn TURN server configuration
+# For WebRTC peer-to-peer connections (provider <> customer video calls)
+
+listening-port=3478
+tls-listening-port=5349
+
+# Your VPS public IP
+listening-ip=YOUR_VPS_PUBLIC_IP
+external-ip=YOUR_VPS_PUBLIC_IP
+
+# Authentication
+lt-cred-mech
+user=athoo:CHANGE_ME_TURN_PASSWORD
+realm=turn.athoo.pk
+
+# TLS certificates (from Let's Encrypt)
+cert=/etc/letsencrypt/live/turn.athoo.pk/fullchain.pem
+pkey=/etc/letsencrypt/live/turn.athoo.pk/privkey.pem
+
+# Relay IP range (use your VPS subnet)
+relay-ip=YOUR_VPS_PUBLIC_IP
+
+# Logging
+log-file=/var/log/coturn/turnserver.log
+verbose
+
+# Ports for relay
+min-port=49152
+max-port=65535
+
+# Disable UDP if not needed
+# no-udp

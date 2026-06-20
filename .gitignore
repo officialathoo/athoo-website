@@ -1,49 +1,45 @@
-# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# Dependencies
+node_modules/
+.pnpm-store/
 
-# compiled output
-dist
-tmp
-out-tsc
-*.tsbuildinfo
-.expo
-.expo-shared
+# Build outputs
+dist/
+build/
+.next/
+.turbo/
+coverage/
+artifacts/athoo/dist/
+artifacts/api-server/dist/
 
-# dependencies
-node_modules
+# Expo / Android / generated caches
+.expo/
+.gradle/
+.cxx/
+android/.gradle/
+android/.cxx/
+android/app/.cxx/
+android/build/
+android/app/build/
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# Local env / secrets
+.env
+.env.*
+!.env.example
+!.env.production.example
+.local.properties
+local.properties
+*.keystore
+*.jks
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-
-# System Files
+# Logs / OS / IDE
+*.log
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/
+tsconfig.tsbuildinfo
 
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
-
-# Replit
-.cache/
-.local/
+# Replit-only files are not needed for production
+.replit
+.replitignore
+replit.md

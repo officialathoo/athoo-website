@@ -1,0 +1,26 @@
+# Athoo Redis Configuration
+# Copy to redis.conf and adjust as needed
+
+bind 127.0.0.1
+port 6379
+daemonize no
+loglevel notice
+
+# Persistence
+save 900 1
+save 300 10
+save 60 10000
+rdbcompression yes
+dbfilename dump.rdb
+dir /data
+
+# Memory
+maxmemory 256mb
+maxmemory-policy allkeys-lru
+
+# Security — set a strong password
+# requirepass CHANGE_ME_REDIS_PASSWORD
+
+# Slow log
+slowlog-log-slower-than 10000
+slowlog-max-len 128
