@@ -4,7 +4,9 @@
   "buildCommand": "pnpm run build:web",
   "outputDirectory": "artifacts/athoo/dist/public",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/[...path]" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    {
+      "source": "/((?!assets/|favicon.ico|robots.txt|sitemap.xml).*)",
+      "destination": "/index.html"
+    }
   ]
 }
