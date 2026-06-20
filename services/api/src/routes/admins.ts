@@ -44,7 +44,7 @@ router.get("/admins", requireAuth, async (req, res): Promise<void> => {
     .from(adminsTable)
     .leftJoin(rolesTable, eq(adminsTable.roleId, rolesTable.id));
 
-  res.json(admins.map((a) => ({
+  res.json(admins.map((a: any) => ({
     ...a,
     roleName: a.roleName ?? null,
     avatarUrl: a.avatarUrl ?? null,

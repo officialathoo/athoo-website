@@ -11,7 +11,7 @@ router.get("/services", async (_req, res): Promise<void> => {
     .where(eq(serviceCategoriesTable.isActive, true))
     .orderBy(asc(serviceCategoriesTable.sortOrder));
 
-  res.json(services.map((s) => ({
+  res.json(services.map((s: any) => ({
     id: s.id,
     slug: s.slug,
     name: s.name,

@@ -27,7 +27,7 @@ router.get(["/blog/posts", "/public/blog/posts"], async (req, res): Promise<void
     .limit(limit)
     .offset(offset);
 
-  const mapped = posts.map((p) => ({
+  const mapped = posts.map((p: any) => ({
     id: p.id,
     slug: p.slug,
     title: p.title,
