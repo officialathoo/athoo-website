@@ -5,6 +5,9 @@ import { motion } from "framer-motion";
 import { Calendar, Clock, ArrowRight, Search } from "lucide-react";
 import { BLOG_POSTS, BLOG_CATEGORIES } from "@/lib/blogData";
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const apiUrl = (path: string) => API_BASE + path;
+
 type ApiBlogPost = {
   id: number; title: string; slug: string; excerpt: string; category: string;
   author: string; status: string; featured: boolean; cover_image: string | null;
@@ -32,7 +35,7 @@ export default function Blogs() {
   const [categories, setCategories] = useState(["All", ...BLOG_CATEGORIES]);
 
   useEffect(() => {
-    fetch("/api/public/blog/posts?limit=100")
+    fetch(apiUrl("/api/public/blog/posts?limit=100"))
       .then((r) => r.json())
       .then((data) => {
         const postArr = data.ok && Array.isArray(data.posts) ? data.posts
@@ -230,3 +233,6 @@ export default function Blogs() {
     </>
   );
 }
+
+
+

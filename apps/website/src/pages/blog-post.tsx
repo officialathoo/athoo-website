@@ -6,6 +6,9 @@ import { Calendar, Clock, ArrowLeft, ArrowRight, Share2 } from "lucide-react";
 import { getBlogPost, BLOG_POSTS } from "@/lib/blogData";
 import DOMPurify from "dompurify";
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const apiUrl = (path: string) => API_BASE + path;
+
 type ApiPost = {
   id: number;
   title: string;
@@ -61,7 +64,7 @@ export default function BlogPost() {
 
     setLoading(true);
 
-    fetch(`/api/public/blog/posts/${encodeURIComponent(slug)}`, {
+    fetch(apiUrl(`/api/public/blog/posts/${encodeURIComponent(slug)}`), {
       signal: controller.signal,
     })
       .then((r) => r.json())
@@ -362,3 +365,5 @@ export default function BlogPost() {
     </>
   );
 }
+
+

@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BlogEditor } from "@/components/blog-editor/BlogEditor";
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const apiUrl = (path: string) => API_BASE + path;
+
 const roles = ["super_admin", "admin", "manager", "custom"];
 const statuses = ["new", "contacted", "approved", "rejected", "closed"];
 const priorities = ["normal", "high", "urgent"];
@@ -196,7 +199,7 @@ export default function Admin() {
     if (!token) return;
     setBlogLoading(true);
     try {
-      const r = await fetch("/api/admin/blog/posts", { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/blog/posts"), { headers: { Authorization: `Bearer ${token}` } });
       const d = await r.json();
       if (r.status === 401) { logout(); return; }
       if (r.ok) setBlogs((d.posts || []).map((p: any) => ({ ...p, coverImage: p.cover_image, readTime: p.read_time, metaTitle: p.meta_title, metaDescription: p.meta_description, publishedAt: p.published_at ? String(p.published_at).slice(0, 10) : "" })));
@@ -210,7 +213,7 @@ export default function Admin() {
     try {
       const method = editingBlog !== null ? "PUT" : "POST";
       const url = editingBlog !== null ? `/api/admin/blog/posts/${editingBlog}` : "/api/admin/blog/posts";
-      const r = await fetch(url, { method, headers: authHeaders(token), body: JSON.stringify(blogForm) });
+      const r = await fetch(apiUrl(url), { method, headers: authHeaders(token), body: JSON.stringify(blogForm) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Could not save post");
       setNotice(editingBlog !== null ? "Blog post updated." : "Blog post created.");
@@ -223,7 +226,7 @@ export default function Admin() {
     if (!window.confirm("Delete this blog post?")) return;
     setBlogLoading(true); setError(""); setNotice("");
     try {
-      const r = await fetch(`/api/admin/blog/posts/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl(`/api/admin/blog/posts/${id}`), { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Delete failed");
       setNotice("Blog post deleted."); await loadBlogs();
@@ -248,7 +251,7 @@ export default function Admin() {
     if (!token) return;
     setExtLoading(true);
     try {
-      const r = await fetch("/api/admin/settings", { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/settings"), { headers: { Authorization: `Bearer ${token}` } });
       const d = await r.json();
       if (!r.ok) return;
       const s = d.settings || {};
@@ -271,7 +274,7 @@ export default function Admin() {
   }
 
   async function upsertSetting(key: string, value: unknown) {
-    const r = await fetch("/api/admin/upsert-setting", { method: "POST", headers: authHeaders(token), body: JSON.stringify({ key, value }) });
+    const r = await fetch(apiUrl("/api/admin/upsert-setting"), { method: "POST", headers: authHeaders(token), body: JSON.stringify({ key, value }) });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || "Could not save setting");
     return d;
@@ -309,7 +312,7 @@ export default function Admin() {
     if (!mediaForm.url) return setError("URL is required.");
     setError(""); setNotice(""); setExtLoading(true);
     try {
-      const r = await fetch("/api/admin/media", { method: "POST", headers: authHeaders(token), body: JSON.stringify(mediaForm) });
+      const r = await fetch(apiUrl("/api/admin/media"), { method: "POST", headers: authHeaders(token), body: JSON.stringify(mediaForm) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Could not save media");
       setMediaItems(items => [...items, { ...d.item, createdAt: d.item.created_at }]);
@@ -322,7 +325,7 @@ export default function Admin() {
   async function deleteMediaItem(id: number) {
     setError(""); setNotice("");
     try {
-      const r = await fetch(`/api/admin/media/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl(`/api/admin/media/${id}`), { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Delete failed");
       setMediaItems(items => items.filter(m => m.id !== id));
@@ -333,7 +336,7 @@ export default function Admin() {
   async function loadMediaFromApi() {
     if (!token) return; setExtLoading(true);
     try {
-      const r = await fetch("/api/admin/media", { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/media"), { headers: { Authorization: `Bearer ${token}` } });
       const d = await r.json();
       if (d.ok) setMediaItems(d.items.map((m: any) => ({ ...m, createdAt: m.created_at })));
     } catch { } finally { setExtLoading(false); }
@@ -342,7 +345,7 @@ export default function Admin() {
   async function loadTemplatesFromApi() {
     if (!token) return;
     try {
-      const r = await fetch("/api/admin/templates", { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/templates"), { headers: { Authorization: `Bearer ${token}` } });
       const d = await r.json();
       if (d.ok && (d.rows || d.templates)?.length) setTemplates(d.rows || d.templates);
     } catch { }
@@ -350,7 +353,7 @@ export default function Admin() {
 
   async function loadBlogCatsFromApi() {
     try {
-      const r = await fetch("/api/public/blog/categories");
+      const r = await fetch(apiUrl("/api/public/blog/categories"));
       const d = await r.json();
       if (d.ok) setBlogCats(d.categories || []);
     } catch { }
@@ -360,7 +363,7 @@ export default function Admin() {
     if (!blogCatForm.name) return setError("Category name is required.");
     setError(""); setNotice("");
     try {
-      const r = await fetch("/api/admin/blog/categories", { method: "POST", headers: authHeaders(token), body: JSON.stringify(blogCatForm) });
+      const r = await fetch(apiUrl("/api/admin/blog/categories"), { method: "POST", headers: authHeaders(token), body: JSON.stringify(blogCatForm) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Could not save");
       setBlogCats(cats => [...cats, d.category]);
@@ -372,7 +375,7 @@ export default function Admin() {
   async function deleteBlogCategory(id: number) {
     if (!window.confirm("Delete this category?")) return;
     try {
-      await fetch(`/api/admin/blog/categories/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      await fetch(apiUrl(`/api/admin/blog/categories/${id}`), { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
       setBlogCats(cats => cats.filter(c => c.id !== id));
       setNotice("Category deleted.");
     } catch { }
@@ -381,7 +384,7 @@ export default function Admin() {
   async function loadDbStats() {
     if (!token) return;
     try {
-      const r = await fetch("/api/admin/db-stats", { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/db-stats"), { headers: { Authorization: `Bearer ${token}` } });
       const d = await r.json();
       if (d.ok) setDbStats(d.stats || []);
     } catch { }
@@ -392,7 +395,7 @@ export default function Admin() {
     if (!token) return;
     setSvcLoading(true);
     try {
-      const r = await fetch("/api/admin/services", { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/services"), { headers: { Authorization: `Bearer ${token}` } });
       const d = await r.json();
       if (d.ok) setServices(d.services || []);
     } catch { } finally { setSvcLoading(false); }
@@ -405,7 +408,7 @@ export default function Admin() {
       const method = editingSvc !== null ? "PUT" : "POST";
       const url = editingSvc !== null ? `/api/admin/services/${editingSvc}` : "/api/admin/services";
       const body = { ...svcForm, cities: svcForm.cities.split(",").map((c: string) => c.trim()).filter(Boolean), startingPrice: svcForm.startingPrice ? Number(svcForm.startingPrice) : null };
-      const r = await fetch(url, { method, headers: authHeaders(token), body: JSON.stringify(body) });
+      const r = await fetch(apiUrl(url), { method, headers: authHeaders(token), body: JSON.stringify(body) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Could not save service");
       setNotice("Service saved."); setEditingSvc(null);
@@ -418,7 +421,7 @@ export default function Admin() {
   async function deleteService(id: number) {
     if (!window.confirm("Delete this service?")) return;
     try {
-      await fetch(`/api/admin/services/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      await fetch(apiUrl(`/api/admin/services/${id}`), { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
       setNotice("Service deleted."); await loadServices();
     } catch { setError("Could not delete service"); }
   }
@@ -428,7 +431,7 @@ export default function Admin() {
     if (!token) return;
     setCmsLoading(true);
     try {
-      const r = await fetch("/api/admin/settings", { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/settings"), { headers: { Authorization: `Bearer ${token}` } });
       const d = await r.json();
       if (d.ok && d.settings) {
         const s = d.settings;
@@ -464,7 +467,7 @@ export default function Admin() {
         { key: "site_description",    value: cmsForm.siteDescription },
       ];
       await Promise.all(settings.map(s =>
-        fetch("/api/admin/upsert-setting", { method: "POST", headers: authHeaders(token), body: JSON.stringify(s) })
+        fetch(apiUrl("/api/admin/upsert-setting"), { method: "POST", headers: authHeaders(token), body: JSON.stringify(s) })
       ));
       setNotice("CMS settings saved successfully.");
     } catch (err) { setError(err instanceof Error ? err.message : "Could not save CMS settings"); }
@@ -475,7 +478,7 @@ export default function Admin() {
   async function loadEmailLogs() {
     if (!token) return;
     try {
-      const r = await fetch("/api/admin/email-logs?limit=50", { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/email-logs?limit=50"), { headers: { Authorization: `Bearer ${token}` } });
       const d = await r.json();
       if (d.ok) setEmailLogs(d.rows || []);
     } catch { }
@@ -498,7 +501,7 @@ export default function Admin() {
     setTemplates(updated);
     const method = editingTemplate !== null ? "PATCH" : "POST";
     const tUrl = editingTemplate !== null ? `/api/admin/templates/${editingTemplate}` : "/api/admin/templates";
-    fetch(tUrl, { method, headers: authHeaders(token), body: JSON.stringify(templateForm) }).catch(() => {});
+    fetch(apiUrl(tUrl), { method, headers: authHeaders(token), body: JSON.stringify(templateForm) }).catch(() => {});
     setEditingTemplate(null); setTemplateForm({ name: "", subject: "", body: "" }); setNotice("Template saved.");
   }
   function editTemplate(t: typeof defaultTemplates[0]) { setTemplateForm({ name: t.name, subject: t.subject, body: t.body }); setEditingTemplate(t.id); }
@@ -519,7 +522,7 @@ export default function Admin() {
   async function login(e: React.FormEvent) {
     e.preventDefault(); setError(""); setLoading(true);
     try {
-      const response = await fetch("/api/admin/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
+      const response = await fetch(apiUrl("/api/admin/login"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Login failed");
       localStorage.setItem("athoo_admin_token", data.token);
@@ -539,7 +542,7 @@ export default function Admin() {
   async function loadLeads(overrideFormType?: string) {
     if (!token) return; setLoading(true); setError("");
     try {
-      const response = await fetch(`/api/admin/leads?${queryString(overrideFormType)}`, { headers: { Authorization: `Bearer ${token}` } });
+      const response = await fetch(apiUrl(`/api/admin/leads?${queryString(overrideFormType)}`), { headers: { Authorization: `Bearer ${token}` } });
       const data = await response.json();
       if (response.status === 401) { logout(); throw new Error("Session expired. Please login again."); }
       if (!response.ok) throw new Error(data.error || "Could not load leads");
@@ -551,7 +554,7 @@ export default function Admin() {
   async function loadSettings() {
     if (!token) return;
     try {
-      const response = await fetch("/api/admin/settings", { headers: { Authorization: `Bearer ${token}` } });
+      const response = await fetch(apiUrl("/api/admin/settings"), { headers: { Authorization: `Bearer ${token}` } });
       const data = await response.json(); if (!response.ok) return;
       setSettings(data.settings || {});
       setMaintenance({
@@ -565,18 +568,18 @@ export default function Admin() {
 
   async function loadAdmins() {
     if (!token) return;
-    try { const r = await fetch("/api/admin/admins", { headers: { Authorization: `Bearer ${token}` } }); const d = await r.json(); if (r.ok) setAdmins(d.rows || []); } catch { }
+    try { const r = await fetch(apiUrl("/api/admin/admins"), { headers: { Authorization: `Bearer ${token}` } }); const d = await r.json(); if (r.ok) setAdmins(d.rows || []); } catch { }
   }
   async function loadActivity() {
     if (!token) return;
-    try { const r = await fetch("/api/admin/activity", { headers: { Authorization: `Bearer ${token}` } }); const d = await r.json(); if (r.ok) setActivity(d.rows || []); } catch { }
+    try { const r = await fetch(apiUrl("/api/admin/activity"), { headers: { Authorization: `Bearer ${token}` } }); const d = await r.json(); if (r.ok) setActivity(d.rows || []); } catch { }
   }
 
   function logout() { localStorage.removeItem("athoo_admin_token"); localStorage.removeItem("athoo_admin_user"); setToken(""); setAdmin(null); setLeads([]); }
 
   function exportCsv() {
     const params = new URLSearchParams(queryString());
-    fetch(`/api/admin/export?${params.toString()}`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(apiUrl(`/api/admin/export?${params.toString()}`), { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.blob()).then((blob) => { const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "athoo-leads.csv"; link.click(); });
   }
 
@@ -584,7 +587,7 @@ export default function Admin() {
     if (!ids.length) return setError("Select at least one lead first.");
     setLoading(true); setError(""); setNotice("");
     try {
-      const r = await fetch("/api/admin/lead-update", { method: "POST", headers: authHeaders(token), body: JSON.stringify({ ids, ...patch }) });
+      const r = await fetch(apiUrl("/api/admin/lead-update"), { method: "POST", headers: authHeaders(token), body: JSON.stringify({ ids, ...patch }) });
       const d = await r.json(); if (!r.ok) throw new Error(d.error || "Update failed");
       setNotice("Lead updated."); setSelected([]); await loadLeads(FORM_TYPE_MAP[activeTab]);
     } catch (err) { setError(err instanceof Error ? err.message : "Update failed"); }
@@ -596,7 +599,7 @@ export default function Admin() {
     if (!ids.length) return setError("Select leads first.");
     setLoading(true); setError(""); setNotice("");
     try {
-      const r = await fetch("/api/admin/bulk-email", { method: "POST", headers: authHeaders(token), body: JSON.stringify({ ids, ...emailDraft }) });
+      const r = await fetch(apiUrl("/api/admin/bulk-email"), { method: "POST", headers: authHeaders(token), body: JSON.stringify({ ids, ...emailDraft }) });
       const d = await r.json(); if (!r.ok) throw new Error(d.error || "Email failed");
       setNotice(d.note || `Done. Sent: ${d.sent}, skipped: ${d.skipped}`); await loadLeads(FORM_TYPE_MAP[activeTab]);
     } catch (err) { setError(err instanceof Error ? err.message : "Email failed"); }
@@ -606,7 +609,7 @@ export default function Admin() {
   async function saveAdminUser(e: React.FormEvent) {
     e.preventDefault(); setError(""); setNotice("");
     try {
-      const r = await fetch("/api/admin/admins", { method: "POST", headers: authHeaders(token), body: JSON.stringify(adminForm) });
+      const r = await fetch(apiUrl("/api/admin/admins"), { method: "POST", headers: authHeaders(token), body: JSON.stringify(adminForm) });
       const d = await r.json(); if (!r.ok) throw new Error(d.error || "Could not save admin");
       setNotice("Admin user saved."); setAdminForm({ name: "", email: "", role: "manager", password: "", is_active: true }); await loadAdmins();
     } catch (err) { setError(err instanceof Error ? err.message : "Could not save admin"); }
@@ -615,7 +618,7 @@ export default function Admin() {
   async function saveSettings(e: React.FormEvent) {
     e.preventDefault(); setError(""); setNotice("");
     try {
-      const r = await fetch("/api/admin/settings", { method: "POST", headers: authHeaders(token), body: JSON.stringify({ maintenanceEnabled: maintenance.enabled, maintenanceMessage: maintenance.message, supportEmail: maintenance.supportEmail, supportPhone: maintenance.supportPhone }) });
+      const r = await fetch(apiUrl("/api/admin/settings"), { method: "POST", headers: authHeaders(token), body: JSON.stringify({ maintenanceEnabled: maintenance.enabled, maintenanceMessage: maintenance.message, supportEmail: maintenance.supportEmail, supportPhone: maintenance.supportPhone }) });
       const d = await r.json(); if (!r.ok) throw new Error(d.error || "Could not save settings");
       setNotice("Settings saved."); await loadSettings();
     } catch (err) { setError(err instanceof Error ? err.message : "Could not save settings"); }
@@ -1278,3 +1281,6 @@ export default function Admin() {
     </>
   );
 }
+
+
+
