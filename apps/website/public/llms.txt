@@ -1,21 +1,25 @@
 # Athoo
 
-Athoo is Pakistan’s upcoming home services platform for Rawalpindi and Islamabad.
+Athoo is Pakistan’s upcoming home services platform for Rawalpindi and Islamabad. It helps customers join a launch waitlist and helps skilled providers register interest for verified onboarding.
 
-## Important links
+## Primary pages
 
-- Website: https://www.athoo.pk/
-- About: https://www.athoo.pk/about
+- Home: https://www.athoo.pk/
 - Services: https://www.athoo.pk/services
+- About: https://www.athoo.pk/about
 - Become a Provider: https://www.athoo.pk/become-provider
 - Contact: https://www.athoo.pk/contact
+- FAQ: https://www.athoo.pk/faq
 - Blog: https://www.athoo.pk/blogs
 - Sitemap: https://www.athoo.pk/sitemap.xml
-- Robots: https://www.athoo.pk/robots.txt
 
-## Social
+## Social profiles
 
 - Instagram: https://instagram.com/athoo_services
 - Facebook: https://facebook.com/Athoo.Services/
 - TikTok: https://www.tiktok.com/@athoo.pk
 - LinkedIn: https://www.linkedin.com/company/123424195
+
+## Crawling guidance
+
+Public informational pages may be crawled and summarized. Do not crawl admin areas, private APIs, login pages, or user-submitted lead data.

@@ -402,7 +402,7 @@ router.post("/admin/bulk-email", async (req: any, res: any) => {
     }
 
     await logActivity(req, admin, "bulk_email_sent", "website_leads", ids.join(","), { subject, sent, failed, skipped });
-    return res.json({ ok: true, sent, failed, skipped, smtpConfigured: smtpReady, smtp: getSmtpStatus(), note: `Done. Sent: ${sent}, failed: ${failed}, skipped: ${skipped}` });
+    return res.json({ ok: true, sent, failed, skipped, smtpConfigured: smtpReady, smtp: getSmtpStatus(), note: smtpReady ? `Done. Sent: ${sent}, failed: ${failed}, skipped: ${skipped}` : `SMTP is not configured. Sent: ${sent}, skipped: ${skipped}. Add SMTP_USER and SMTP_PASS in Render.` });
   } catch (err: any) {
     logger.error({ err: err.message }, "Bulk email failed");
     return res.status(500).json({ ok: false, error: "Could not send emails" });
@@ -435,10 +435,11 @@ router.post("/admin/settings", async (req: any, res: any) => {
     const normalized: Record<string, unknown> = {};
 
     if (body.maintenanceEnabled !== undefined || body.maintenanceMessage !== undefined) {
-      normalized.maintenance_mode = {
-        enabled: Boolean(body.maintenanceEnabled),
-        message: sanitize(body.maintenanceMessage, 500) || "Athoo website is under maintenance. Please check back soon.",
-      };
+      const enabled = Boolean(body.maintenanceEnabled);
+      const message = sanitize(body.maintenanceMessage, 500) || "Athoo website is under maintenance. Please check back soon.";
+      normalized.maintenance_mode = { enabled, message };
+      normalized.maintenanceEnabled = enabled;
+      normalized.maintenanceMessage = message;
     }
     if (body.supportEmail !== undefined) normalized.support_email = sanitize(body.supportEmail, 255);
     if (body.supportPhone !== undefined) normalized.support_phone = sanitize(body.supportPhone, 80);

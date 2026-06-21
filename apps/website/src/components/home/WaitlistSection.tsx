@@ -39,7 +39,7 @@ export default function WaitlistSection() {
       <div className="container mx-auto max-w-4xl px-4 sm:px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false, amount: 0.25 }} className="text-center">
           <div className="mb-6 inline-block rounded-full bg-white/20 px-4 py-1.5 text-sm font-semibold text-white backdrop-blur">
-            Launching Soon — Target Preview: 72 Days
+            Launching Soon
           </div>
           <h2 className="mb-8 text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">
             Get Athoo Launch Updates

@@ -27,14 +27,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id: string) {
-          if (id.includes("/node_modules/react/") || id.includes("/node_modules/react-dom/") || id.includes("/node_modules/scheduler/")) return "vendor-react";
-          if (id.includes("/node_modules/framer-motion/")) return "vendor-motion";
-          if (id.includes("/node_modules/lucide-react/")) return "vendor-icons";
-          if (id.includes("/node_modules/@radix-ui/")) return "vendor-ui";
-          if (id.includes("/node_modules/@tanstack/")) return "vendor-query";
-          if (id.includes("/node_modules/wouter/")) return "vendor-router";
-          if (id.includes("/pages/admin") || id.includes("/components/admin")) return "chunk-admin";
-          if (id.includes("/pages/blog") || id.includes("/lib/blogData")) return "chunk-blog";
+          if (!id.includes("/node_modules/")) return undefined;
+          if (id.includes("/react/") || id.includes("/react-dom/") || id.includes("/scheduler/")) return "vendor-react";
+          if (id.includes("/lucide-react/") || id.includes("/react-icons/")) return "vendor-icons";
+          if (id.includes("/@tanstack/")) return "vendor-query";
+          if (id.includes("/wouter/")) return "vendor-router";
+          return "vendor";
         },
       },
     },
