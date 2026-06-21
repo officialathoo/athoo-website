@@ -23,7 +23,7 @@
 
 ## Required Render environment variables
 
-DATABASE_URL=<postgresql://neondb_owner:npg_kSV6gx9pYltz@ep-calm-queen-an93a89s-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require>
+DATABASE_URL=postgresql://neondb_owner:npg_43QUkdmqDITH@ep-blue-pond-ai51qywo-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 PORT=8080
 NODE_ENV=production
 SUPER_ADMIN_EMAIL=official@athoo.pk
