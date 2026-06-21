@@ -43,4 +43,3 @@ tsconfig.tsbuildinfo
 .replit
 .replitignore
 replit.md
-git rm -r --cached node_modules

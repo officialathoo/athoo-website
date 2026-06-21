@@ -52,7 +52,7 @@ const corsOptions: cors.CorsOptions = {
     callback(null, false);
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
+  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Cache-Control", "Pragma"],
   exposedHeaders: ["Content-Type"],
   credentials: false,
   optionsSuccessStatus: 204,

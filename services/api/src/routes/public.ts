@@ -29,15 +29,6 @@ function settingsMap(rows: any[]): Record<string, any> {
   return Object.fromEntries(rows.map((row: any) => [row.key, parseSettingValue(row.value)]));
 }
 
-function toBoolean(value: any): boolean {
-  if (value === true) return true;
-  if (value === false || value === null || value === undefined) return false;
-  if (typeof value === "string") return ["true", "1", "yes", "on"].includes(value.toLowerCase().trim());
-  if (typeof value === "number") return value === 1;
-  if (typeof value === "object") return toBoolean(value.enabled);
-  return false;
-}
-
 async function createAdminNotification(
   message: string,
   linkTo: string | null = null,
@@ -263,7 +254,7 @@ router.get("/public/settings", async (_req: any, res: any) => {
       facebookUrl: map.social_facebook || "https://facebook.com/Athoo.Services/",
       tiktokUrl: map.social_tiktok || "https://tiktok.com/@athoo.pk",
       linkedinUrl: map.social_linkedin || "",
-      maintenanceMode: toBoolean(map.maintenance_mode) || toBoolean(map.maintenanceEnabled),
+      maintenanceMode: Boolean(map.maintenance_mode?.enabled) || map.maintenance_mode === true || map.maintenanceEnabled === true || map.maintenanceEnabled === "true",
       maintenanceMessage: map.maintenance_mode?.message || map.maintenanceMessage || "Athoo website is under maintenance. Please check back soon.",
       launchDate: map.launch_date || "2026-09-01",
     });

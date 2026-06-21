@@ -15,7 +15,7 @@ export default function HomeHero() {
   useEffect(() => {
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), 5000);
-    fetch(apiUrl("/api/public/cms"), { signal: controller.signal, cache: "no-store" })
+    fetch(apiUrl(`/api/public/cms?ts=${Date.now()}`), { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
         const c = data?.cms || {};

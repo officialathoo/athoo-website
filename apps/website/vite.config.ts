@@ -31,14 +31,10 @@ export default defineConfig({
       output: {
         manualChunks(id: string) {
           if (!id.includes("node_modules")) return undefined;
-
           if (id.includes("@radix-ui")) return "vendor-ui";
-          if (id.includes("lucide-react") || id.includes("react-icons")) {
-            return "vendor-icons";
-          }
+          if (id.includes("lucide-react") || id.includes("react-icons")) return "vendor-icons";
           if (id.includes("@tanstack")) return "vendor-query";
           if (id.includes("wouter")) return "vendor-router";
-
           return "vendor";
         },
       },
@@ -52,10 +48,7 @@ export default defineConfig({
     fs: { strict: true },
     proxy: {
       "/api": {
-        target:
-          process.env.API_PROXY_TARGET ||
-          process.env.VITE_API_BASE_URL ||
-          "http://localhost:8080",
+        target: process.env.API_PROXY_TARGET || process.env.VITE_API_BASE_URL || "http://localhost:8080",
         changeOrigin: true,
       },
     },

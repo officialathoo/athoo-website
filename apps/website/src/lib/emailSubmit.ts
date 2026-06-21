@@ -1,4 +1,14 @@
-import { apiUrl } from "@/lib/apiBase";
+function resolveApiBase(): string {
+  const configured = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+
+  if (configured && configured !== "https://api.athoo.pk") {
+    return configured;
+  }
+
+  return "https://thoo-api.onrender.com";
+}
+
+const API_BASE = resolveApiBase();
 
 export type SubmissionPayload = Record<string, string | number | boolean | undefined | null>;
 
@@ -26,7 +36,12 @@ function isAbortError(error: unknown): boolean {
 async function parseResponse(response: Response): Promise<any> {
   const text = await response.text();
   if (!text) return {};
-  try { return JSON.parse(text); } catch { return { raw: text }; }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
+  }
 }
 
 async function tryApi(formType: AthooFormType, payload: Record<string, string>) {
@@ -34,9 +49,12 @@ async function tryApi(formType: AthooFormType, payload: Record<string, string>) 
   const timeout = window.setTimeout(() => controller.abort(), 25000);
 
   try {
-    const response = await fetch(apiUrl("/api/submit"), {
+    const response = await fetch(`${API_BASE}/api/submit`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
       signal: controller.signal,
       body: JSON.stringify({
         formType,
@@ -47,18 +65,31 @@ async function tryApi(formType: AthooFormType, payload: Record<string, string>) 
     });
 
     const data = await parseResponse(response);
+
     if (response.ok && (data?.ok === true || data?.id)) {
-      return { ok: true, id: data?.id, emailStatus: data?.emailStatus || "unknown" };
+      return {
+        ok: true,
+        id: data?.id,
+        emailStatus: data?.emailStatus || "unknown",
+      };
     }
-    throw new Error(data?.error || data?.errors?.join?.(", ") || data?.raw || "Submission failed");
+
+    throw new Error(
+      data?.error || data?.errors?.join?.(", ") || data?.raw || "Submission failed",
+    );
   } catch (error) {
-    if (isAbortError(error)) throw new Error("Submission is taking too long. Please try again.");
+    if (isAbortError(error)) {
+      throw new Error("Submission is taking too long. Please try again.");
+    }
     throw error;
   } finally {
     window.clearTimeout(timeout);
   }
 }
 
-export async function submitToAthooEmail(formType: AthooFormType, payload: SubmissionPayload) {
+export async function submitToAthooEmail(
+  formType: AthooFormType,
+  payload: SubmissionPayload,
+) {
   return tryApi(formType, clean(payload));
 }

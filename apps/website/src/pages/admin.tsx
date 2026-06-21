@@ -18,7 +18,7 @@ function resolveApiBase(): string {
 }
 const API_BASE = resolveApiBase();
 const apiUrl = (path: string) => API_BASE + path;
-const noStoreHeaders = (token: string) => ({ Authorization: `Bearer ${token}`, "Cache-Control": "no-cache" });
+const noStoreHeaders = (token: string) => ({ Authorization: `Bearer ${token}` });
 
 const roles = ["super_admin", "admin", "manager", "custom"];
 const statuses = ["new", "contacted", "approved", "rejected", "closed"];
