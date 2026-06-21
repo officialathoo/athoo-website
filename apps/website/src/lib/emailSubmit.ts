@@ -1,21 +1,21 @@
-import { PRIMARY_API_BASE, normalizeApiBase } from "@/lib/apiBase";
+function resolveApiBase(): string {
+  const configured = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
-function resolveApiBases(): string[] {
-  const configured = normalizeApiBase(import.meta.env.VITE_API_BASE_URL || "");
-  return Array.from(new Set([PRIMARY_API_BASE, configured].map(normalizeApiBase).filter(Boolean)));
+  if (configured && configured !== "https://api.athoo.pk") {
+    return configured;
+  }
+
+  return "https://thoo-api.onrender.com";
 }
 
-const API_BASES = resolveApiBases();
+const API_BASE = resolveApiBase();
+
+export type SubmissionPayload = Record<string, string | number | boolean | undefined | null>;
 
 export type AthooFormType =
   | "Contact Form"
   | "Waitlist Signup"
   | "Provider Waitlist";
-
-export type SubmissionPayload = Record<
-  string,
-  string | number | boolean | undefined | null
->;
 
 function clean(payload: SubmissionPayload): Record<string, string> {
   return Object.fromEntries(
@@ -44,20 +44,13 @@ async function parseResponse(response: Response): Promise<any> {
   }
 }
 
-async function postToApi(
-  apiBase: string,
-  formType: AthooFormType,
-  payload: Record<string, string>,
-) {
+async function tryApi(formType: AthooFormType, payload: Record<string, string>) {
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 25_000);
+  const timeout = window.setTimeout(() => controller.abort(), 25000);
 
   try {
-    const response = await fetch(`${apiBase}/api/submit`, {
+    const response = await fetch(`${API_BASE}/api/submit`, {
       method: "POST",
-      mode: "cors",
-      cache: "no-store",
-      credentials: "omit",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
@@ -65,10 +58,7 @@ async function postToApi(
       signal: controller.signal,
       body: JSON.stringify({
         formType,
-        source:
-          typeof window !== "undefined"
-            ? window.location.href
-            : "Athoo Website",
+        source: typeof window !== "undefined" ? window.location.href : "Athoo Website",
         submittedAt: new Date().toISOString(),
         ...payload,
       }),
@@ -76,8 +66,6 @@ async function postToApi(
 
     const data = await parseResponse(response);
 
-    // Lead saved = success. Email may be sent, failed, or skipped, but the user
-    // should not see an error if the backend has accepted the lead.
     if (response.ok && (data?.ok === true || data?.id)) {
       return {
         ok: true,
@@ -87,11 +75,13 @@ async function postToApi(
     }
 
     throw new Error(
-      data?.error ||
-        data?.errors?.join?.(", ") ||
-        data?.raw ||
-        `Submission failed (${response.status})`,
+      data?.error || data?.errors?.join?.(", ") || data?.raw || "Submission failed",
     );
+  } catch (error) {
+    if (isAbortError(error)) {
+      throw new Error("Submission is taking too long. Please try again.");
+    }
+    throw error;
   } finally {
     window.clearTimeout(timeout);
   }
@@ -101,24 +91,5 @@ export async function submitToAthooEmail(
   formType: AthooFormType,
   payload: SubmissionPayload,
 ) {
-  const cleanPayload = clean(payload);
-  let lastError: unknown = null;
-
-  for (const apiBase of API_BASES) {
-    try {
-      return await postToApi(apiBase, formType, cleanPayload);
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  if (isAbortError(lastError)) {
-    throw new Error("Submission is taking too long. Please try again.");
-  }
-
-  if (lastError instanceof Error) {
-    throw lastError;
-  }
-
-  throw new Error("Could not submit online");
+  return tryApi(formType, clean(payload));
 }

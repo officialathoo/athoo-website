@@ -18,6 +18,7 @@ function resolveApiBase(): string {
 }
 const API_BASE = resolveApiBase();
 const apiUrl = (path: string) => API_BASE + path;
+const noStoreHeaders = (token: string) => ({ Authorization: `Bearer ${token}`, "Cache-Control": "no-cache" });
 
 const roles = ["super_admin", "admin", "manager", "custom"];
 const statuses = ["new", "contacted", "approved", "rejected", "closed"];
@@ -206,7 +207,7 @@ export default function Admin() {
     if (!token) return;
     setBlogLoading(true);
     try {
-      const r = await fetch(apiUrl("/api/admin/blog/posts"), { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/blog/posts"), { headers: noStoreHeaders(token) });
       const d = await r.json();
       if (r.status === 401) { logout(); return; }
       if (r.ok) setBlogs((d.posts || []).map((p: any) => ({ ...p, coverImage: p.cover_image, readTime: p.read_time, metaTitle: p.meta_title, metaDescription: p.meta_description, publishedAt: p.published_at ? String(p.published_at).slice(0, 10) : "" })));
@@ -233,7 +234,7 @@ export default function Admin() {
     if (!window.confirm("Delete this blog post?")) return;
     setBlogLoading(true); setError(""); setNotice("");
     try {
-      const r = await fetch(apiUrl(`/api/admin/blog/posts/${id}`), { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl(`/api/admin/blog/posts/${id}`), { method: "DELETE", headers: noStoreHeaders(token) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Delete failed");
       setNotice("Blog post deleted."); await loadBlogs();
@@ -258,7 +259,7 @@ export default function Admin() {
     if (!token) return;
     setExtLoading(true);
     try {
-      const r = await fetch(apiUrl("/api/admin/settings"), { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/settings"), { headers: noStoreHeaders(token) });
       const d = await r.json();
       if (!r.ok) return;
       const s = d.settings || {};
@@ -332,7 +333,7 @@ export default function Admin() {
   async function deleteMediaItem(id: number) {
     setError(""); setNotice("");
     try {
-      const r = await fetch(apiUrl(`/api/admin/media/${id}`), { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl(`/api/admin/media/${id}`), { method: "DELETE", headers: noStoreHeaders(token) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Delete failed");
       setMediaItems(items => items.filter(m => m.id !== id));
@@ -343,7 +344,7 @@ export default function Admin() {
   async function loadMediaFromApi() {
     if (!token) return; setExtLoading(true);
     try {
-      const r = await fetch(apiUrl("/api/admin/media"), { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/media"), { headers: noStoreHeaders(token) });
       const d = await r.json();
       if (d.ok) setMediaItems(d.items.map((m: any) => ({ ...m, createdAt: m.created_at })));
     } catch { } finally { setExtLoading(false); }
@@ -352,7 +353,7 @@ export default function Admin() {
   async function loadTemplatesFromApi() {
     if (!token) return;
     try {
-      const r = await fetch(apiUrl("/api/admin/templates"), { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/templates"), { headers: noStoreHeaders(token) });
       const d = await r.json();
       if (d.ok && (d.rows || d.templates)?.length) setTemplates(d.rows || d.templates);
     } catch { }
@@ -382,7 +383,7 @@ export default function Admin() {
   async function deleteBlogCategory(id: number) {
     if (!window.confirm("Delete this category?")) return;
     try {
-      await fetch(apiUrl(`/api/admin/blog/categories/${id}`), { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      await fetch(apiUrl(`/api/admin/blog/categories/${id}`), { method: "DELETE", headers: noStoreHeaders(token) });
       setBlogCats(cats => cats.filter(c => c.id !== id));
       setNotice("Category deleted.");
     } catch { }
@@ -391,7 +392,7 @@ export default function Admin() {
   async function loadDbStats() {
     if (!token) return;
     try {
-      const r = await fetch(apiUrl("/api/admin/db-stats"), { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/db-stats"), { headers: noStoreHeaders(token) });
       const d = await r.json();
       if (d.ok) setDbStats(d.stats || []);
     } catch { }
@@ -402,7 +403,7 @@ export default function Admin() {
     if (!token) return;
     setSvcLoading(true);
     try {
-      const r = await fetch(apiUrl("/api/admin/services"), { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/services"), { headers: noStoreHeaders(token) });
       const d = await r.json();
       if (d.ok) setServices(d.services || []);
     } catch { } finally { setSvcLoading(false); }
@@ -428,7 +429,7 @@ export default function Admin() {
   async function deleteService(id: number) {
     if (!window.confirm("Delete this service?")) return;
     try {
-      await fetch(apiUrl(`/api/admin/services/${id}`), { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      await fetch(apiUrl(`/api/admin/services/${id}`), { method: "DELETE", headers: noStoreHeaders(token) });
       setNotice("Service deleted."); await loadServices();
     } catch { setError("Could not delete service"); }
   }
@@ -438,7 +439,7 @@ export default function Admin() {
     if (!token) return;
     setCmsLoading(true);
     try {
-      const r = await fetch(apiUrl("/api/admin/settings"), { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/settings"), { headers: noStoreHeaders(token) });
       const d = await r.json();
       if (d.ok && d.settings) {
         const s = d.settings;
@@ -485,7 +486,7 @@ export default function Admin() {
   async function loadEmailLogs() {
     if (!token) return;
     try {
-      const r = await fetch(apiUrl("/api/admin/email-logs?limit=50"), { headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch(apiUrl("/api/admin/email-logs?limit=50"), { headers: noStoreHeaders(token) });
       const d = await r.json();
       if (d.ok) setEmailLogs(d.rows || []);
     } catch { }
@@ -588,7 +589,7 @@ export default function Admin() {
   async function loadLeads(overrideFormType?: string) {
     if (!token) return; setLoading(true); setError("");
     try {
-      const response = await fetch(apiUrl(`/api/admin/leads?${queryString(overrideFormType)}`), { headers: { Authorization: `Bearer ${token}` } });
+      const response = await fetch(apiUrl(`/api/admin/leads?${queryString(overrideFormType)}`), { headers: noStoreHeaders(token) });
       const data = await response.json();
       if (response.status === 401) { logout(); throw new Error("Session expired. Please login again."); }
       if (!response.ok) throw new Error(data.error || "Could not load leads");
@@ -600,7 +601,7 @@ export default function Admin() {
   async function loadSettings() {
     if (!token) return;
     try {
-      const response = await fetch(apiUrl("/api/admin/settings"), { headers: { Authorization: `Bearer ${token}` } });
+      const response = await fetch(apiUrl("/api/admin/settings"), { headers: noStoreHeaders(token) });
       const data = await response.json(); if (!response.ok) return;
       setSettings(data.settings || {});
       setMaintenance({
@@ -614,11 +615,11 @@ export default function Admin() {
 
   async function loadAdmins() {
     if (!token) return;
-    try { const r = await fetch(apiUrl("/api/admin/admins"), { headers: { Authorization: `Bearer ${token}` } }); const d = await r.json(); if (r.ok) setAdmins(d.rows || []); } catch { }
+    try { const r = await fetch(apiUrl("/api/admin/admins"), { headers: noStoreHeaders(token) }); const d = await r.json(); if (r.ok) setAdmins(d.rows || []); } catch { }
   }
   async function loadActivity() {
     if (!token) return;
-    try { const r = await fetch(apiUrl("/api/admin/activity"), { headers: { Authorization: `Bearer ${token}` } }); const d = await r.json(); if (r.ok) setActivity(d.rows || []); } catch { }
+    try { const r = await fetch(apiUrl("/api/admin/activity"), { headers: noStoreHeaders(token) }); const d = await r.json(); if (r.ok) setActivity(d.rows || []); } catch { }
   }
 
   function logout() { localStorage.removeItem("athoo_admin_token"); localStorage.removeItem("athoo_admin_user"); setToken(""); setAdmin(null); setLeads([]); }

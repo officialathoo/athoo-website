@@ -10,7 +10,6 @@ import FaqSection from "@/components/home/FaqSection";
 import CompleteInfoSection from "@/components/home/CompleteInfoSection";
 import BlogPreview from "@/components/home/BlogPreview";
 import HomeContact from "@/components/home/HomeContact";
-import CountdownTimer from "@/components/home/CountdownTimer";
 import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
 
@@ -173,7 +172,6 @@ export default function Home() {
         </div>
         <ProviderTeaser />
         <CompleteInfoSection />
-        <CountdownTimer />
         <BlogPreview />
         <FaqSection />
         <HomeContact />

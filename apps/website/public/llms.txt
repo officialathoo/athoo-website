@@ -1,27 +1,21 @@
 # Athoo
 
-Athoo is an upcoming home services platform for Pakistan, focused first on Rawalpindi and Islamabad. The website helps customers join the launch waitlist and helps skilled professionals register provider interest.
+Athoo is Pakistan’s upcoming home services platform for Rawalpindi and Islamabad.
 
-## Official Website
-- [Athoo Home](https://www.athoo.pk/)
-- [Services](https://www.athoo.pk/services)
-- [How It Works](https://www.athoo.pk/how-it-works)
-- [Become a Provider](https://www.athoo.pk/become-provider)
-- [Contact Athoo](https://www.athoo.pk/contact)
-- [Athoo Blog](https://www.athoo.pk/blogs)
+## Important links
 
-## Key Topics
-- Home services in Pakistan
-- Verified plumbers, electricians, AC technicians, cleaners, carpenters and painters
-- Home service provider onboarding
-- Rawalpindi and Islamabad service launch updates
+- Website: https://www.athoo.pk/
+- About: https://www.athoo.pk/about
+- Services: https://www.athoo.pk/services
+- Become a Provider: https://www.athoo.pk/become-provider
+- Contact: https://www.athoo.pk/contact
+- Blog: https://www.athoo.pk/blogs
+- Sitemap: https://www.athoo.pk/sitemap.xml
+- Robots: https://www.athoo.pk/robots.txt
 
-## Contact
-- Email: official@athoo.pk
-- WhatsApp: +92 339 0051068
+## Social
 
-## Social Profiles
-- [Instagram](https://instagram.com/athoo_services)
-- [Facebook](https://facebook.com/Athoo.Services/)
-- [TikTok](https://www.tiktok.com/@athoo.pk)
-- [LinkedIn](https://www.linkedin.com/company/123424195)
+- Instagram: https://instagram.com/athoo_services
+- Facebook: https://facebook.com/Athoo.Services/
+- TikTok: https://www.tiktok.com/@athoo.pk
+- LinkedIn: https://www.linkedin.com/company/123424195
