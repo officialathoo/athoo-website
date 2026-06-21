@@ -1,33 +1,61 @@
 function resolveApiBase(): string {
   const configured = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
-  if (configured) return configured;
 
-  if (typeof window !== "undefined") {
-    const host = window.location.hostname;
-    if (host === "athoo.pk" || host === "www.athoo.pk" || host === "admin.athoo.pk") {
-      return "https://api.athoo.pk";
-    }
+  if (configured) {
+    return configured;
   }
 
-  return "";
+  return "https://thoo-api.onrender.com";
 }
 
 const API_BASE = resolveApiBase();
 
-export type SubmissionPayload = Record<string, string | number | undefined | null>;
+export type SubmissionPayload = Record<
+  string,
+  string | number | boolean | undefined | null
+>;
+
+export type AthooFormType =
+  | "Contact Form"
+  | "Waitlist Signup"
+  | "Provider Waitlist";
 
 function clean(payload: SubmissionPayload): Record<string, string> {
   return Object.fromEntries(
     Object.entries(payload).map(([key, value]) => [
       key,
-      String(value ?? "").replace(/[<>]/g, "").trim(),
+      String(value ?? "")
+        .replace(/[<>]/g, "")
+        .replace(/[\u0000-\u001F\u007F]/g, " ")
+        .trim(),
     ]),
   );
 }
 
-async function tryApi(formType: string, payload: Record<string, string>) {
+function isAbortError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "AbortError";
+}
+
+async function parseResponse(response: Response): Promise<any> {
+  const text = await response.text();
+
+  if (!text) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
+  }
+}
+
+async function tryApi(
+  formType: AthooFormType,
+  payload: Record<string, string>,
+) {
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 15000);
+  const timeout = window.setTimeout(() => controller.abort(), 20000);
 
   try {
     const response = await fetch(`${API_BASE}/api/submit`, {
@@ -39,21 +67,33 @@ async function tryApi(formType: string, payload: Record<string, string>) {
       signal: controller.signal,
       body: JSON.stringify({
         formType,
-        source: typeof window !== "undefined" ? window.location.href : "Athoo Website",
+        source:
+          typeof window !== "undefined"
+            ? window.location.href
+            : "Athoo Website",
         submittedAt: new Date().toISOString(),
         ...payload,
       }),
     });
 
-    const data = await response.json().catch(() => ({ ok: false }));
+    const data = await parseResponse(response);
 
-    if (!response.ok || data.ok === false) {
-      throw new Error(data.error || data.errors?.join(", ") || "Submission failed");
+    if (response.ok && (data?.ok === true || data?.id)) {
+      return {
+        ok: true,
+        id: data?.id,
+        emailStatus: data?.emailStatus || "unknown",
+      };
     }
 
-    return data;
+    throw new Error(
+      data?.error ||
+      data?.errors?.join?.(", ") ||
+      data?.raw ||
+      "Submission failed",
+    );
   } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
+    if (isAbortError(error)) {
       throw new Error("Submission is taking too long. Please try again.");
     }
 
@@ -64,7 +104,7 @@ async function tryApi(formType: string, payload: Record<string, string>) {
 }
 
 export async function submitToAthooEmail(
-  formType: string,
+  formType: AthooFormType,
   payload: SubmissionPayload,
 ) {
   const cleanPayload = clean(payload);
