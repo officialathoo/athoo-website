@@ -1,10 +1,11 @@
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motionLite";
 import { Link } from "wouter";
 import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { BLOG_POSTS } from "@/lib/blogData";
 
 export default function BlogPreview() {
   const posts = BLOG_POSTS.slice(0, 3);
+  const fallbackImage = "/images/blog-default.webp";
 
   return (
     <section className="bg-gray-50 border-t border-gray-100 py-24 px-6">
@@ -41,16 +42,18 @@ export default function BlogPreview() {
               transition={{ delay: i * 0.08 }}
               className="group bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden"
             >
-              {post.imageUrl && (
-                <div className="w-full h-44 overflow-hidden">
-                  <img
-                    src={post.imageUrl}
-                    alt={post.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                </div>
-              )}
+              <div className="w-full h-44 overflow-hidden">
+                <img
+                  src={post.imageUrl || fallbackImage}
+                  alt={post.title}
+                  width={800}
+                  height={450}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                  decoding="async"
+                  onError={(event) => { event.currentTarget.src = fallbackImage; }}
+                />
+              </div>
               <div className="p-7 flex flex-col flex-1">
                 <div className="flex items-center gap-2 mb-5">
                   <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600">

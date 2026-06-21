@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motionLite";
 import { Smartphone, Grid3x3, Zap, FileCheck, ShieldCheck, TrendingUp } from "lucide-react";
 
 export default function HowItWorks() {

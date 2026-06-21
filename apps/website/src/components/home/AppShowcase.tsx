@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motionLite";
 import { CheckCircle2, Sparkles, ShieldCheck, BellRing } from "lucide-react";
 
 export default function AppShowcase() {
@@ -69,17 +69,37 @@ export default function AppShowcase() {
             <motion.div
               animate={{ y: [0, -12, 0], rotate: [-6, -4, -6] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute left-0 top-12 hidden w-[250px] rounded-[2.1rem] border border-white/80 bg-white p-3 shadow-2xl shadow-blue-950/15 sm:block lg:left-4"
+              className="animate-float absolute left-0 top-12 hidden w-[250px] rounded-[2.1rem] border border-white/80 bg-white p-3 shadow-2xl shadow-blue-950/15 sm:block lg:left-4"
             >
-              <img src="/app-interface-clean.webp" alt="Athoo customer app preview" width={360} height={720} loading="lazy" decoding="async" className="app-preview-image h-auto w-full rounded-[1.6rem]" />
+              <img
+                src="/app-interface-clean-360.webp"
+                srcSet="/app-interface-clean-360.webp 360w, /app-interface-clean-540.webp 540w"
+                sizes="(max-width: 640px) 300px, 340px"
+                alt="Athoo customer app preview"
+                width={360}
+                height={776}
+                loading="lazy"
+                decoding="async"
+                className="app-preview-image h-auto w-full rounded-[1.6rem]"
+              />
             </motion.div>
 
             <motion.div
               animate={{ y: [0, 14, 0], rotate: [5, 7, 5] }}
               transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute right-0 top-0 w-[300px] rounded-[2.4rem] border border-white/90 bg-white p-3 shadow-2xl shadow-blue-950/20 sm:right-8 sm:w-[340px] lg:right-4"
+              className="animate-float-delayed absolute right-0 top-0 w-[300px] rounded-[2.4rem] border border-white/90 bg-white p-3 shadow-2xl shadow-blue-950/20 sm:right-8 sm:w-[340px] lg:right-4"
             >
-              <img src="/app-interface-clean.webp" alt="Athoo provider app preview" width={360} height={720} loading="lazy" decoding="async" className="app-preview-image h-auto w-full rounded-[1.8rem]" />
+              <img
+                src="/app-interface-clean-360.webp"
+                srcSet="/app-interface-clean-360.webp 360w, /app-interface-clean-540.webp 540w"
+                sizes="(max-width: 640px) 300px, 340px"
+                alt="Athoo provider app preview"
+                width={360}
+                height={776}
+                loading="lazy"
+                decoding="async"
+                className="app-preview-image h-auto w-full rounded-[1.8rem]"
+              />
               <div className="absolute -left-4 top-16 rounded-2xl bg-white px-4 py-3 text-sm font-black text-[#081120] shadow-xl ring-1 ring-slate-100 sm:-left-8">
                 <div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-green-500" /> Verified Providers</div>
               </div>

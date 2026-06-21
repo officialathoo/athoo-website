@@ -149,23 +149,23 @@ export default function FAQ() {
           name="description"
           content="Answers to common questions about Athoo — Pakistan's upcoming home services platform. Learn about how Athoo works for customers and providers in Rawalpindi and Islamabad."
         />
-        <link rel="canonical" href="https://athoo.pk/faq" />
+        <link rel="canonical" href="https://www.athoo.pk/faq" />
         <meta property="og:title" content="FAQ — Frequently Asked Questions | Athoo" />
         <meta property="og:description" content="Answers to common questions about Athoo — Pakistan's upcoming home services platform for Rawalpindi and Islamabad." />
-        <meta property="og:url" content="https://athoo.pk/faq" />
-        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:url" content="https://www.athoo.pk/faq" />
+        <meta property="og:image" content="https://www.athoo.pk/opengraph.jpg" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Athoo" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="FAQ — Frequently Asked Questions | Athoo" />
         <meta name="twitter:description" content="Answers to common questions about Athoo — Pakistan's upcoming home services platform." />
-        <meta name="twitter:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta name="twitter:image" content="https://www.athoo.pk/opengraph.jpg" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://athoo.pk/" },
-            { "@type": "ListItem", "position": 2, "name": "FAQ", "item": "https://athoo.pk/faq" }
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.athoo.pk/" },
+            { "@type": "ListItem", "position": 2, "name": "FAQ", "item": "https://www.athoo.pk/faq" }
           ]
         })}</script>
         <script type="application/ld+json">{JSON.stringify({

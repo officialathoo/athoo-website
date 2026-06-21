@@ -7,11 +7,11 @@ export default function Terms() {
       <Helmet>
         <title>Terms & Conditions — Athoo</title>
         <meta name="description" content="Athoo's Terms & Conditions — the rules governing use of the Athoo platform for customers and service providers." />
-        <link rel="canonical" href="https://athoo.pk/terms" />
+        <link rel="canonical" href="https://www.athoo.pk/terms" />
         <meta property="og:title" content="Terms & Conditions — Athoo" />
         <meta property="og:description" content="Athoo's Terms & Conditions — the rules governing use of the Athoo platform for customers and service providers." />
-        <meta property="og:url" content="https://athoo.pk/terms" />
-        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:url" content="https://www.athoo.pk/terms" />
+        <meta property="og:image" content="https://www.athoo.pk/opengraph.jpg" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Athoo" />
         <meta name="twitter:card" content="summary" />
@@ -28,7 +28,7 @@ export default function Terms() {
 
             <h2>1. Agreement to Terms</h2>
             <p>
-              By accessing or using the Athoo website at <a href="https://athoo.pk">athoo.pk</a> or any future Athoo mobile application (the "Platform"), you agree to be bound by these Terms & Conditions and our Privacy Policy. If you do not agree, you may not use the Platform.
+              By accessing or using the Athoo website at <a href="https://www.athoo.pk">athoo.pk</a> or any future Athoo mobile application (the "Platform"), you agree to be bound by these Terms & Conditions and our Privacy Policy. If you do not agree, you may not use the Platform.
             </p>
 
             <h2>2. About Athoo</h2>
@@ -154,7 +154,7 @@ export default function Terms() {
             </p>
             <ul>
               <li>Email: <a href="mailto:official@athoo.pk">official@athoo.pk</a></li>
-              <li>Website: <a href="https://athoo.pk">athoo.pk</a></li>
+              <li>Website: <a href="https://www.athoo.pk">athoo.pk</a></li>
             </ul>
 
           </div>

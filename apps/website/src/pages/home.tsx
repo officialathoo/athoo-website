@@ -18,8 +18,8 @@ const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Athoo",
-  "url": "https://athoo.pk/",
-  "logo": "https://athoo.pk/athoo-logo.png",
+  "url": "https://www.athoo.pk/",
+  "logo": "https://www.athoo.pk/athoo-logo.webp",
   "description": "Pakistan's upcoming home services platform connecting customers with verified electricians, plumbers, AC technicians, cleaners, carpenters, painters and more in Rawalpindi and Islamabad.",
   "foundingLocation": { "@type": "Place", "name": "Rawalpindi, Pakistan" },
   "areaServed": [
@@ -48,9 +48,9 @@ const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": "Athoo Home Services",
-  "url": "https://athoo.pk/",
-  "logo": "https://athoo.pk/athoo-logo.png",
-  "image": "https://athoo.pk/athoo-logo.png",
+  "url": "https://www.athoo.pk/",
+  "logo": "https://www.athoo.pk/athoo-logo.webp",
+  "image": "https://www.athoo.pk/athoo-logo.webp",
   "description": "Athoo connects homeowners in Rawalpindi and Islamabad with verified, professional home service providers — electricians, plumbers, AC technicians, cleaners, carpenters, painters and more.",
   "telephone": "+92-339-0051068",
   "email": "official@athoo.pk",
@@ -84,14 +84,14 @@ const webSiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "Athoo",
-  "url": "https://athoo.pk/",
+  "url": "https://www.athoo.pk/",
   "description": "Pakistan's upcoming trusted home services marketplace for Rawalpindi and Islamabad.",
   "inLanguage": "en",
   "potentialAction": {
     "@type": "SearchAction",
     "target": {
       "@type": "EntryPoint",
-      "urlTemplate": "https://athoo.pk/services?q={search_term_string}",
+      "urlTemplate": "https://www.athoo.pk/services?q={search_term_string}",
     },
     "query-input": "required name=search_term_string",
   },
@@ -149,10 +149,10 @@ export default function Home() {
       <Helmet>
         <title>Athoo | Trusted Home Services in Rawalpindi & Islamabad</title>
         <meta name="description" content="Athoo is Pakistan's upcoming home services platform — connecting customers with verified electricians, plumbers, AC technicians, cleaners, carpenters, painters and more in Rawalpindi and Islamabad. Join the waitlist." />
-        <link rel="canonical" href="https://athoo.pk/" />
+        <link rel="canonical" href="https://www.athoo.pk/" />
         <meta property="og:title" content="Athoo | Trusted Home Services in Rawalpindi & Islamabad" />
         <meta property="og:description" content="Pakistan's upcoming home services marketplace. Connect with verified electricians, plumbers, AC technicians, cleaners and more in Rawalpindi and Islamabad." />
-        <meta property="og:url" content="https://athoo.pk/" />
+        <meta property="og:url" content="https://www.athoo.pk/" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Athoo" />
         <script type="application/ld+json">{JSON.stringify(organizationSchema)}</script>

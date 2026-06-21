@@ -319,3 +319,27 @@ section, article {
 
 /* Repeat in-view animations are handled by Framer Motion viewport once:false. This class keeps image animations GPU-friendly. */
 .app-preview-image { transform: translateZ(0); will-change: transform; }
+
+/* Lightweight repeating scroll reveal without shipping Framer Motion on the public home page */
+.athoo-reveal {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition: opacity 560ms ease, transform 560ms ease;
+  will-change: opacity, transform;
+}
+.athoo-reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .athoo-reveal,
+  .athoo-reveal.is-visible,
+  .animate-float,
+  .animate-float-delayed,
+  .animate-pulse-glow {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

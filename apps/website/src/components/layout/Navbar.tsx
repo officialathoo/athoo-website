@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, BellRing } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/lib/motionLite";
 import { handleWaitlistClick } from "@/lib/navigation";
 
 export default function Navbar() {

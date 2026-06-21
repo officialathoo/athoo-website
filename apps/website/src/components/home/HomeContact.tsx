@@ -43,16 +43,16 @@ export default function HomeContact() {
             <p className="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-400">Follow Us</p>
             <div className="flex gap-4">
               <a href="https://www.instagram.com/athoo_services" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20" aria-label="Instagram">
-                <SiInstagram className="h-5 w-5" />
+                <SiInstagram aria-hidden="true" focusable="false" className="h-5 w-5" />
               </a>
               <a href="https://www.facebook.com/Athoo.Services/" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20" aria-label="Facebook">
-                <SiFacebook className="h-5 w-5" />
+                <SiFacebook aria-hidden="true" focusable="false" className="h-5 w-5" />
               </a>
               <a href="https://www.tiktok.com/@athoo.pk" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20" aria-label="TikTok">
-                <SiTiktok className="h-5 w-5" />
+                <SiTiktok aria-hidden="true" focusable="false" className="h-5 w-5" />
               </a>
               <a href="https://www.linkedin.com/company/123424195" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20" aria-label="LinkedIn">
-                <FaLinkedin className="h-5 w-5" />
+                <FaLinkedin aria-hidden="true" focusable="false" className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -63,7 +63,7 @@ export default function HomeContact() {
             rel="noopener noreferrer"
             className="inline-flex w-max items-center justify-center gap-2 rounded-full bg-[#25D366] px-8 py-4 font-bold text-white transition-transform hover:scale-105"
           >
-            <SiWhatsapp className="h-6 w-6" />
+            <SiWhatsapp aria-hidden="true" focusable="false" className="h-6 w-6" />
             Chat on WhatsApp
           </a>
         </div>

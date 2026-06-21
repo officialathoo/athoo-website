@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motionLite";
 import { handlePathClick } from "@/lib/navigation";
 
 export default function ProviderTeaser() {

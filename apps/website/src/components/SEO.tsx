@@ -11,9 +11,9 @@ interface SEOProps {
 }
 
 function absoluteUrl(value: string): string {
-  if (!value) return "https://athoo.pk/opengraph.jpg";
+  if (!value) return "https://www.athoo.pk/opengraph.jpg";
   if (/^https?:\/\//i.test(value)) return value;
-  return `https://athoo.pk${value.startsWith("/") ? value : `/${value}`}`;
+  return `https://www.athoo.pk${value.startsWith("/") ? value : `/${value}`}`;
 }
 
 export function SEO({

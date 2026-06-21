@@ -159,7 +159,7 @@ export default function Admin() {
   const [dbStats, setDbStats] = useState<{ table: string; count: number }[]>([]);
 
   // SEO state
-  const [seoForm, setSeoForm] = useState({ siteTitle: "Athoo — Pakistan Smart Home Services", siteDescription: "Athoo connects customers with verified home service professionals in Rawalpindi & Islamabad.", ogImage: "https://athoo.pk/opengraph.jpg", googleVerification: "", bingVerification: "" });
+  const [seoForm, setSeoForm] = useState({ siteTitle: "Athoo — Pakistan Smart Home Services", siteDescription: "Athoo connects customers with verified home service professionals in Rawalpindi & Islamabad.", ogImage: "https://www.athoo.pk/opengraph.jpg", googleVerification: "", bingVerification: "" });
 
   // Social links state
   const [socialForm, setSocialForm] = useState({ instagram: "https://instagram.com/athoo_services", facebook: "https://facebook.com/Athoo.Services/", tiktok: "https://tiktok.com/@athoo.pk", linkedin: "https://linkedin.com/company/123424195", youtube: "", twitter: "", whatsapp: "923390051068" });
@@ -186,6 +186,8 @@ export default function Admin() {
 
   // Email logs
   const [emailLogs, setEmailLogs] = useState<{id:number;recipient:string;subject:string;status:string;sent_by?:string;created_at:string}[]>([]);
+  const [emailProgress, setEmailProgress] = useState("");
+  const [settingsSaving, setSettingsSaving] = useState(false);
 
   // Email templates
   const defaultTemplates = [
@@ -641,12 +643,22 @@ export default function Admin() {
   async function sendBulkEmail() {
     const ids = selected.length ? selected : selectedLeads.map((l) => l.id);
     if (!ids.length) return setError("Select leads first.");
-    setLoading(true); setError(""); setNotice("");
+    setLoading(true); setEmailProgress("Preparing email queue..."); setError(""); setNotice("");
     try {
+      setEmailProgress(`Sending to ${ids.length} selected lead(s)...`);
       const r = await fetch(apiUrl("/api/admin/bulk-email"), { method: "POST", headers: authHeaders(token), body: JSON.stringify({ ids, ...emailDraft }) });
-      const d = await r.json(); if (!r.ok) throw new Error(d.error || "Email failed");
-      setNotice(d.note || `Done. Sent: ${d.sent}, skipped: ${d.skipped}`); await loadLeads(FORM_TYPE_MAP[activeTab]);
-    } catch (err) { setError(err instanceof Error ? err.message : "Email failed"); }
+      const d = await r.json();
+      if (!r.ok || d.ok === false) throw new Error(d.error || d.note || "Email failed");
+      const msg = d.note || `Done. Sent: ${d.sent || 0}, failed: ${d.failed || 0}, skipped: ${d.skipped || 0}`;
+      setEmailProgress(msg);
+      setNotice(msg);
+      await loadEmailLogs();
+      await loadLeads(FORM_TYPE_MAP[activeTab]);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Email failed";
+      setEmailProgress(`Failed: ${msg}`);
+      setError(msg);
+    }
     finally { setLoading(false); }
   }
 
@@ -660,12 +672,14 @@ export default function Admin() {
   }
 
   async function saveSettings(e: React.FormEvent) {
-    e.preventDefault(); setError(""); setNotice("");
+    e.preventDefault(); setError(""); setNotice(""); setSettingsSaving(true);
     try {
       const r = await fetch(apiUrl("/api/admin/settings"), { method: "POST", headers: authHeaders(token), body: JSON.stringify({ maintenanceEnabled: maintenance.enabled, maintenanceMessage: maintenance.message, supportEmail: maintenance.supportEmail, supportPhone: maintenance.supportPhone }) });
-      const d = await r.json(); if (!r.ok) throw new Error(d.error || "Could not save settings");
-      setNotice("Settings saved."); await loadSettings();
+      const d = await r.json(); if (!r.ok || d.ok === false) throw new Error(d.error || "Could not save settings");
+      setNotice(maintenance.enabled ? "Maintenance mode is ON and saved." : "Maintenance mode is OFF and saved.");
+      await loadSettings();
     } catch (err) { setError(err instanceof Error ? err.message : "Could not save settings"); }
+    finally { setSettingsSaving(false); }
   }
 
   useEffect(() => {
@@ -703,7 +717,7 @@ export default function Admin() {
       <main className="min-h-screen bg-[#081120] px-4 py-10 text-white sm:px-6 sm:py-16">
         <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-center">
           <div className="hidden lg:block">
-            <img src="/athoo-logo.webp" alt="Athoo" width={48} height={48} decoding="async" className="mb-8 h-20 w-20 rounded-3xl bg-white p-2 shadow-2xl" />
+            <img src="/athoo-logo.webp" alt="Athoo" width={80} height={80} decoding="async" className="mb-8 h-20 w-20 rounded-3xl bg-white p-2 shadow-2xl" />
             <h1 className="text-5xl font-black leading-tight">Athoo Professional Admin</h1>
             <p className="mt-5 max-w-xl text-lg text-gray-300">Manage leads, providers, waitlist, blog content, SEO, email communications and website controls from one secure dashboard.</p>
           </div>
@@ -902,9 +916,10 @@ export default function Admin() {
                   <Input className="mb-3 min-h-12" value={emailDraft.subject} onChange={(e) => setEmailDraft({ ...emailDraft, subject: e.target.value })} placeholder="Subject" />
                   <textarea className="min-h-[260px] w-full rounded-xl border p-4 font-mono text-sm" value={emailDraft.message} onChange={(e) => setEmailDraft({ ...emailDraft, message: e.target.value })} />
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Button className="bg-[#0057FF]" onClick={sendBulkEmail}><Send className="mr-2 h-4 w-4" />Send to Selected ({selected.length})</Button>
+                    <Button className="bg-[#0057FF]" onClick={sendBulkEmail} disabled={loading}><Send className="mr-2 h-4 w-4" />{loading ? "Sending..." : `Send to Selected (${selected.length})`}</Button>
                     <Button variant="secondary" onClick={() => switchTab("leads")}>Select Leads</Button>
                   </div>
+                  {emailProgress && <div className="mt-3 rounded-xl bg-blue-50 p-3 text-sm font-semibold text-blue-700">{emailProgress}</div>}
                 </div>
                 <div className="rounded-[1.75rem] bg-white p-5 shadow-sm">
                   <h3 className="mb-3 font-black">Selected Recipients</h3>
@@ -1065,7 +1080,7 @@ export default function Admin() {
               <div className="space-y-4">
                 <div><label className="mb-1 block text-sm font-semibold">Site Title</label><Input value={seoForm.siteTitle} onChange={(e) => setSeoForm({ ...seoForm, siteTitle: e.target.value })} /></div>
                 <div><label className="mb-1 block text-sm font-semibold">Site Description</label><textarea className="min-h-[80px] w-full rounded-xl border p-3 text-sm" value={seoForm.siteDescription} onChange={(e) => setSeoForm({ ...seoForm, siteDescription: e.target.value })} /></div>
-                <div><label className="mb-1 block text-sm font-semibold">OG / Social Share Image URL</label><Input value={seoForm.ogImage} onChange={(e) => setSeoForm({ ...seoForm, ogImage: e.target.value })} placeholder="https://athoo.pk/opengraph.jpg" /></div>
+                <div><label className="mb-1 block text-sm font-semibold">OG / Social Share Image URL</label><Input value={seoForm.ogImage} onChange={(e) => setSeoForm({ ...seoForm, ogImage: e.target.value })} placeholder="https://www.athoo.pk/opengraph.jpg" /></div>
                 <div><label className="mb-1 block text-sm font-semibold">Google Search Console Verification Code</label><Input value={seoForm.googleVerification} onChange={(e) => setSeoForm({ ...seoForm, googleVerification: e.target.value })} placeholder="google-site-verification=..." /></div>
                 <div><label className="mb-1 block text-sm font-semibold">Bing Webmaster Verification Code</label><Input value={seoForm.bingVerification} onChange={(e) => setSeoForm({ ...seoForm, bingVerification: e.target.value })} /></div>
                 <Button type="submit" className="bg-[#0057FF]" disabled={extLoading}>Save SEO Settings</Button>
@@ -1137,7 +1152,7 @@ export default function Admin() {
                 <textarea className="min-h-[120px] w-full rounded-xl border p-4 text-sm" placeholder="Maintenance message" value={maintenance.message} onChange={(e) => setMaintenance({ ...maintenance, message: e.target.value })} />
                 <Input placeholder="Support email" value={maintenance.supportEmail} onChange={(e) => setMaintenance({ ...maintenance, supportEmail: e.target.value })} />
                 <Input placeholder="Support phone" value={maintenance.supportPhone} onChange={(e) => setMaintenance({ ...maintenance, supportPhone: e.target.value })} />
-                <Button disabled={!canSettings} className="bg-[#0057FF]">Save Settings</Button>
+                <Button disabled={!canSettings || settingsSaving} className="bg-[#0057FF]">{settingsSaving ? "Saving..." : "Save Settings"}</Button>
                 <p className="text-xs text-gray-400">Maintenance mode is stored in the database. Your app can read this flag to show/hide a maintenance banner.</p>
               </div>
             </form>}

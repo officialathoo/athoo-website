@@ -7,11 +7,11 @@ export default function CookiePolicy() {
       <Helmet>
         <title>Cookie Policy — Athoo</title>
         <meta name="description" content="Learn how Athoo uses cookies and similar technologies on its website." />
-        <link rel="canonical" href="https://athoo.pk/cookie-policy" />
+        <link rel="canonical" href="https://www.athoo.pk/cookie-policy" />
         <meta property="og:title" content="Cookie Policy — Athoo" />
         <meta property="og:description" content="Learn how Athoo uses cookies and similar technologies on its website." />
-        <meta property="og:url" content="https://athoo.pk/cookie-policy" />
-        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:url" content="https://www.athoo.pk/cookie-policy" />
+        <meta property="og:image" content="https://www.athoo.pk/opengraph.jpg" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Athoo" />
         <meta name="twitter:card" content="summary" />
@@ -44,7 +44,7 @@ export default function CookiePolicy() {
 
             <h3>Functional Cookies</h3>
             <p>
-              These cookies allow the website to remember choices you make (such as your preferred language or your location) and provide enhanced, more personalised features. For example, we may store your waitlist countdown target locally so it remains consistent across visits.
+              These cookies allow the website to remember choices you make (such as your preferred language or your location) and provide enhanced, more personalised features. For example, we may store basic website preferences locally so they remain consistent across visits.
             </p>
 
             <h3>Analytics Cookies</h3>
@@ -88,7 +88,7 @@ export default function CookiePolicy() {
 
             <h2>6. Local Storage</h2>
             <p>
-              In addition to cookies, the Athoo website uses browser local storage to save certain user preferences (such as countdown timer settings) on your device. This data is stored only on your device and is not transmitted to our servers.
+              In addition to cookies, the Athoo website uses browser local storage to save certain user preferences on your device. This data is stored only on your device and is not transmitted to our servers.
             </p>
 
             <h2>7. Changes to This Policy</h2>
@@ -102,7 +102,7 @@ export default function CookiePolicy() {
             </p>
             <ul>
               <li>Email: <a href="mailto:official@athoo.pk">official@athoo.pk</a></li>
-              <li>Website: <a href="https://athoo.pk">athoo.pk</a></li>
+              <li>Website: <a href="https://www.athoo.pk">athoo.pk</a></li>
             </ul>
 
           </div>

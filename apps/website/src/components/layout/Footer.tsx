@@ -13,23 +13,23 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link href="/" className="mb-6 inline-block">
-              <img src="/athoo-logo.webp" alt="Athoo Logo" width={160} height={64} loading="lazy" decoding="async" className="h-12 w-auto rounded-xl bg-white p-1 object-contain" />
+              <img src="/athoo-logo.webp" alt="Athoo Logo" width={48} height={48} loading="lazy" decoding="async" className="h-12 w-auto rounded-xl bg-white p-1 object-contain" />
             </Link>
             <p className="mb-6 text-sm leading-relaxed text-gray-400">
               Athoo is an upcoming Pakistani home services platform connecting customers with verified professionals in Rawalpindi and Islamabad. App launch and provider onboarding opening soon.
             </p>
             <div className="flex gap-3 mb-6">
               <a href="https://www.instagram.com/athoo_services" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20" aria-label="Instagram">
-                <SiInstagram className="h-4 w-4" />
+                <SiInstagram aria-hidden="true" focusable="false" className="h-4 w-4" />
               </a>
               <a href="https://www.facebook.com/Athoo.Services/" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20" aria-label="Facebook">
-                <SiFacebook className="h-4 w-4" />
+                <SiFacebook aria-hidden="true" focusable="false" className="h-4 w-4" />
               </a>
               <a href="https://www.tiktok.com/@athoo.pk" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20" aria-label="TikTok">
-                <SiTiktok className="h-4 w-4" />
+                <SiTiktok aria-hidden="true" focusable="false" className="h-4 w-4" />
               </a>
               <a href="https://www.linkedin.com/company/123424195" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20" aria-label="LinkedIn">
-                <FaLinkedin className="h-4 w-4" />
+                <FaLinkedin aria-hidden="true" focusable="false" className="h-4 w-4" />
               </a>
             </div>
             <a
@@ -94,14 +94,14 @@ export default function Footer() {
         {/* Bottom */}
         <div className="mt-16 border-t border-white/10 pt-8">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-300">
               © 2026 Athoo. All rights reserved. | Built in Pakistan 🇵🇰
             </p>
             <div className="flex flex-wrap gap-5">
-              <Link href="/privacy" className="text-sm text-gray-500 transition-colors hover:text-white">Privacy Policy</Link>
-              <Link href="/terms" className="text-sm text-gray-500 transition-colors hover:text-white">Terms</Link>
-              <Link href="/cookie-policy" className="text-sm text-gray-500 transition-colors hover:text-white">Cookie Policy</Link>
-              <Link href="/faq" className="text-sm text-gray-500 transition-colors hover:text-white">FAQ</Link>
+              <Link href="/privacy" className="text-sm text-gray-300 transition-colors hover:text-white">Privacy Policy</Link>
+              <Link href="/terms" className="text-sm text-gray-300 transition-colors hover:text-white">Terms</Link>
+              <Link href="/cookie-policy" className="text-sm text-gray-300 transition-colors hover:text-white">Cookie Policy</Link>
+              <Link href="/faq" className="text-sm text-gray-300 transition-colors hover:text-white">FAQ</Link>
             </div>
           </div>
         </div>

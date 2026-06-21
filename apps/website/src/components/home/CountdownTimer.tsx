@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motionLite";
 
-const LAUNCH_DATE = new Date("2026-09-01T00:00:00+05:00");
+const LAUNCH_DATE = new Date("2026-09-02T00:00:00+05:00");
 
 function getTimeLeft() {
   const now = new Date();
@@ -85,7 +85,7 @@ export default function CountdownTimer() {
           viewport={{ once: false, amount: 0.25 }}
           transition={{ delay: 0.2 }}
         >
-          Target launch: <strong className="text-white">September 1, 2026</strong> · Rawalpindi &amp; Islamabad
+          Target launch: <strong className="text-white">September 2, 2026</strong> · Rawalpindi &amp; Islamabad
         </motion.p>
       </div>
     </section>

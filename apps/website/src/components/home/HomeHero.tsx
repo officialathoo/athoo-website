@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motionLite";
 import { BellRing, ChevronRight, MapPin, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { handlePathClick, handleWaitlistClick } from "@/lib/navigation";
 import { apiUrl } from "@/lib/apiBase";
@@ -85,7 +85,17 @@ export default function HomeHero() {
               <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-[#FF8A00]" /><span className="text-sm font-black">Coming Soon</span></div>
             </div>
             <div className="mx-auto flex max-w-[310px] justify-center overflow-hidden rounded-[2rem] bg-white shadow-2xl sm:max-w-[360px]">
-              <img src="/app-interface-clean.webp" alt="Athoo app interface preview" width={360} height={720} fetchPriority="high" decoding="async" className="app-preview-image h-auto w-full rounded-[1.6rem] object-contain" />
+              <img
+                src="/app-interface-clean-540.webp"
+                srcSet="/app-interface-clean-360.webp 360w, /app-interface-clean-540.webp 540w, /app-interface-clean-720.webp 720w"
+                sizes="(max-width: 640px) 310px, (max-width: 1024px) 360px, 360px"
+                alt="Athoo app interface preview"
+                width={540}
+                height={1165}
+                fetchPriority="high"
+                decoding="async"
+                className="app-preview-image h-auto w-full rounded-[1.6rem] object-contain"
+              />
             </div>
           </div>
 

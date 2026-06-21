@@ -15,5 +15,5 @@ Allow: /
 User-agent: ClaudeBot
 Allow: /
 
-Sitemap: https://athoo.pk/sitemap.xml
-Host: https://athoo.pk
+Sitemap: https://www.athoo.pk/sitemap.xml
+Host: https://www.athoo.pk

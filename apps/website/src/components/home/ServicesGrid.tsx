@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motionLite";
 import { Link } from "wouter";
 import { Zap, Droplets, Wind, Hammer, PaintRoller, Sparkles, Tv, Home, BrickWall, Wrench } from "lucide-react";
 

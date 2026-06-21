@@ -7,11 +7,11 @@ export default function Privacy() {
       <Helmet>
         <title>Privacy Policy — Athoo</title>
         <meta name="description" content="Athoo's Privacy Policy — how we collect, use, and protect your personal data as a customer or service provider on the Athoo platform." />
-        <link rel="canonical" href="https://athoo.pk/privacy" />
+        <link rel="canonical" href="https://www.athoo.pk/privacy" />
         <meta property="og:title" content="Privacy Policy — Athoo" />
         <meta property="og:description" content="Athoo's Privacy Policy — how we collect, use, and protect your personal data as a customer or service provider on the Athoo platform." />
-        <meta property="og:url" content="https://athoo.pk/privacy" />
-        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:url" content="https://www.athoo.pk/privacy" />
+        <meta property="og:image" content="https://www.athoo.pk/opengraph.jpg" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Athoo" />
         <meta name="twitter:card" content="summary" />
@@ -28,7 +28,7 @@ export default function Privacy() {
 
             <h2>1. Introduction</h2>
             <p>
-              At Athoo ("we", "our", or "us"), we respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how we collect, use, disclose, and safeguard information when you use the Athoo website at <a href="https://athoo.pk">athoo.pk</a> or any future Athoo mobile application (the "Platform").
+              At Athoo ("we", "our", or "us"), we respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how we collect, use, disclose, and safeguard information when you use the Athoo website at <a href="https://www.athoo.pk">athoo.pk</a> or any future Athoo mobile application (the "Platform").
             </p>
             <p>
               By using the Platform, you consent to the data practices described in this policy. If you do not agree with the terms of this policy, please do not use the Platform.
@@ -160,7 +160,7 @@ export default function Privacy() {
             <ul>
               <li>Email: <a href="mailto:official@athoo.pk">official@athoo.pk</a></li>
               <li>Support: <a href="mailto:support@athoo.pk">support@athoo.pk</a></li>
-              <li>Website: <a href="https://athoo.pk">athoo.pk</a></li>
+              <li>Website: <a href="https://www.athoo.pk">athoo.pk</a></li>
             </ul>
 
           </div>

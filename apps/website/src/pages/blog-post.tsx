@@ -145,26 +145,27 @@ export default function BlogPost() {
     );
   }
 
-  const pageUrl = `https://athoo.pk/blogs/${post.slug}`;
+  const pageUrl = `https://www.athoo.pk/blogs/${post.slug}`;
+  const fallbackImage = "/images/blog-default.webp";
 
   return (
     <>
       <Helmet>
         <title>{post.metaTitle} — Athoo Blog</title>
         <meta name="description" content={post.metaDescription} />
-        <link rel="canonical" href={`https://athoo.pk/blogs/${post.slug}`} />
+        <link rel="canonical" href={`https://www.athoo.pk/blogs/${post.slug}`} />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.excerpt} />
         <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://athoo.pk/blogs/${post.slug}`} />
+        <meta property="og:url" content={`https://www.athoo.pk/blogs/${post.slug}`} />
         <meta property="article:published_time" content={post.publishedAt} />
         <meta property="article:author" content={post.author} />
-        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:image" content="https://www.athoo.pk/opengraph.jpg" />
         <meta property="og:site_name" content="Athoo" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={post.excerpt} />
-        <meta name="twitter:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta name="twitter:image" content="https://www.athoo.pk/opengraph.jpg" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -173,8 +174,8 @@ export default function BlogPost() {
             description: post.excerpt,
             author: { "@type": "Organization", name: post.author },
             datePublished: post.publishedAt,
-            publisher: { "@type": "Organization", name: "Athoo", url: "https://athoo.pk/" },
-            mainEntityOfPage: { "@type": "WebPage", "@id": `https://athoo.pk/blogs/${post.slug}` },
+            publisher: { "@type": "Organization", name: "Athoo", url: "https://www.athoo.pk/" },
+            mainEntityOfPage: { "@type": "WebPage", "@id": `https://www.athoo.pk/blogs/${post.slug}` },
           })}
         </script>
       </Helmet>
@@ -222,16 +223,18 @@ export default function BlogPost() {
         </section>
 
         <article className="max-w-3xl mx-auto px-6 py-16">
-          {(post as any).imageUrl && (
-            <div className="rounded-3xl overflow-hidden mb-10 shadow-xl">
-              <img
-                src={(post as any).imageUrl}
-                alt={post.title}
-                className="w-full h-64 sm:h-80 object-cover"
-                loading="eager"
-              />
-            </div>
-          )}
+          <div className="mb-10 overflow-hidden rounded-3xl shadow-xl">
+            <img
+              src={(post as any).imageUrl || fallbackImage}
+              alt={post.title}
+              width={800}
+              height={450}
+              className="h-64 w-full object-cover sm:h-80"
+              loading="eager"
+              decoding="async"
+              onError={(event) => { event.currentTarget.src = fallbackImage; }}
+            />
+          </div>
 
           <p className="text-xl text-gray-600 leading-relaxed mb-10 font-medium border-l-4 border-[#0057FF] pl-6">
             {post.excerpt}

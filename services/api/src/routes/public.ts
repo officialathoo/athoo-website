@@ -215,6 +215,7 @@ ${subject ? `<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Subject</
 });
 
 router.get("/public/cms", async (_req: any, res: any) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   try {
     const rows = await pool.query(
       `SELECT key, value FROM app_settings
@@ -232,6 +233,7 @@ router.get("/public/cms", async (_req: any, res: any) => {
 });
 
 router.get("/public/settings", async (_req: any, res: any) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   try {
     const rows = await pool.query(
       `SELECT key, value FROM app_settings

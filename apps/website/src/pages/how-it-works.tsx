@@ -67,23 +67,23 @@ export default function HowItWorksPage() {
       <Helmet>
         <title>How Athoo Works — Platform Overview | Athoo</title>
         <meta name="description" content="Learn how Athoo works for customers and service providers in Rawalpindi and Islamabad. Browse services, get matched with verified professionals, and confirm bookings easily." />
-        <link rel="canonical" href="https://athoo.pk/how-it-works" />
+        <link rel="canonical" href="https://www.athoo.pk/how-it-works" />
         <meta property="og:title" content="How Athoo Works — Platform Overview" />
         <meta property="og:description" content="Learn how Athoo works for customers and service providers in Pakistan." />
-        <meta property="og:url" content="https://athoo.pk/how-it-works" />
-        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:url" content="https://www.athoo.pk/how-it-works" />
+        <meta property="og:image" content="https://www.athoo.pk/opengraph.jpg" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Athoo" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="How Athoo Works — Platform Overview" />
         <meta name="twitter:description" content="Learn how Athoo works for customers and service providers in Pakistan." />
-        <meta name="twitter:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta name="twitter:image" content="https://www.athoo.pk/opengraph.jpg" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://athoo.pk/" },
-            { "@type": "ListItem", "position": 2, "name": "How It Works", "item": "https://athoo.pk/how-it-works" }
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.athoo.pk/" },
+            { "@type": "ListItem", "position": 2, "name": "How It Works", "item": "https://www.athoo.pk/how-it-works" }
           ]
         })}</script>
       </Helmet>

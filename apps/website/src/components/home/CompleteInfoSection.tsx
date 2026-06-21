@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motionLite";
 import { CheckCircle2, Mail, MapPin, ShieldCheck, Smartphone, Users } from "lucide-react";
 
 const cards = [

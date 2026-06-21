@@ -31,6 +31,7 @@ export default function Blogs() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [posts, setPosts] = useState(BLOG_POSTS);
   const [categories, setCategories] = useState(["All", ...BLOG_CATEGORIES]);
+  const fallbackImage = "/images/blog-default.webp";
 
   useEffect(() => {
     fetch(apiUrl("/api/public/blog/posts?limit=100"))
@@ -69,17 +70,17 @@ export default function Blogs() {
           name="description"
           content="Read Athoo's blog for tips on hiring home service professionals, platform updates, and insights on the home services market in Rawalpindi and Islamabad."
         />
-        <link rel="canonical" href="https://athoo.pk/blogs" />
+        <link rel="canonical" href="https://www.athoo.pk/blogs" />
         <meta property="og:title" content="Athoo Blog — Home Services Insights for Pakistan" />
         <meta property="og:description" content="Tips, guides and platform updates from the Athoo team." />
-        <meta property="og:url" content="https://athoo.pk/blogs" />
-        <meta property="og:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta property="og:url" content="https://www.athoo.pk/blogs" />
+        <meta property="og:image" content="https://www.athoo.pk/opengraph.jpg" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Athoo" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Athoo Blog — Home Services Insights for Pakistan" />
         <meta name="twitter:description" content="Tips, guides and platform updates from the Athoo team." />
-        <meta name="twitter:image" content="https://athoo.pk/opengraph.jpg" />
+        <meta name="twitter:image" content="https://www.athoo.pk/opengraph.jpg" />
       </Helmet>
 
       <div className="min-h-screen bg-white">
@@ -151,16 +152,18 @@ export default function Blogs() {
                   transition={{ delay: i * 0.07 }}
                   className="group rounded-3xl border border-gray-100 bg-white overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                 >
-                  {(post as any).imageUrl && (
-                    <div className="w-full h-48 overflow-hidden">
-                      <img
-                        src={(post as any).imageUrl}
-                        alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
+                  <div className="w-full h-48 overflow-hidden">
+                    <img
+                      src={(post as any).imageUrl || fallbackImage}
+                      alt={post.title}
+                      width={800}
+                      height={450}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(event) => { event.currentTarget.src = fallbackImage; }}
+                    />
+                  </div>
                   <div className="p-8">
                   <div className="flex items-center gap-3 mb-5">
                     <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600">

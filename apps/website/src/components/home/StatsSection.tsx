@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motionLite";
 import { BellRing, ShieldCheck, Wrench, MapPin } from "lucide-react";
 
 export default function StatsSection() {
