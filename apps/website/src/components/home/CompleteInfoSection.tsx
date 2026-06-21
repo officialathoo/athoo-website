@@ -29,7 +29,7 @@ export default function CompleteInfoSection() {
                 key={card.title}
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.25 }}
                 transition={{ duration: 0.45, delay: index * 0.04 }}
                 className="group rounded-[1.75rem] border border-white bg-white/90 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
               >

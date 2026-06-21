@@ -123,7 +123,7 @@ async function sendEmails(lead: Record<string, any>): Promise<void> {
   const notifyTo = formType === "Contact Form" ? SUPPORT_EMAIL : ADMIN_EMAIL;
   const rows = tableRows(payload);
 
-  await sendMail({
+  const adminEmailSent = await sendMail({
     to: notifyTo,
     subject: `New Athoo ${formType}`,
     html: `
@@ -137,10 +137,14 @@ async function sendEmails(lead: Record<string, any>): Promise<void> {
     `,
   });
 
+  if (!adminEmailSent) {
+    throw new Error("Admin notification email failed or SMTP is not configured");
+  }
+
   if (!userEmail) return;
 
   if (formType === "Waitlist Signup") {
-    await sendMail({
+    const userEmailSent = await sendMail({
       to: userEmail,
       replyTo: ADMIN_EMAIL,
       subject: "You're on the Athoo Waitlist!",
@@ -161,10 +165,14 @@ async function sendEmails(lead: Record<string, any>): Promise<void> {
         </div>
       `,
     });
+
+    if (!userEmailSent) {
+      throw new Error("Waitlist confirmation email failed or SMTP is not configured");
+    }
   }
 
   if (formType === "Provider Waitlist") {
-    await sendMail({
+    const userEmailSent = await sendMail({
       to: userEmail,
       replyTo: ADMIN_EMAIL,
       subject: "Provider Application Received — Athoo",
@@ -179,6 +187,10 @@ async function sendEmails(lead: Record<string, any>): Promise<void> {
         </div>
       `,
     });
+
+    if (!userEmailSent) {
+      throw new Error("Provider confirmation email failed or SMTP is not configured");
+    }
   }
 }
 

@@ -28,7 +28,7 @@ export default function ServicesGrid() {
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
           {SERVICES.map((service, index) => (
-            <motion.div key={service.id} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.35, delay: index * 0.04 }}>
+            <motion.div key={service.id} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false, amount: 0.25 }} transition={{ duration: 0.35, delay: index * 0.04 }}>
               <Link href={`/services#${service.id}`} className="group block h-full">
                 <div className="relative h-full overflow-hidden rounded-[2rem] border border-white bg-white p-5 shadow-xl shadow-blue-950/5 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-600/15">
                   <div className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${service.color} text-white shadow-lg`}>

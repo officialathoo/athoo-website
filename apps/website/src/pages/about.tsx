@@ -114,7 +114,7 @@ export default function About() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: false, amount: 0.25 }}
             className="grid md:grid-cols-2 gap-8"
           >
             <div className="rounded-3xl bg-blue-50 border border-blue-100 p-10">
@@ -144,7 +144,7 @@ export default function About() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.25 }}
               className="text-center mb-16"
             >
               <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-5">
@@ -160,7 +160,7 @@ export default function About() {
                   key={p.title}
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: false, amount: 0.25 }}
                   transition={{ delay: i * 0.08 }}
                   className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm"
                 >
@@ -192,7 +192,7 @@ export default function About() {
                   key={v.title}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: false, amount: 0.25 }}
                   transition={{ delay: i * 0.07 }}
                   className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all"
                 >
@@ -214,7 +214,7 @@ export default function About() {
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.25 }}
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-orange-400 mb-6">
                   <MapPin className="h-7 w-7" />
@@ -232,7 +232,7 @@ export default function About() {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.25 }}
                 className="space-y-5"
               >
                 {[
@@ -265,7 +265,7 @@ export default function About() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.25 }}
                 className="rounded-3xl bg-blue-50 border border-blue-100 p-10"
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white mb-6">
@@ -284,7 +284,7 @@ export default function About() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.25 }}
                 transition={{ delay: 0.1 }}
                 className="rounded-3xl bg-orange-50 border border-orange-100 p-10"
               >
@@ -311,7 +311,7 @@ export default function About() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.25 }}
             >
               <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-6">
                 Built for Pakistan. Designed to Grow.

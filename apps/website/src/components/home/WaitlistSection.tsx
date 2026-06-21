@@ -58,7 +58,7 @@ export default function WaitlistSection() {
   return (
     <section id="waitlist" className="bg-gradient-to-br from-[#0057FF] via-[#174bff] to-[#003ACC] py-16 sm:py-24">
       <div className="container mx-auto max-w-4xl px-4 sm:px-6">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false, amount: 0.25 }} className="text-center">
           <div className="mb-6 inline-block rounded-full bg-white/20 px-4 py-1.5 text-sm font-semibold text-white backdrop-blur">
             Launching Soon — Target Preview: Around 1 Month
           </div>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 interface SEOProps {
   title: string;
@@ -10,62 +10,77 @@ interface SEOProps {
   schema?: Record<string, any>;
 }
 
-export function SEO({ 
-  title, 
-  description, 
-  keywords, 
-  image = '/images/hero.png', 
-  url, 
-  type = 'website',
-  schema
+function absoluteUrl(value: string): string {
+  if (!value) return "https://athoo.pk/opengraph.jpg";
+  if (/^https?:\/\//i.test(value)) return value;
+  return `https://athoo.pk${value.startsWith("/") ? value : `/${value}`}`;
+}
+
+export function SEO({
+  title,
+  description,
+  keywords,
+  image = "/opengraph.jpg",
+  url,
+  type = "website",
+  schema,
 }: SEOProps) {
   useEffect(() => {
-    // Update title
-    document.title = `${title} | Athoo Home Services`;
+    const pageTitle = title.includes("Athoo") ? title : `${title} | Athoo`;
+    const canonicalUrl = absoluteUrl(url || (typeof window !== "undefined" ? window.location.pathname : "/"));
+    const imageUrl = absoluteUrl(image);
 
-    // Update meta description
+    document.title = pageTitle;
+
     const updateMeta = (name: string, content: string, isProperty = false) => {
-      const attribute = isProperty ? 'property' : 'name';
+      const attribute = isProperty ? "property" : "name";
       let element = document.querySelector(`meta[${attribute}="${name}"]`);
       if (!element) {
-        element = document.createElement('meta');
+        element = document.createElement("meta");
         element.setAttribute(attribute, name);
         document.head.appendChild(element);
       }
-      element.setAttribute('content', content);
+      element.setAttribute("content", content);
     };
 
-    updateMeta('description', description);
-    if (keywords) updateMeta('keywords', keywords);
+    const updateLink = (rel: string, href: string) => {
+      let element = document.querySelector(`link[rel="${rel}"]`);
+      if (!element) {
+        element = document.createElement("link");
+        element.setAttribute("rel", rel);
+        document.head.appendChild(element);
+      }
+      element.setAttribute("href", href);
+    };
 
-    // Open Graph
-    updateMeta('og:title', title, true);
-    updateMeta('og:description', description, true);
-    updateMeta('og:type', type, true);
-    updateMeta('og:image', image, true);
-    if (url) updateMeta('og:url', url, true);
+    updateMeta("description", description);
+    updateMeta("robots", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+    if (keywords) updateMeta("keywords", keywords);
+    updateLink("canonical", canonicalUrl);
 
-    // Twitter
-    updateMeta('twitter:card', 'summary_large_image', true);
-    updateMeta('twitter:title', title, true);
-    updateMeta('twitter:description', description, true);
-    updateMeta('twitter:image', image, true);
+    updateMeta("og:title", pageTitle, true);
+    updateMeta("og:description", description, true);
+    updateMeta("og:type", type, true);
+    updateMeta("og:image", imageUrl, true);
+    updateMeta("og:image:secure_url", imageUrl, true);
+    updateMeta("og:url", canonicalUrl, true);
+    updateMeta("og:site_name", "Athoo", true);
 
-    // Schema markup
+    updateMeta("twitter:card", "summary_large_image");
+    updateMeta("twitter:title", pageTitle);
+    updateMeta("twitter:description", description);
+    updateMeta("twitter:image", imageUrl);
+
     if (schema) {
-      let script = document.querySelector('#seo-schema');
+      let script = document.querySelector("#seo-schema");
       if (!script) {
-        script = document.createElement('script');
-        script.id = 'seo-schema';
-        script.setAttribute('type', 'application/ld+json');
+        script = document.createElement("script");
+        script.id = "seo-schema";
+        script.setAttribute("type", "application/ld+json");
         document.head.appendChild(script);
       }
       script.textContent = JSON.stringify(schema);
     }
-
-    return () => {
-      // Cleanup if needed, though usually fine to leave for the next page to overwrite
-    };
   }, [title, description, keywords, image, url, type, schema]);
 
   return null;

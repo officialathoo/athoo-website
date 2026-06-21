@@ -283,3 +283,29 @@ a[href], button {
 .blog-editor-content a  { color: #0057FF; text-decoration: underline; }
 .blog-editor-content img { max-width: 100%; height: auto; border-radius: 0.5rem; }
 .blog-editor-content hr { margin: 2rem 0; border: none; border-top: 2px solid #e5e7eb; }
+
+
+/* Athoo mobile performance and image stability */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+section, article {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 700px;
+}
+
+@media (max-width: 768px) {
+  .shadow-2xl, .shadow-xl {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12) !important;
+  }
+
+  .backdrop-blur, .backdrop-blur-xl, .backdrop-blur-2xl {
+    backdrop-filter: blur(8px) !important;
+  }
+
+  .app-preview-image {
+    will-change: transform;
+  }
+}

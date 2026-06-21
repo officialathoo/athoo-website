@@ -20,7 +20,7 @@ export default function AppShowcase() {
           <motion.div
             initial={{ opacity: 0, x: -26 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: false, amount: 0.25 }}
             transition={{ duration: 0.65 }}
             className="space-y-7 text-center lg:text-left"
           >
@@ -44,7 +44,7 @@ export default function AppShowcase() {
                   key={feature}
                   initial={{ opacity: 0, y: 12 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: false, amount: 0.25 }}
                   transition={{ delay: i * 0.08, duration: 0.45 }}
                   className="flex items-center gap-4 rounded-3xl border border-white/70 bg-white/80 p-4 text-left shadow-xl shadow-blue-950/5 backdrop-blur"
                 >
@@ -60,7 +60,7 @@ export default function AppShowcase() {
           <motion.div
             initial={{ opacity: 0, x: 24 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: false, amount: 0.25 }}
             transition={{ duration: 0.7 }}
             className="relative min-h-[600px] w-full sm:min-h-[680px]"
           >
@@ -91,7 +91,7 @@ export default function AppShowcase() {
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.25 }}
               transition={{ delay: 0.25, duration: 0.55 }}
               className="absolute bottom-0 left-1/2 w-[92%] max-w-xl -translate-x-1/2 rounded-[2rem] border border-white/80 bg-white/85 p-5 shadow-2xl shadow-blue-950/10 backdrop-blur-xl"
             >

@@ -200,7 +200,7 @@ export default function FAQ() {
                 key={section.category}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.25 }}
                 transition={{ delay: i * 0.05 }}
               >
                 <h2 className="text-xl font-black text-[#0057FF] mb-6 pb-3 border-b-2 border-blue-50">

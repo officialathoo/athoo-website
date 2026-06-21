@@ -113,7 +113,7 @@ function ServiceCard({ service, index }: { service: typeof SERVICES[0]; index: n
       id={service.id}
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      viewport={{ once: false, amount: 0.25 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
       className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
     >
@@ -274,7 +274,7 @@ export default function Services() {
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.25 }}
               className="bg-gradient-to-br from-[#081120] to-[#0057FF] rounded-3xl p-10 flex flex-col justify-center items-center text-center text-white"
             >
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 mb-6">

@@ -231,7 +231,7 @@ export default function BecomeProvider() {
                   key={benefit.title}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: false, amount: 0.25 }}
                   transition={{ delay: i * 0.07 }}
                   className="bg-white border border-gray-100 p-7 rounded-3xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all"
                 >
@@ -259,7 +259,7 @@ export default function BecomeProvider() {
                   key={step.step}
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: false, amount: 0.25 }}
                   transition={{ delay: i * 0.08 }}
                   className="flex gap-6 items-start"
                 >

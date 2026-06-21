@@ -48,7 +48,7 @@ export default function CountdownTimer() {
           className="text-blue-200 text-sm font-semibold uppercase tracking-widest mb-3"
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: false, amount: 0.25 }}
         >
           Launching in
         </motion.p>
@@ -56,7 +56,7 @@ export default function CountdownTimer() {
           className="text-2xl md:text-3xl font-bold text-white mb-10"
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: false, amount: 0.25 }}
           transition={{ delay: 0.05 }}
         >
           Pakistan's Smart Home Services App Is Almost Here
@@ -66,7 +66,7 @@ export default function CountdownTimer() {
           className="flex items-start justify-center gap-3 md:gap-6"
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
+          viewport={{ once: false, amount: 0.25 }}
           transition={{ delay: 0.1 }}
         >
           <Digit value={time.days} label="Days" />
@@ -82,7 +82,7 @@ export default function CountdownTimer() {
           className="mt-10 text-blue-100 text-sm md:text-base"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+          viewport={{ once: false, amount: 0.25 }}
           transition={{ delay: 0.2 }}
         >
           Target launch: <strong className="text-white">September 1, 2026</strong> · Rawalpindi &amp; Islamabad

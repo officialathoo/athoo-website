@@ -21,7 +21,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: "2026-06-01",
     readTime: "5 min read",
     featured: true,
-    imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/blog-ac.webp",
     content: `
 <h2>The Everyday Challenge</h2>
 <p>Most homeowners in Rawalpindi and Islamabad know the frustration — a leaking pipe, a tripped breaker, or an AC that stops cooling just before summer. The challenge isn't finding someone who claims to fix it. It's finding someone reliable, punctual, fairly priced, and professional.</p>
@@ -67,7 +67,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: "2026-06-05",
     readTime: "4 min read",
     featured: true,
-    imageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/blog-carpenter.webp",
     content: `
 <h2>A Platform Built for Pakistan</h2>
 <p>Athoo is not a copy of a Western app adapted for Pakistan. It is being built from the ground up with an understanding of how the local home services market works — its strengths, its gaps, and what both customers and providers actually need.</p>
@@ -110,7 +110,7 @@ export const BLOG_POSTS: BlogPost[] = [
     author: "Athoo Team",
     publishedAt: "2026-06-08",
     readTime: "6 min read",
-    imageUrl: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/blog-cleaning.webp",
     content: `
 <h2>Do Your Due Diligence</h2>
 <p>Hiring someone to come into your home is a matter of trust. Whether you are dealing with a leaking pipe, a faulty electrical connection, or an AC that needs servicing before summer, the person you hire has access to your home, your belongings, and in some cases your family members.</p>
@@ -158,7 +158,7 @@ export const BLOG_POSTS: BlogPost[] = [
     author: "Athoo Team",
     publishedAt: "2026-06-12",
     readTime: "4 min read",
-    imageUrl: "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/blog-maintenance.webp",
     content: `
 <h2>The Problem With Unverified Providers</h2>
 <p>In Pakistan's current home services market, almost anyone can call themselves an electrician, plumber, or AC technician. There are no standard licensing requirements, no mandatory certification body, and no public database of qualified professionals. Customers are essentially taking a risk every time they hire someone they have not worked with before.</p>
@@ -211,7 +211,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: "2026-06-15",
     readTime: "6 min read",
     featured: true,
-    imageUrl: "https://images.unsplash.com/photo-1604014237800-1c9102c219da?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/hero.webp",
     content: `
 <h2>Why Pre-Summer AC Servicing Matters</h2>
 <p>With temperatures exceeding 40°C in Rawalpindi and Islamabad during peak summer, your air conditioner is not a luxury — it is a necessity. But like any mechanical system, an AC that has sat idle through winter needs attention before you demand full performance from it in June and July.</p>
@@ -273,7 +273,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: "2026-06-18",
     readTime: "7 min read",
     featured: false,
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/blog-maintenance.webp",
     content: `
 <h2>The Real Cost of a Bad Hire</h2>
 <p>Hiring the wrong home service professional doesn't just mean paying for poor workmanship. It can mean additional repair costs to fix the damage they caused, safety risks for your household, disputes over payment, and the loss of time and peace of mind. In Pakistan's informal home services market, the risk of hiring an unreliable or unqualified worker is real and common.</p>
@@ -323,7 +323,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: "2026-06-22",
     readTime: "7 min read",
     featured: true,
-    imageUrl: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/blog-ac.webp",
     content: `
 <h2>The Plumbing Problem in Islamabad and Rawalpindi</h2>
 <p>A burst pipe at 11pm. A water heater that stops working in January. A blocked drain that won't clear. Plumbing problems are urgent by nature — they rarely wait for a convenient time. And in Islamabad and Rawalpindi, finding a qualified, reliable plumber at short notice is genuinely difficult.</p>
@@ -383,7 +383,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: "2026-06-24",
     readTime: "6 min read",
     featured: true,
-    imageUrl: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/blog-electrician.webp",
     content: `
 <h2>Why Electrical Work Needs the Right Person</h2>
 <p>Hiring the wrong electrician in Islamabad or Rawalpindi is not just a risk to your wallet — it is a risk to your home and your family. Poor electrical work is a leading cause of house fires in Pakistan. Faulty wiring, overloaded circuits, and incorrect earthing can cause damage that doesn't show up for months but creates serious hazards in the meantime.</p>
@@ -442,7 +442,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: "2026-06-26",
     readTime: "7 min read",
     featured: false,
-    imageUrl: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/blog-cleaning.webp",
     content: `
 <h2>AC Failure in a Rawalpindi or Islamabad Summer Is a Crisis</h2>
 <p>Summer temperatures in Rawalpindi and Islamabad regularly exceed 40–42°C. When an air conditioner stops working in June or July, it is not an inconvenience — it is a genuine household emergency. Children, elderly family members, and anyone with health conditions are at real risk from sustained heat exposure.</p>
@@ -494,7 +494,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: "2026-06-28",
     readTime: "5 min read",
     featured: false,
-    imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/blog-ac.webp",
     content: `
 <h2>Why Professional Cleaning Is Different</h2>
 <p>Professional home cleaning services in Islamabad and Rawalpindi are increasingly in demand — not just for one-off deep cleans before Eid or special occasions, but for regular maintenance cleaning that keeps homes consistently clean without consuming hours of household time.</p>
@@ -544,7 +544,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: "2026-06-30",
     readTime: "5 min read",
     featured: false,
-    imageUrl: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/blog-plumber.webp",
     content: `
 <h2>Carpentry in Islamabad and Rawalpindi: What the Market Looks Like</h2>
 <p>Carpentry is one of the most consistently needed home services in Islamabad and Rawalpindi — from furniture repairs and custom kitchen cabinetry to door fittings, window frames, and wood-based interior work. The market ranges from skilled craftsmen with years of specialist experience to general handymen who take on any job regardless of their actual competence with the specific type of work.</p>
@@ -591,7 +591,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: "2026-07-02",
     readTime: "8 min read",
     featured: false,
-    imageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/blog-carpenter.webp",
     content: `
 <h2>Why Maintenance Matters More in the Twin Cities</h2>
 <p>Islamabad and Rawalpindi experience a demanding climate cycle: extreme summer heat from May to August, a monsoon season with heavy rainfall from July to September, and cold winters from November to February. This range of conditions — plus the ever-present summer dust — takes a real toll on a home's fabric, systems, and appliances.</p>
@@ -707,7 +707,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: "2026-06-21",
     readTime: "6 min read",
     featured: false,
-    imageUrl: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "/images/blog-electrician.webp",
     content: `
 <h2>The Electrical Safety Problem in Pakistan</h2>
 <p>Electrical faults are among the leading causes of house fires in Pakistan. Outdated wiring, overloaded circuits, and DIY fixes that don't meet any standard are extremely common in residential buildings across Rawalpindi and Islamabad. Most of these incidents are entirely preventable with the right knowledge and timely professional intervention.</p>

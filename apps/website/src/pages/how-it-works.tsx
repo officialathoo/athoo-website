@@ -124,7 +124,7 @@ export default function HowItWorksPage() {
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: false, amount: 0.25 }}
                   transition={{ delay: index * 0.1 }}
                   className="flex gap-6 md:gap-8 relative"
                 >
@@ -149,7 +149,7 @@ export default function HowItWorksPage() {
               className="mt-16 text-center"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.25 }}
             >
               <Button size="lg" asChild className="px-8 h-14 text-lg">
                 <Link href="/#waitlist">Join the Customer Waitlist</Link>
@@ -164,7 +164,7 @@ export default function HowItWorksPage() {
                   key={index}
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: false, amount: 0.25 }}
                   transition={{ delay: index * 0.1 }}
                   className="flex gap-6 md:gap-8 relative"
                 >
@@ -189,7 +189,7 @@ export default function HowItWorksPage() {
               className="mt-16 text-center"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.25 }}
             >
               <Button size="lg" variant="secondary" asChild className="px-8 h-14 text-lg text-white">
                 <Link href="/#partner">Apply as a Service Partner</Link>

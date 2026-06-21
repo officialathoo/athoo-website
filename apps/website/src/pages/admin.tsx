@@ -13,12 +13,8 @@ import { BlogEditor } from "@/components/blog-editor/BlogEditor";
 
 function resolveApiBase(): string {
   const configured = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
-  if (configured) return configured;
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    if (host === 'athoo.pk' || host === 'www.athoo.pk' || host === 'admin.athoo.pk') return 'https://api.athoo.pk';
-  }
-  return '';
+  if (configured && configured !== 'https://api.athoo.pk') return configured;
+  return 'https://thoo-api.onrender.com';
 }
 const API_BASE = resolveApiBase();
 const apiUrl = (path: string) => API_BASE + path;

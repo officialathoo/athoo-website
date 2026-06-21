@@ -55,7 +55,7 @@ export default function HowItWorks() {
                 key={`${activeTab}-${i}`}
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.25 }}
                 transition={{ duration: 0.5, delay: i * 0.15 }}
                 className="relative flex flex-col items-start gap-6 md:flex-row md:items-center"
               >

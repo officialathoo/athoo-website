@@ -335,12 +335,24 @@ router.post("/admin/bulk-email", async (req: any, res: any) => {
 
     const smtpReady = isSmtpConfigured();
     let sent = 0;
+    let failed = 0;
     let skipped = 0;
 
     for (const lead of leads.rows) {
       const html = `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111"><p>${renderTemplate(message, lead).replace(/\n/g, "<br/>")}</p><hr/><p style="font-size:12px;color:#666">Athoo | official@athoo.pk | +92 339 0051068</p></div>`;
-      if (smtpReady) {
-        await sendMail({ to: lead.email, subject, html });
+
+      if (!smtpReady) {
+        await pool.query(
+          `INSERT INTO athoo_email_logs (lead_id, recipient, subject, body, status, provider_response)
+           VALUES ($1,$2,$3,$4,'skipped',$5)`,
+          [lead.id, lead.email, subject, message, JSON.stringify({ reason: "smtp_not_configured" })],
+        );
+        skipped++;
+        continue;
+      }
+
+      const ok = await sendMail({ to: lead.email, subject, html });
+      if (ok) {
         await pool.query(
           `INSERT INTO athoo_email_logs (lead_id, recipient, subject, body, status, provider_response)
            VALUES ($1,$2,$3,$4,'sent',$5)`,
@@ -350,15 +362,15 @@ router.post("/admin/bulk-email", async (req: any, res: any) => {
       } else {
         await pool.query(
           `INSERT INTO athoo_email_logs (lead_id, recipient, subject, body, status, provider_response)
-           VALUES ($1,$2,$3,$4,'skipped',$5)`,
-          [lead.id, lead.email, subject, message, JSON.stringify({ reason: "smtp_not_configured" })],
+           VALUES ($1,$2,$3,$4,'failed',$5)`,
+          [lead.id, lead.email, subject, message, JSON.stringify({ reason: "smtp_send_failed" })],
         );
-        skipped++;
+        failed++;
       }
     }
 
-    await logActivity(req, admin, "bulk_email_sent", "website_leads", ids.join(","), { subject, sent, skipped });
-    return res.json({ ok: true, sent, skipped });
+    await logActivity(req, admin, "bulk_email_sent", "website_leads", ids.join(","), { subject, sent, failed, skipped });
+    return res.json({ ok: true, sent, failed, skipped, smtpConfigured: smtpReady });
   } catch (err: any) {
     logger.error({ err: err.message }, "Bulk email failed");
     return res.status(500).json({ ok: false, error: "Could not send emails" });

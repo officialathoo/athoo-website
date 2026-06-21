@@ -109,7 +109,7 @@ export default function Contact() {
                 href={c.href}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.25 }}
                 transition={{ delay: i * 0.07 }}
                 className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all"
               >
@@ -130,7 +130,7 @@ export default function Contact() {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.25 }}
             >
               <h2 className="text-2xl font-black text-gray-900 mb-6">What Can We Help With?</h2>
               <ul className="space-y-3 mb-10">
@@ -192,7 +192,7 @@ export default function Contact() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.25 }}
               className="rounded-3xl border border-gray-100 bg-white p-8 shadow-xl md:p-10"
             >
               <h2 className="text-2xl font-black text-gray-900 mb-2">Send a Message</h2>
