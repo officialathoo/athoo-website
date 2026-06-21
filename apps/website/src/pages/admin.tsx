@@ -498,18 +498,57 @@ export default function Admin() {
   }
 
   // ── Templates ────────────────────────────────────────────────────────────────
-  function saveTemplate() {
-    const newId = Date.now();
-    const updated = editingTemplate !== null
-      ? templates.map(t => t.id === editingTemplate ? { ...t, ...templateForm } : t)
-      : [...templates, { id: newId, ...templateForm }];
-    setTemplates(updated);
-    const method = editingTemplate !== null ? "PATCH" : "POST";
-    const tUrl = editingTemplate !== null ? `/api/admin/templates/${editingTemplate}` : "/api/admin/templates";
-    fetch(apiUrl(tUrl), { method, headers: authHeaders(token), body: JSON.stringify(templateForm) }).catch(() => {});
-    setEditingTemplate(null); setTemplateForm({ name: "", subject: "", body: "" }); setNotice("Template saved.");
+  async function saveTemplate() {
+    setError("");
+    setNotice("");
+
+    if (!templateForm.name?.trim() || !templateForm.subject?.trim() || !templateForm.body?.trim()) {
+      setError("Template name, subject and body are required.");
+      return;
+    }
+
+    try {
+      const method = editingTemplate !== null ? "PATCH" : "POST";
+      const tUrl = editingTemplate !== null ? `/api/admin/templates/${editingTemplate}` : "/api/admin/templates";
+      const response = await fetch(apiUrl(tUrl), {
+        method,
+        headers: authHeaders(token),
+        body: JSON.stringify({ ...templateForm, category: "general" }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.ok === false) throw new Error(data.error || "Could not save template");
+
+      await loadTemplatesFromApi();
+      setEditingTemplate(null);
+      setTemplateForm({ name: "", subject: "", body: "" });
+      setNotice(editingTemplate !== null ? "Template updated." : "Template saved.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save template");
+    }
   }
-  function editTemplate(t: typeof defaultTemplates[0]) { setTemplateForm({ name: t.name, subject: t.subject, body: t.body }); setEditingTemplate(t.id); }
+
+  function editTemplate(t: typeof defaultTemplates[0]) {
+    setTemplateForm({ name: t.name, subject: t.subject, body: t.body });
+    setEditingTemplate(t.id);
+  }
+
+  async function deleteTemplate(id: number) {
+    if (!window.confirm("Delete this email template?")) return;
+    setError("");
+    setNotice("");
+    try {
+      const response = await fetch(apiUrl(`/api/admin/templates/${id}`), {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.ok === false) throw new Error(data.error || "Could not delete template");
+      await loadTemplatesFromApi();
+      setNotice("Template deleted.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not delete template");
+    }
+  }
 
   const selectedLeads = useMemo(() => leads.filter((l) => selected.includes(l.id)), [leads, selected]);
   const pagedLeads = useMemo(() => leads.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE), [leads, page, PAGE_SIZE]);
@@ -664,7 +703,7 @@ export default function Admin() {
       <main className="min-h-screen bg-[#081120] px-4 py-10 text-white sm:px-6 sm:py-16">
         <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-center">
           <div className="hidden lg:block">
-            <img src="/athoo-logo.png" alt="Athoo" className="mb-8 h-20 w-20 rounded-3xl bg-white p-2 shadow-2xl" />
+            <img src="/athoo-logo.webp" alt="Athoo" width={48} height={48} decoding="async" className="mb-8 h-20 w-20 rounded-3xl bg-white p-2 shadow-2xl" />
             <h1 className="text-5xl font-black leading-tight">Athoo Professional Admin</h1>
             <p className="mt-5 max-w-xl text-lg text-gray-300">Manage leads, providers, waitlist, blog content, SEO, email communications and website controls from one secure dashboard.</p>
           </div>
@@ -695,7 +734,7 @@ export default function Admin() {
           {/* Logo */}
           <div className="flex items-center justify-between border-b border-white/10 p-4">
             <div className="flex items-center gap-3">
-              <img src="/athoo-logo.png" alt="Athoo" className="h-10 w-10 rounded-xl bg-white p-1" />
+              <img src="/athoo-logo.webp" alt="Athoo" width={48} height={48} decoding="async" className="h-10 w-10 rounded-xl bg-white p-1" />
               <div><div className="text-lg font-black">Athoo</div><div className="text-xs uppercase tracking-widest text-blue-300">Admin Panel</div></div>
             </div>
             <button onClick={() => setSidebarOpen(false)} className="rounded-lg p-1 hover:bg-white/10 lg:hidden"><X className="h-5 w-5" /></button>
@@ -1066,6 +1105,7 @@ export default function Admin() {
                       <div className="flex shrink-0 gap-1">
                         <Button size="sm" variant="secondary" onClick={() => editTemplate(t)}><Pencil className="h-3.5 w-3.5" /></Button>
                         <Button size="sm" variant="secondary" title="Load into Bulk Email" onClick={() => { setEmailDraft({ subject: t.subject, message: t.body }); switchTab("email"); setNotice("Template loaded into Bulk Email."); }}><Send className="h-3.5 w-3.5" /></Button>
+                        <Button size="sm" variant="secondary" title="Delete template" onClick={() => deleteTemplate(t.id)} className="text-red-500 hover:text-red-700"><Trash2 className="h-3.5 w-3.5" /></Button>
                       </div>
                     </div>
                   </div>)}

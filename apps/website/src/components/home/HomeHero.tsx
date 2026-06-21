@@ -1,8 +1,36 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { BellRing, ChevronRight, MapPin, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { handlePathClick, handleWaitlistClick } from "@/lib/navigation";
+import { apiUrl } from "@/lib/apiBase";
 
 export default function HomeHero() {
+  const [cms, setCms] = useState({
+    badge: "App Launching Soon in Pakistan",
+    title: "Pakistan’s Smart Home Services App",
+    highlight: "Launching Soon",
+    subtitle: "Athoo is preparing to connect customers with trusted local service providers across Pakistan. Join the waitlist and get launch updates first.",
+  });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), 5000);
+    fetch(apiUrl("/api/public/cms"), { signal: controller.signal, cache: "no-store" })
+      .then((r) => r.json())
+      .then((data) => {
+        const c = data?.cms || {};
+        setCms((prev) => ({
+          badge: c.cms_hero_badge || c.cms_hero?.badge || prev.badge,
+          title: c.cms_hero_title || c.cms_hero?.title || prev.title,
+          highlight: c.cms_hero_highlight || "Launching Soon",
+          subtitle: c.cms_hero_subtitle || c.cms_hero?.subtitle || prev.subtitle,
+        }));
+      })
+      .catch(() => {})
+      .finally(() => window.clearTimeout(timer));
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, []);
+
   return (
     <section className="relative isolate min-h-screen overflow-hidden bg-[radial-gradient(circle_at_15%_20%,rgba(0,87,255,.16),transparent_28%),radial-gradient(circle_at_85%_10%,rgba(255,138,0,.20),transparent_24%),linear-gradient(135deg,#ffffff_0%,#eef5ff_52%,#fff4e6_100%)] pt-24">
       <div className="absolute -right-32 top-24 h-80 w-80 rounded-full bg-[#0057FF]/20 blur-3xl" />
@@ -13,15 +41,15 @@ export default function HomeHero() {
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="space-y-7 text-center lg:text-left">
           <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-4 py-2 text-sm font-black text-blue-700 shadow-lg shadow-blue-500/10 backdrop-blur lg:mx-0">
             <span className="relative flex h-3 w-3"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" /><span className="relative inline-flex h-3 w-3 rounded-full bg-orange-500" /></span>
-            App Launching Soon in Pakistan
+            {cms.badge}
           </div>
 
           <h1 className="mx-auto max-w-5xl text-4xl font-black leading-[0.98] tracking-[-0.04em] text-[#081120] sm:text-6xl lg:mx-0 lg:text-7xl">
-            Pakistan’s Smart Home Services App <span className="bg-gradient-to-r from-[#0057FF] via-blue-500 to-[#FF8A00] bg-clip-text text-transparent">Launching Soon</span>
+            {cms.title} <span className="bg-gradient-to-r from-[#0057FF] via-blue-500 to-[#FF8A00] bg-clip-text text-transparent">{cms.highlight}</span>
           </h1>
 
           <p className="mx-auto max-w-2xl text-lg font-medium leading-8 text-slate-600 sm:text-xl lg:mx-0">
-            Athoo is preparing to connect customers with trusted local service providers across Pakistan. Join the waitlist and get launch updates first.
+            {cms.subtitle}
           </p>
 
           <div className="grid gap-3 sm:flex sm:justify-center lg:justify-start">
@@ -57,7 +85,7 @@ export default function HomeHero() {
               <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-[#FF8A00]" /><span className="text-sm font-black">Coming Soon</span></div>
             </div>
             <div className="mx-auto flex max-w-[310px] justify-center overflow-hidden rounded-[2rem] bg-white shadow-2xl sm:max-w-[360px]">
-              <img src="/app-interface-clean.webp" alt="Athoo app interface preview" className="app-preview-image h-auto w-full rounded-[1.6rem] object-contain" />
+              <img src="/app-interface-clean.webp" alt="Athoo app interface preview" width={360} height={720} fetchPriority="high" decoding="async" className="app-preview-image h-auto w-full rounded-[1.6rem] object-contain" />
             </div>
           </div>
 

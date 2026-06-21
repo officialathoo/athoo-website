@@ -114,41 +114,80 @@ function tableRows(payload: Record<string, unknown>): string {
     .join("");
 }
 
-async function sendEmails(lead: Record<string, any>): Promise<void> {
+async function logEmail(
+  leadId: number | null,
+  recipient: string,
+  subject: string,
+  body: string,
+  status: "sent" | "failed" | "skipped",
+  providerResponse: Record<string, unknown> = {},
+): Promise<void> {
+  try {
+    await pool.query(
+      `INSERT INTO athoo_email_logs (lead_id, recipient, subject, body, status, provider_response)
+       VALUES ($1,$2,$3,$4,$5,$6)`,
+      [leadId, recipient, subject, body, status, JSON.stringify(providerResponse)],
+    );
+  } catch (err: any) {
+    logger.warn({ err: err?.message || err }, "Email log insert failed");
+  }
+}
+
+async function sendOneEmail(
+  leadId: number,
+  recipient: string,
+  subject: string,
+  html: string,
+  replyTo?: string,
+): Promise<boolean> {
+  if (!recipient) {
+    await logEmail(leadId, recipient, subject, html, "skipped", { reason: "missing_recipient" });
+    return false;
+  }
+
+  const ok = await sendMail({ to: recipient, subject, html, replyTo });
+  await logEmail(leadId, recipient, subject, html, ok ? "sent" : "failed", {
+    provider: "smtp",
+    reason: ok ? "sent" : "smtp_send_failed_or_not_configured",
+  });
+  return ok;
+}
+
+async function sendEmails(lead: Record<string, any>): Promise<{
+  admin: boolean;
+  user: boolean | null;
+}> {
   const payload = safeJsonParse(lead.payload);
   const formType = sanitize(lead.form_type, 80);
   const userEmail = sanitize(lead.email, 255);
   const userName = sanitize(lead.name, 120) || "there";
+  const leadId = Number(lead.id);
 
   const notifyTo = formType === "Contact Form" ? SUPPORT_EMAIL : ADMIN_EMAIL;
   const rows = tableRows(payload);
 
-  const adminEmailSent = await sendMail({
-    to: notifyTo,
-    subject: `New Athoo ${formType}`,
-    html: `
-      <div style="font-family:Arial,sans-serif;color:#111">
-        <h2 style="color:#0057FF">New ${formType}</h2>
-        <table style="border-collapse:collapse;width:100%">${rows}</table>
-        <p style="font-size:12px;color:#999;margin-top:16px">
-          Athoo Admin | official@athoo.pk
-        </p>
-      </div>
-    `,
-  });
+  const adminSubject = `New Athoo ${formType}`;
+  const adminHtml = `
+    <div style="font-family:Arial,sans-serif;color:#111">
+      <h2 style="color:#0057FF">New ${formType}</h2>
+      <table style="border-collapse:collapse;width:100%">${rows}</table>
+      <p style="font-size:12px;color:#999;margin-top:16px">
+        Athoo Admin | official@athoo.pk
+      </p>
+    </div>
+  `;
 
-  if (!adminEmailSent) {
-    throw new Error("Admin notification email failed or SMTP is not configured");
-  }
+  const adminSent = await sendOneEmail(leadId, notifyTo, adminSubject, adminHtml, userEmail || undefined);
 
-  if (!userEmail) return;
+  let userSent: boolean | null = null;
+  if (!userEmail) return { admin: adminSent, user: userSent };
 
   if (formType === "Waitlist Signup") {
-    const userEmailSent = await sendMail({
-      to: userEmail,
-      replyTo: ADMIN_EMAIL,
-      subject: "You're on the Athoo Waitlist!",
-      html: `
+    userSent = await sendOneEmail(
+      leadId,
+      userEmail,
+      "You're on the Athoo Waitlist!",
+      `
         <div style="font-family:Arial,sans-serif;max-width:600px;color:#111">
           <h2 style="color:#0057FF">Welcome to the Athoo Waitlist</h2>
           <p>Hi ${userName},</p>
@@ -164,19 +203,16 @@ async function sendEmails(lead: Record<string, any>): Promise<void> {
           </p>
         </div>
       `,
-    });
-
-    if (!userEmailSent) {
-      throw new Error("Waitlist confirmation email failed or SMTP is not configured");
-    }
+      ADMIN_EMAIL,
+    );
   }
 
   if (formType === "Provider Waitlist") {
-    const userEmailSent = await sendMail({
-      to: userEmail,
-      replyTo: ADMIN_EMAIL,
-      subject: "Provider Application Received — Athoo",
-      html: `
+    userSent = await sendOneEmail(
+      leadId,
+      userEmail,
+      "Provider Application Received — Athoo",
+      `
         <div style="font-family:Arial,sans-serif;max-width:600px;color:#111">
           <h2 style="color:#0057FF">Application Received</h2>
           <p>Hi ${userName},</p>
@@ -186,12 +222,11 @@ async function sendEmails(lead: Record<string, any>): Promise<void> {
           </p>
         </div>
       `,
-    });
-
-    if (!userEmailSent) {
-      throw new Error("Provider confirmation email failed or SMTP is not configured");
-    }
+      ADMIN_EMAIL,
+    );
   }
+
+  return { admin: adminSent, user: userSent };
 }
 
 router.options("/submit", (_req, res) => {
@@ -297,11 +332,15 @@ router.post("/submit", async (req: any, res: any) => {
       );
     }
 
-    let emailStatus: "sent" | "failed" | "skipped" = "skipped";
+    let emailStatus: "sent" | "partial" | "failed" | "skipped" = "skipped";
+    let emailDetails: Record<string, unknown> = {};
 
     try {
-      await sendEmails(lead);
-      emailStatus = "sent";
+      const sent = await sendEmails(lead);
+      emailDetails = sent;
+      if (sent.admin && sent.user !== false) emailStatus = "sent";
+      else if (sent.admin || sent.user) emailStatus = "partial";
+      else emailStatus = "failed";
     } catch (mailErr: any) {
       emailStatus = "failed";
       logger.warn(
@@ -317,6 +356,7 @@ router.post("/submit", async (req: any, res: any) => {
       ok: true,
       id: lead.id,
       emailStatus,
+      emailDetails,
     });
   } catch (err: any) {
     logger.error(

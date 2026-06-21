@@ -253,8 +253,8 @@ export async function ensureSchema(): Promise<void> {
     // Seed default roles
     const defaultRoles: [string, string, string, string[]][] = [
       ["super_admin", "Super Admin", "Full system access", ["all"]],
-      ["admin", "Admin", "Full access except user management", ["leads", "blogs", "email", "settings", "media", "faq", "seo"]],
-      ["manager", "Manager", "Manage leads and content", ["leads", "blogs", "media"]],
+      ["admin", "Admin", "Full access except user management", ["view_leads", "manage_leads", "export_leads", "send_email", "manage_settings", "manage_content", "leads", "blogs", "email", "settings", "media", "faq", "seo"]],
+      ["manager", "Manager", "Manage leads and content", ["view_leads", "manage_leads", "export_leads", "manage_content", "leads", "blogs", "media"]],
       ["custom", "Custom", "Custom permissions defined per user", []],
     ];
     for (const [rName, rLabel, rDesc, rPerms] of defaultRoles) {

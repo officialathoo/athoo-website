@@ -31,3 +31,5 @@ services:
         sync: false
       - key: RATE_LIMIT_PER_MINUTE
         value: "30"
+      - key: CORS_ORIGIN
+        value: "https://athoo.pk,https://www.athoo.pk,https://admin.athoo.pk,https://thoo-api.onrender.com"

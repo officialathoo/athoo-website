@@ -2,7 +2,7 @@ import { Router } from "express";
 import crypto from "node:crypto";
 import { pool } from "@athoo/db";
 import { logger } from "../lib/logger.js";
-import { sendMail, isSmtpConfigured } from "../lib/mailer.js";
+import { sendMail, isSmtpConfigured, getSmtpStatus } from "../lib/mailer.js";
 
 const router = Router();
 
@@ -36,6 +36,15 @@ function sanitize(value: unknown, max = 2000): string {
     .trim()
     .slice(0, max);
 }
+
+function parseSettingValue(value: unknown): any {
+  if (value === null || value === undefined) return value;
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  try { return JSON.parse(trimmed); } catch { return trimmed; }
+}
+
 
 function secret(): string {
   return process.env.SESSION_SECRET || process.env.ADMIN_PASSWORD || "athoo-admin-secret";
@@ -88,9 +97,32 @@ function requireAdmin(req: any, res: any): Record<string, unknown> | null {
 function hasPermission(admin: Record<string, unknown>, permission: string): boolean {
   if (!admin) return false;
   if (admin.role === "super_admin") return true;
-  const perms = admin.permissions as Record<string, boolean> | undefined;
-  if (perms?.all) return true;
-  return Boolean(perms?.[permission]);
+
+  const rawPerms = admin.permissions as Record<string, boolean> | string | undefined;
+  let perms: Record<string, boolean> = {};
+  if (typeof rawPerms === "string") {
+    try { perms = JSON.parse(rawPerms); } catch { perms = {}; }
+  } else if (rawPerms && typeof rawPerms === "object") {
+    perms = rawPerms;
+  }
+
+  if (perms.all) return true;
+  if (perms[permission]) return true;
+
+  // Backward compatibility for old admin roles already stored in Neon.
+  const legacyGroups: Record<string, string[]> = {
+    leads: ["view_leads", "manage_leads", "export_leads"],
+    email: ["send_email"],
+    settings: ["manage_settings"],
+    blogs: ["manage_content"],
+    media: ["manage_content"],
+    faq: ["manage_content"],
+    seo: ["manage_settings"],
+  };
+
+  return Object.entries(legacyGroups).some(([legacy, expanded]) => {
+    return Boolean(perms[legacy] && expanded.includes(permission));
+  });
 }
 
 async function logActivity(
@@ -370,7 +402,7 @@ router.post("/admin/bulk-email", async (req: any, res: any) => {
     }
 
     await logActivity(req, admin, "bulk_email_sent", "website_leads", ids.join(","), { subject, sent, failed, skipped });
-    return res.json({ ok: true, sent, failed, skipped, smtpConfigured: smtpReady });
+    return res.json({ ok: true, sent, failed, skipped, smtpConfigured: smtpReady, smtp: getSmtpStatus(), note: `Done. Sent: ${sent}, failed: ${failed}, skipped: ${skipped}` });
   } catch (err: any) {
     logger.error({ err: err.message }, "Bulk email failed");
     return res.status(500).json({ ok: false, error: "Could not send emails" });
@@ -383,7 +415,7 @@ router.get("/admin/settings", async (req: any, res: any) => {
 
   try {
     const rows = await pool.query(`SELECT key, value FROM app_settings ORDER BY key`);
-    const settings = Object.fromEntries(rows.rows.map((r: Record<string, unknown>) => [r.key, r.value]));
+    const settings = Object.fromEntries(rows.rows.map((r: Record<string, unknown>) => [r.key, parseSettingValue(r.value)]));
     return res.json({ ok: true, settings });
   } catch {
     return res.status(500).json({ ok: false, error: "Could not load settings" });
@@ -397,16 +429,38 @@ router.post("/admin/settings", async (req: any, res: any) => {
 
   try {
     const body = req.body || {};
-    for (const [key, val] of Object.entries(body)) {
+
+    // Admin UI sends these friendly keys. Public website reads maintenance_mode,
+    // support_email and support_phone, so map them here.
+    const normalized: Record<string, unknown> = {};
+
+    if (body.maintenanceEnabled !== undefined || body.maintenanceMessage !== undefined) {
+      normalized.maintenance_mode = {
+        enabled: Boolean(body.maintenanceEnabled),
+        message: sanitize(body.maintenanceMessage, 500) || "Athoo website is under maintenance. Please check back soon.",
+      };
+    }
+    if (body.supportEmail !== undefined) normalized.support_email = sanitize(body.supportEmail, 255);
+    if (body.supportPhone !== undefined) normalized.support_phone = sanitize(body.supportPhone, 80);
+
+    for (const [key, value] of Object.entries(body)) {
+      if (["maintenanceEnabled", "maintenanceMessage", "supportEmail", "supportPhone"].includes(key)) continue;
+      normalized[sanitize(key, 100)] = value;
+    }
+
+    for (const [key, val] of Object.entries(normalized)) {
+      if (!key) continue;
       await pool.query(
         `INSERT INTO app_settings (key, value, updated_at) VALUES ($1,$2,NOW())
          ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=NOW()`,
-        [sanitize(key, 100), JSON.stringify(val)],
+        [key, JSON.stringify(val)],
       );
     }
-    await logActivity(req, admin, "settings_update", "app_settings", null, {});
-    return res.json({ ok: true });
-  } catch {
+
+    await logActivity(req, admin, "settings_update", "app_settings", null, normalized);
+    return res.json({ ok: true, settings: normalized });
+  } catch (err: any) {
+    logger.error({ err: err?.message || err }, "Could not save settings");
     return res.status(500).json({ ok: false, error: "Could not save settings" });
   }
 });
@@ -485,6 +539,43 @@ router.post("/admin/templates", async (req: any, res: any) => {
   }
 });
 
+
+router.patch("/admin/templates/:id", async (req: any, res: any) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  if (!hasPermission(admin, "send_email")) return res.status(403).json({ ok: false, error: "Permission denied" });
+
+  try {
+    const id = Number(req.params.id);
+    const body = req.body || {};
+    const name = sanitize(body.name, 120);
+    const subject = sanitize(body.subject, 200);
+    const bodyText = sanitize(body.body, 5000);
+    const category = sanitize(body.category, 50) || "general";
+
+    if (!id) return res.status(400).json({ ok: false, error: "Invalid template ID" });
+    if (!name || !subject || !bodyText) {
+      return res.status(400).json({ ok: false, error: "Name, subject and body are required" });
+    }
+
+    const result = await pool.query(
+      `UPDATE athoo_email_templates
+       SET name=$1, subject=$2, body=$3, category=$4, updated_at=NOW()
+       WHERE id=$5
+       RETURNING id, name, subject, body, category, created_by, created_at, updated_at`,
+      [name, subject, bodyText, category, id],
+    );
+
+    if (!result.rows.length) return res.status(404).json({ ok: false, error: "Template not found" });
+
+    await logActivity(req, admin, "template_update", "email_template", String(id), { name });
+    return res.json({ ok: true, template: result.rows[0] });
+  } catch (err: any) {
+    logger.error({ err: err?.message || err }, "Could not update template");
+    return res.status(500).json({ ok: false, error: "Could not update template" });
+  }
+});
+
 router.delete("/admin/templates/:id", async (req: any, res: any) => {
   const admin = requireAdmin(req, res);
   if (!admin) return;
@@ -497,6 +588,35 @@ router.delete("/admin/templates/:id", async (req: any, res: any) => {
   } catch {
     return res.status(500).json({ ok: false, error: "Could not delete template" });
   }
+});
+
+router.get("/admin/smtp-status", async (req: any, res: any) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  return res.json({ ok: true, smtp: getSmtpStatus() });
+});
+
+router.post("/admin/test-email", async (req: any, res: any) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  if (!hasPermission(admin, "send_email")) return res.status(403).json({ ok: false, error: "Permission denied" });
+
+  const to = sanitize(req.body?.to, 255) || String(admin.email || "");
+  if (!to) return res.status(400).json({ ok: false, error: "Test recipient is required" });
+
+  const ok = await sendMail({
+    to,
+    subject: "Athoo SMTP Test",
+    html: `<div style="font-family:Arial,sans-serif"><h2>Athoo SMTP Test</h2><p>If you received this email, SMTP is working.</p></div>`,
+  });
+
+  await pool.query(
+    `INSERT INTO athoo_email_logs (lead_id, recipient, subject, body, status, provider_response)
+     VALUES (NULL,$1,$2,$3,$4,$5)`,
+    [to, "Athoo SMTP Test", "SMTP test from admin panel", ok ? "sent" : "failed", JSON.stringify(getSmtpStatus())],
+  );
+
+  return res.json({ ok, sent: ok, smtp: getSmtpStatus(), error: ok ? undefined : "SMTP test failed. Check Render SMTP environment variables and Render logs." });
 });
 
 router.get("/admin/email-logs", async (req: any, res: any) => {

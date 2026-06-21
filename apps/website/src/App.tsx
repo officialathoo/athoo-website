@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { HelmetProvider } from "react-helmet-async";
 
 import MainLayout from "@/components/layout/MainLayout";
+import MaintenanceGate from "@/components/MaintenanceGate";
 
 // Only Home is eager — it's the critical first-paint route
 import Home from "@/pages/home";
@@ -68,9 +69,10 @@ function Router() {
   }
 
   return (
-    <MainLayout>
-      <Suspense fallback={<PageLoader />}>
-        <Switch>
+    <MaintenanceGate>
+      <MainLayout>
+        <Suspense fallback={<PageLoader />}>
+          <Switch>
           <Route path="/" component={Home} />
           <Route path="/about" component={About} />
           <Route path="/services" component={Services} />
@@ -85,9 +87,10 @@ function Router() {
           <Route path="/terms" component={Terms} />
           <Route path="/cookie-policy" component={CookiePolicy} />
           <Route component={NotFound} />
-        </Switch>
-      </Suspense>
-    </MainLayout>
+          </Switch>
+        </Suspense>
+      </MainLayout>
+    </MaintenanceGate>
   );
 }
 

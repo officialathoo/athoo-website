@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
@@ -100,7 +99,7 @@
   --chart-4: 280 100% 60%;
   --chart-5: 340 100% 60%;
 
-  --app-font-sans: 'Inter', sans-serif;
+  --app-font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: Menlo, monospace;
   --radius: 0.5rem;
@@ -309,3 +308,14 @@ section, article {
     will-change: transform;
   }
 }
+
+/* Athoo performance: avoid expensive off-screen paint and keep mobile scroll smooth */
+@media (max-width: 768px) {
+  html { scroll-behavior: auto; }
+  .blur-3xl { filter: blur(32px) !important; }
+  [class*="backdrop-blur"] { backdrop-filter: blur(6px) !important; }
+  .animate-ping { animation-duration: 2.4s; }
+}
+
+/* Repeat in-view animations are handled by Framer Motion viewport once:false. This class keeps image animations GPU-friendly. */
+.app-preview-image { transform: translateZ(0); will-change: transform; }

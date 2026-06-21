@@ -4,9 +4,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Calendar, Clock, ArrowRight, Search } from "lucide-react";
 import { BLOG_POSTS, BLOG_CATEGORIES } from "@/lib/blogData";
-
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
-const apiUrl = (path: string) => API_BASE + path;
+import { apiUrl } from "@/lib/apiBase";
 
 type ApiBlogPost = {
   id: number; title: string; slug: string; excerpt: string; category: string;

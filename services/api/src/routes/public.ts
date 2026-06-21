@@ -17,6 +17,18 @@ function normalizeEmail(value: unknown): string {
   return sanitize(value, 255).toLowerCase();
 }
 
+function parseSettingValue(value: unknown): any {
+  if (value === null || value === undefined) return value;
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  try { return JSON.parse(trimmed); } catch { return trimmed; }
+}
+
+function settingsMap(rows: any[]): Record<string, any> {
+  return Object.fromEntries(rows.map((row: any) => [row.key, parseSettingValue(row.value)]));
+}
+
 async function createAdminNotification(
   message: string,
   linkTo: string | null = null,
@@ -208,10 +220,10 @@ router.get("/public/cms", async (_req: any, res: any) => {
       `SELECT key, value FROM app_settings
        WHERE key LIKE 'cms_%' OR key LIKE 'site_%' OR key LIKE 'social_%'
           OR key = 'support_email' OR key = 'support_phone' OR key = 'whatsapp_number'
-          OR key = 'maintenance_mode' OR key = 'launch_date'
+          OR key = 'maintenance_mode' OR key = 'maintenanceEnabled' OR key = 'maintenanceMessage' OR key = 'launch_date'
        ORDER BY key`,
     );
-    const cms = Object.fromEntries(rows.rows.map((row: any) => [row.key, row.value]));
+    const cms = settingsMap(rows.rows);
     return res.json({ ok: true, cms });
   } catch (err: any) {
     logger.warn({ err: err?.message || err }, "Public CMS load failed");
@@ -224,11 +236,11 @@ router.get("/public/settings", async (_req: any, res: any) => {
     const rows = await pool.query(
       `SELECT key, value FROM app_settings
        WHERE key IN ('site_title','site_description','support_email','support_phone',
-                     'whatsapp_number','maintenance_mode','launch_date')
+                     'whatsapp_number','maintenance_mode','maintenanceEnabled','maintenanceMessage','launch_date')
           OR key LIKE 'social_%'
        ORDER BY key`,
     );
-    const map = Object.fromEntries(rows.rows.map((row: any) => [row.key, row.value]));
+    const map = settingsMap(rows.rows);
     return res.json({
       ok: true,
       siteTitle: map.site_title || "Athoo",
@@ -240,8 +252,8 @@ router.get("/public/settings", async (_req: any, res: any) => {
       facebookUrl: map.social_facebook || "https://facebook.com/Athoo.Services/",
       tiktokUrl: map.social_tiktok || "https://tiktok.com/@athoo.pk",
       linkedinUrl: map.social_linkedin || "",
-      maintenanceMode: Boolean(map.maintenance_mode?.enabled) || map.maintenance_mode === true,
-      maintenanceMessage: map.maintenance_mode?.message || "Athoo website is under maintenance. Please check back soon.",
+      maintenanceMode: Boolean(map.maintenance_mode?.enabled) || map.maintenance_mode === true || map.maintenanceEnabled === true || map.maintenanceEnabled === "true",
+      maintenanceMessage: map.maintenance_mode?.message || map.maintenanceMessage || "Athoo website is under maintenance. Please check back soon.",
       launchDate: map.launch_date || "2026-09-01",
     });
   } catch (err: any) {

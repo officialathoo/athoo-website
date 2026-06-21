@@ -13,7 +13,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link href="/" className="mb-6 inline-block">
-              <img src="/athoo-logo.png" alt="Athoo Logo" className="h-12 w-auto rounded-xl bg-white p-1 object-contain" />
+              <img src="/athoo-logo.webp" alt="Athoo Logo" width={160} height={64} loading="lazy" decoding="async" className="h-12 w-auto rounded-xl bg-white p-1 object-contain" />
             </Link>
             <p className="mb-6 text-sm leading-relaxed text-gray-400">
               Athoo is an upcoming Pakistani home services platform connecting customers with verified professionals in Rawalpindi and Islamabad. App launch and provider onboarding opening soon.

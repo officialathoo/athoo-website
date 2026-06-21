@@ -1,19 +1,8 @@
-const PRIMARY_API_BASE = "https://thoo-api.onrender.com";
-
-function normalizeBase(value: string): string {
-  return value.trim().replace(/\/$/, "");
-}
+import { PRIMARY_API_BASE, normalizeApiBase } from "@/lib/apiBase";
 
 function resolveApiBases(): string[] {
-  const configured = normalizeBase(import.meta.env.VITE_API_BASE_URL || "");
-
-  // Render is the currently working Athoo API. Put it first so production does not
-  // accidentally submit to an unready Cloudflare/API subdomain and show a false error.
-  const bases = [PRIMARY_API_BASE, configured]
-    .map(normalizeBase)
-    .filter(Boolean);
-
-  return Array.from(new Set(bases));
+  const configured = normalizeApiBase(import.meta.env.VITE_API_BASE_URL || "");
+  return Array.from(new Set([PRIMARY_API_BASE, configured].map(normalizeApiBase).filter(Boolean)));
 }
 
 const API_BASES = resolveApiBases();

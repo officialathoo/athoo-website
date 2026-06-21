@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://athoo.pk/</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
   </url>
   <url>
     <loc>https://athoo.pk/services</loc>
@@ -15,6 +14,12 @@
   </url>
   <url>
     <loc>https://athoo.pk/about</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/how-it-works</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -41,111 +46,13 @@
     <loc>https://athoo.pk/faq</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://athoo.pk/how-it-works</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://athoo.pk/blogs</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/why-finding-reliable-home-service-professionals-is-difficult-in-pakistan</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/how-athoo-is-improving-home-services-in-rawalpindi-and-islamabad</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/what-customers-should-check-before-hiring-a-home-service-professional</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/why-verified-service-providers-matter</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/ac-maintenance-tips-before-summer-rawalpindi-islamabad</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/how-to-spot-a-bad-contractor-before-hiring</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/best-plumber-islamabad-rawalpindi</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/electrician-islamabad-rawalpindi-how-to-hire</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/ac-repair-islamabad-rawalpindi-guide</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/home-cleaning-service-islamabad-rawalpindi</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/carpenter-islamabad-rawalpindi-furniture-repair</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/home-maintenance-checklist-islamabad-rawalpindi</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://athoo.pk/blogs/electrician-safety-tips-for-homeowners-pakistan</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://athoo.pk/opengraph.jpg</image:loc><image:title>Athoo Home Services</image:title></image:image>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://athoo.pk/privacy</loc>
@@ -164,5 +71,83 @@
     <lastmod>2026-06-21</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/why-finding-reliable-home-service-professionals-is-difficult-in-pakistan</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/how-athoo-is-improving-home-services-in-rawalpindi-and-islamabad</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/what-customers-should-check-before-hiring-a-home-service-professional</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/why-verified-service-providers-matter</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/ac-maintenance-tips-before-summer-rawalpindi-islamabad</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/how-to-spot-a-bad-contractor-before-hiring</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/best-plumber-islamabad-rawalpindi</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/electrician-islamabad-rawalpindi-how-to-hire</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/ac-repair-islamabad-rawalpindi-guide</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/home-cleaning-service-islamabad-rawalpindi</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/carpenter-islamabad-rawalpindi-furniture-repair</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/home-maintenance-checklist-islamabad-rawalpindi</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://athoo.pk/blogs/electrician-safety-tips-for-homeowners-pakistan</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
   </url>
 </urlset>

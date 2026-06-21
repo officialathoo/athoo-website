@@ -5,9 +5,7 @@ import { motion } from "framer-motion";
 import { Calendar, Clock, ArrowLeft, ArrowRight, Share2 } from "lucide-react";
 import { getBlogPost, BLOG_POSTS } from "@/lib/blogData";
 import DOMPurify from "dompurify";
-
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
-const apiUrl = (path: string) => API_BASE + path;
+import { apiUrl } from "@/lib/apiBase";
 
 type ApiPost = {
   id: number;
