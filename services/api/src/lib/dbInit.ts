@@ -253,8 +253,8 @@ export async function ensureSchema(): Promise<void> {
     // Seed default roles
     const defaultRoles: [string, string, string, string[]][] = [
       ["super_admin", "Super Admin", "Full system access", ["all"]],
-      ["admin", "Admin", "Full access except user management", ["leads","blogs","email","settings","media","faq","seo"]],
-      ["manager", "Manager", "Manage leads and content", ["leads","blogs","media"]],
+      ["admin", "Admin", "Full access except user management", ["leads", "blogs", "email", "settings", "media", "faq", "seo"]],
+      ["manager", "Manager", "Manage leads and content", ["leads", "blogs", "media"]],
       ["custom", "Custom", "Custom permissions defined per user", []],
     ];
     for (const [rName, rLabel, rDesc, rPerms] of defaultRoles) {
@@ -297,7 +297,7 @@ export async function ensureSchema(): Promise<void> {
     // tags column on blog_posts
     await client.query(`ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}'`);
 
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.LEAD_NOTIFY_TO || "official@athoo.pk";
+    const adminEmail = process.env.SUPER_ADMIN_EMAIL || process.env.ADMIN_EMAIL || process.env.LEAD_NOTIFY_TO || "official@athoo.pk";
     const adminPassword = process.env.ADMIN_PASSWORD || "athoo-admin-change-me";
 
     const defaultSettings: [string, unknown][] = [
@@ -340,8 +340,15 @@ export async function ensureSchema(): Promise<void> {
     await client.query(`
       INSERT INTO athoo_admin_users (name, email, role, permissions, password_hash, is_active)
       VALUES ('Super Admin', $1, 'super_admin', '{"all":true}'::jsonb, $2, true)
-      ON CONFLICT (email) DO NOTHING
-    `, [adminEmail, passwordHash]);
+      ON CONFLICT (email) DO UPDATE SET
+        role = 'super_admin',
+        permissions = '{"all":true}'::jsonb,
+        is_active = true,
+        password_hash = CASE
+          WHEN athoo_admin_users.password_hash IS NULL OR COALESCE($3, '') = 'true' THEN EXCLUDED.password_hash
+          ELSE athoo_admin_users.password_hash
+        END
+    `, [adminEmail, passwordHash, process.env.SUPER_ADMIN_RESET_PASSWORD || ""]);
 
     logger.info("DB schema ready");
   } finally {

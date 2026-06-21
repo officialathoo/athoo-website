@@ -190,9 +190,15 @@ router.post("/submit", async (req: any, res: any) => {
       );
     }
 
-    sendEmails(lead).catch(() => {});
+    let emailStatus: "sent" | "skipped_or_failed" = "sent";
+    try {
+      await sendEmails(lead);
+    } catch (mailErr: any) {
+      emailStatus = "skipped_or_failed";
+      logger.warn({ err: mailErr?.message || mailErr, leadId: lead.id }, "Lead saved but email notification failed");
+    }
 
-    return res.json({ ok: true, id: lead.id });
+    return res.json({ ok: true, id: lead.id, emailStatus });
   } catch (err: any) {
     logger.error({ err: err?.message || err }, "Form submission failed");
     return res.status(500).json({ ok: false, error: "Submission failed" });

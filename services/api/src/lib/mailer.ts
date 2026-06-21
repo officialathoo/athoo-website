@@ -10,8 +10,13 @@ function fromAddress(): string {
   return `Athoo <${addr}>`;
 }
 
+function smtpHost(): string { return process.env.SMTP_HOST || process.env.ZOHO_SMTP_HOST || ""; }
+function smtpUser(): string { return process.env.SMTP_USER || process.env.ZOHO_SMTP_USER || ""; }
+function smtpPass(): string { return process.env.SMTP_PASS || process.env.ZOHO_SMTP_PASS || ""; }
+function smtpPort(): number { return Number(process.env.SMTP_PORT || process.env.ZOHO_SMTP_PORT || "465"); }
+
 export function isSmtpConfigured(): boolean {
-  return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+  return !!(smtpHost() && smtpUser() && smtpPass());
 }
 
 export interface MailOptions {
@@ -27,14 +32,14 @@ export async function sendMail(opts: MailOptions): Promise<void> {
     return;
   }
   try {
-    const port = Number(process.env.SMTP_PORT || "465");
+    const port = smtpPort();
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
+      host: smtpHost(),
       port,
       secure: port === 465,
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: smtpUser(),
+        pass: smtpPass(),
       },
     });
     await transporter.sendMail({ from: fromAddress(), ...opts });
