@@ -17,6 +17,7 @@ const RATE_LIMIT = 10;
 
 function getIp(req: any): string {
   const forwarded = req.headers["x-forwarded-for"];
+
   return String(
     Array.isArray(forwarded)
       ? forwarded[0]
@@ -29,6 +30,7 @@ function getIp(req: any): string {
 function rateLimit(req: any, keyPrefix = "global"): boolean {
   const key = `${keyPrefix}:${getIp(req)}`;
   const now = Date.now();
+
   const current = rateBuckets.get(key) || {
     count: 0,
     resetAt: now + RATE_WINDOW_MS,
@@ -62,7 +64,10 @@ function validate(formType: string, body: Record<string, unknown>): string[] {
   const message = sanitize(body.message, 2500);
 
   if (!ALLOWED_FORMS.has(formType)) errors.push("Invalid form type");
-  if (email && !/^\S+@\S+\.\S+$/.test(email)) errors.push("Invalid email");
+
+  if (email && !/^\S+@\S+\.\S+$/.test(email)) {
+    errors.push("Invalid email");
+  }
 
   if (formType === "Waitlist Signup" && !email) {
     errors.push("Email is required");
@@ -100,10 +105,10 @@ function tableRows(payload: Record<string, unknown>): string {
     .filter(([key]) => !["formType", "submittedAt", "source"].includes(key))
     .map(([key, value]) => {
       return (
-        `<tr>` +
+        "<tr>" +
         `<td style="padding:6px 12px;border:1px solid #ddd"><b>${sanitize(key, 100)}</b></td>` +
         `<td style="padding:6px 12px;border:1px solid #ddd">${sanitize(value, 1000) || "-"}</td>` +
-        `</tr>`
+        "</tr>"
       );
     })
     .join("");
@@ -144,12 +149,15 @@ async function sendEmails(lead: Record<string, any>): Promise<void> {
           <h2 style="color:#0057FF">Welcome to the Athoo Waitlist</h2>
           <p>Hi ${userName},</p>
           <p>Thank you for joining the Athoo waitlist. We'll notify you as soon as our app launches in Rawalpindi and Islamabad.</p>
-          <p>Stay updated:<br/>
+          <p>
+            Stay updated:<br/>
             Instagram: <a href="https://instagram.com/athoo_services">@athoo_services</a><br/>
             Facebook: <a href="https://facebook.com/Athoo.Services/">Athoo.Services</a><br/>
             TikTok: <a href="https://tiktok.com/@athoo.pk">@athoo.pk</a>
           </p>
-          <p style="color:#666;font-size:12px">Athoo | official@athoo.pk | +92 339 0051068</p>
+          <p style="color:#666;font-size:12px">
+            Athoo | official@athoo.pk | +92 339 0051068
+          </p>
         </div>
       `,
     });
@@ -165,7 +173,9 @@ async function sendEmails(lead: Record<string, any>): Promise<void> {
           <h2 style="color:#0057FF">Application Received</h2>
           <p>Hi ${userName},</p>
           <p>Thank you for your interest in becoming an Athoo Service Partner. Our team will review your application and contact you shortly.</p>
-          <p style="color:#666;font-size:12px">Athoo | official@athoo.pk | +92 339 0051068</p>
+          <p style="color:#666;font-size:12px">
+            Athoo | official@athoo.pk | +92 339 0051068
+          </p>
         </div>
       `,
     });
@@ -198,8 +208,11 @@ router.post("/submit", async (req: any, res: any) => {
     }
 
     const cleanPayload: Record<string, string> = {};
+
     for (const [key, value] of Object.entries(body)) {
-      cleanPayload[sanitize(key, 80)] = sanitize(value, 2500);
+      const cleanKey = sanitize(key, 80);
+      if (!cleanKey) continue;
+      cleanPayload[cleanKey] = sanitize(value, 2500);
     }
 
     const email = sanitize(body.email, 255).toLowerCase() || null;
@@ -233,7 +246,10 @@ router.post("/submit", async (req: any, res: any) => {
         created_at,
         updated_at
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'new','normal',NOW(),NOW())
+      VALUES (
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,
+        'new','normal',NOW(),NOW()
+      )
       RETURNING id, form_type, name, email, payload`,
       [
         formType,
@@ -245,7 +261,9 @@ router.post("/submit", async (req: any, res: any) => {
         sanitize(body.service, 120) || null,
         sanitize(body.city, 120) || null,
         sanitize(body.experience, 800) || null,
-        sanitize(body.source, 500) || sanitize(req.headers.referer, 500) || "website",
+        sanitize(body.source, 500) ||
+        sanitize(req.headers.referer, 500) ||
+        "website",
         getIp(req),
         sanitize(req.headers["user-agent"], 500) || null,
         JSON.stringify({
@@ -275,7 +293,10 @@ router.post("/submit", async (req: any, res: any) => {
     } catch (mailErr: any) {
       emailStatus = "failed";
       logger.warn(
-        { err: mailErr?.message || mailErr, leadId: lead.id },
+        {
+          err: mailErr?.message || mailErr,
+          leadId: lead.id,
+        },
         "Lead saved but email notification failed",
       );
     }
