@@ -1,7 +1,7 @@
 import HomeHero from "@/components/home/HomeHero";
-import StatsSection from "@/components/home/StatsSection";
+import Stats3D from "@/components/home/Stats3D";
 import HowItWorks from "@/components/home/HowItWorks";
-import ServicesGrid from "@/components/home/ServicesGrid";
+import Services3DGallery from "@/components/home/Services3DGallery";
 import AppShowcase from "@/components/home/AppShowcase";
 import TrustSafety from "@/components/home/TrustSafety";
 import WaitlistSection from "@/components/home/WaitlistSection";
@@ -10,6 +10,7 @@ import FaqSection from "@/components/home/FaqSection";
 import CompleteInfoSection from "@/components/home/CompleteInfoSection";
 import BlogPreview from "@/components/home/BlogPreview";
 import HomeContact from "@/components/home/HomeContact";
+import VirtualShowroom from "@/components/home/VirtualShowroom";
 import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
 
@@ -162,9 +163,10 @@ export default function Home() {
 
       <div className="flex flex-col min-h-screen">
         <HomeHero />
-        <StatsSection />
+        <Stats3D />
         <HowItWorks />
-        <ServicesGrid />
+        <Services3DGallery />
+        <VirtualShowroom />
         <AppShowcase />
         <TrustSafety />
         <div id="waitlist">

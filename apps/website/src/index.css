@@ -362,3 +362,13 @@ section, article {
   animation: athoo-holo-sheen 5.5s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) { .app-preview-image, .phone-showcase::after, .app-screen-frame::after { animation: none !important; } }
+
+/* 3D Virtual Showroom animations */
+@keyframes athoo-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.25); opacity: 0.3; }
+}
+@keyframes athoo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

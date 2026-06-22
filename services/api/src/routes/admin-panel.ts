@@ -1098,4 +1098,186 @@ router.delete("/admin/services/:id", async (req: any, res: any) => {
   }
 });
 
+
+// ─── SUBSCRIBER STATS ────────────────────────────────────────────────────────
+
+router.get("/admin/subscriber-stats", async (req: any, res: any) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  try {
+    // Totals
+    const totalsRow = await pool.query(
+      `SELECT
+         count(*)::int                                                          AS total,
+         count(*) FILTER (WHERE email IS NOT NULL AND trim(email) != '')::int  AS with_email,
+         count(*) FILTER (WHERE email IS NULL OR trim(email) = '')::int        AS no_email
+       FROM website_leads
+       WHERE form_type = 'Waitlist Signup'`,
+    );
+    const t = totalsRow.rows[0];
+
+    // Daily signups — last 30 days
+    const dailyRow = await pool.query(
+      `SELECT to_char(date_trunc('day', created_at), 'YYYY-MM-DD') AS date,
+              count(*)::int AS count
+       FROM website_leads
+       WHERE form_type = 'Waitlist Signup'
+         AND created_at >= NOW() - INTERVAL '30 days'
+       GROUP BY 1
+       ORDER BY 1`,
+    );
+
+    // Top cities
+    const cityRow = await pool.query(
+      `SELECT city, count(*)::int AS count
+       FROM website_leads
+       WHERE form_type = 'Waitlist Signup'
+         AND city IS NOT NULL AND trim(city) != ''
+       GROUP BY city
+       ORDER BY count DESC
+       LIMIT 6`,
+    );
+
+    return res.json({
+      ok: true,
+      total: Number(t.total),
+      withEmail: Number(t.with_email),
+      noEmail: Number(t.no_email),
+      daily: dailyRow.rows as { date: string; count: number }[],
+      cities: cityRow.rows as { city: string; count: number }[],
+    });
+  } catch (err: any) {
+    logger.error({ err: err?.message }, "Subscriber stats failed");
+    return res.status(500).json({ ok: false, error: "Could not load subscriber stats" });
+  }
+});
+
 export default router;
+
+// ─── BLOG NEWSLETTER ─────────────────────────────────────────────────────────
+
+router.get("/admin/blog/newsletter/preview", async (req: any, res: any) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  try {
+    const rows = await pool.query(
+      `SELECT COUNT(*) AS total,
+              COUNT(CASE WHEN email IS NOT NULL AND email != '' THEN 1 END) AS with_email
+       FROM website_leads
+       WHERE form_type = 'Waitlist Signup'`,
+    );
+    const r = rows.rows[0];
+    return res.json({ ok: true, total: Number(r.total), withEmail: Number(r.with_email) });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: "Could not fetch subscriber count" });
+  }
+});
+
+router.post("/admin/blog/newsletter/:id", async (req: any, res: any) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  if (!hasPermission(admin, "manage_content")) return res.status(403).json({ ok: false, error: "Permission denied" });
+
+  const postId = Number(req.params.id);
+  if (!postId) return res.status(400).json({ ok: false, error: "Invalid post ID" });
+
+  try {
+    // Fetch the blog post
+    const postRow = await pool.query(
+      `SELECT id, slug, title, excerpt, category, author, image_url, reading_time_minutes, is_published
+       FROM blog_posts WHERE id=$1 LIMIT 1`,
+      [postId],
+    );
+    if (!postRow.rows.length) return res.status(404).json({ ok: false, error: "Post not found" });
+    const post = postRow.rows[0];
+    if (!post.is_published) return res.status(400).json({ ok: false, error: "Post must be published before sending newsletter" });
+
+    // Get unique waitlist subscriber emails
+    const subsRow = await pool.query(
+      `SELECT DISTINCT lower(trim(email)) AS email, name
+       FROM website_leads
+       WHERE form_type = 'Waitlist Signup'
+         AND email IS NOT NULL
+         AND trim(email) != ''
+         AND email ~* '^[^@]+@[^@]+\\.[^@]+$'
+       ORDER BY email`,
+    );
+    const subscribers = subsRow.rows as { email: string; name: string | null }[];
+    if (!subscribers.length) return res.json({ ok: true, sent: 0, failed: 0, skipped: 0, total: 0, message: "No subscribers with email found." });
+
+    const postUrl = `https://www.athoo.pk/blogs/${post.slug}`;
+    const readTime = post.reading_time_minutes ? `${post.reading_time_minutes} min read` : "5 min read";
+    const excerpt = String(post.excerpt || "").slice(0, 280);
+    const coverImg = String(post.image_url || "").trim();
+
+    let sent = 0;
+    let failed = 0;
+
+    // Import mailer helpers
+    const { sendMail, brandedEmail, ADMIN_EMAIL } = await import("../lib/mailer.js");
+
+    for (const sub of subscribers) {
+      const firstName = sanitize(sub.name || "", 40).split(" ")[0] || "there";
+
+      const bodyHtml = `
+        <h2 style="margin:0 0 8px;font-size:22px;font-weight:900;color:#1a202c">New from the Athoo Blog</h2>
+        <p style="margin:0 0 20px;font-size:14px;color:#718096">Hi <strong>${firstName}</strong>, we just published a new article.</p>
+        ${coverImg ? `<img src="${coverImg}" alt="${sanitize(post.title,100)}" width="536" style="width:100%;max-width:536px;height:auto;border-radius:12px;display:block;margin:0 0 20px" />` : ""}
+        <div style="background:#f8faff;border-radius:12px;padding:20px 22px;margin:0 0 20px">
+          <div style="display:flex;align-items:center;gap:8px;margin:0 0 10px">
+            <span style="background:#0057FF22;color:#0057FF;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;text-transform:uppercase;letter-spacing:1px">${sanitize(post.category,60)}</span>
+            <span style="color:#a0aec0;font-size:12px">${readTime}</span>
+          </div>
+          <h3 style="margin:0 0 10px;font-size:20px;font-weight:900;color:#1a202c;line-height:1.3">${sanitize(post.title,255)}</h3>
+          ${excerpt ? `<p style="margin:0;font-size:14px;color:#4a5568;line-height:1.7">${excerpt}…</p>` : ""}
+        </div>
+        <div style="margin:0 0 24px;text-align:center">
+          <a href="${postUrl}" style="display:inline-block;background:linear-gradient(135deg,#0057FF,#174bff);color:#fff;font-size:15px;font-weight:900;text-decoration:none;border-radius:12px;padding:14px 32px;box-shadow:0 4px 20px rgba(0,87,255,0.30)">Read Full Article →</a>
+        </div>
+        <p style="margin:0;font-size:12px;color:#a0aec0;text-align:center">
+          You are receiving this because you joined the Athoo waitlist.<br/>
+          To stop receiving emails, reply with "unsubscribe" to this email.
+        </p>
+      `;
+
+      const html = brandedEmail(
+        `New Post: ${sanitize(post.title, 80)}`,
+        bodyHtml,
+        `${sanitize(post.title, 80)} — New from Athoo Blog`,
+      );
+
+      const ok = await sendMail({
+        to: sub.email,
+        subject: `📖 New on Athoo: ${sanitize(post.title, 100)}`,
+        html,
+        replyTo: ADMIN_EMAIL,
+      });
+
+      if (ok) sent++; else failed++;
+
+      // Throttle: 5 emails/sec to avoid SMTP rate limits
+      if ((sent + failed) % 5 === 0) await new Promise((r) => setTimeout(r, 1000));
+    }
+
+    await logActivity(req, admin, "newsletter_sent", "blog_posts", String(postId), {
+      title: post.title,
+      total: subscribers.length,
+      sent,
+      failed,
+    });
+
+    return res.json({
+      ok: true,
+      postId,
+      title: post.title,
+      sent,
+      failed,
+      skipped: 0,
+      total: subscribers.length,
+      message: `Newsletter sent to ${sent} of ${subscribers.length} subscribers.`,
+    });
+  } catch (err: any) {
+    logger.error({ err: err?.message || err }, "Blog newsletter send failed");
+    return res.status(500).json({ ok: false, error: err.message || "Newsletter send failed" });
+  }
+});

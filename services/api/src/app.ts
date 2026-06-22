@@ -16,20 +16,29 @@ const DEFAULT_ALLOWED_ORIGINS = [
   "http://127.0.0.1:5173",
 ];
 
-const envAllowedOrigins = (process.env.CORS_ORIGIN || process.env.ALLOWED_ORIGINS || "")
+const envAllowedOrigins = (
+  process.env.CORS_ORIGIN ||
+  process.env.ALLOWED_ORIGINS ||
+  ""
+)
   .split(",")
   .map((origin) => origin.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
-const allowedOrigins = Array.from(new Set([...DEFAULT_ALLOWED_ORIGINS, ...envAllowedOrigins]));
+const allowedOrigins = Array.from(
+  new Set([...DEFAULT_ALLOWED_ORIGINS, ...envAllowedOrigins]),
+);
 
 function isAllowedOrigin(origin: string): boolean {
   const cleanOrigin = origin.replace(/\/$/, "");
 
-  if (allowedOrigins.includes(cleanOrigin)) return true;
+  if (allowedOrigins.includes(cleanOrigin)) {
+    return true;
+  }
 
   try {
     const url = new URL(cleanOrigin);
+
     return (
       url.hostname === "localhost" ||
       url.hostname === "127.0.0.1" ||
@@ -52,7 +61,14 @@ const corsOptions: cors.CorsOptions = {
     callback(null, false);
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Cache-Control", "Pragma"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "Accept",
+    "X-Requested-With",
+    "Cache-Control",
+    "Pragma",
+  ],
   exposedHeaders: ["Content-Type"],
   credentials: false,
   optionsSuccessStatus: 204,
@@ -63,22 +79,41 @@ app.set("trust proxy", 1);
 
 app.use(cors(corsOptions));
 
-app.use((req, res, next) => {
+app.use((req, res, next): void => {
   const origin = String(req.headers.origin || "").replace(/\/$/, "");
+
   if (!origin || isAllowedOrigin(origin)) {
-    if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
+    if (origin) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+    }
+
     res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, X-Requested-With, Cache-Control, Pragma");
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, Accept, X-Requested-With, Cache-Control, Pragma",
+    );
   }
-  if (req.method === "OPTIONS") return res.sendStatus(204);
-  next();
-});
-app.use((req, res, next) => {
+
   if (req.method === "OPTIONS") {
-    cors(corsOptions)(req, res, () => res.sendStatus(204));
+    res.sendStatus(204);
     return;
   }
+
+  next();
+});
+
+app.use((req, res, next): void => {
+  if (req.method === "OPTIONS") {
+    cors(corsOptions)(req, res, () => {
+      res.sendStatus(204);
+    });
+    return;
+  }
+
   next();
 });
 
@@ -105,7 +140,7 @@ app.use(
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
-app.get("/", (_req, res) => {
+app.get("/", (_req, res): void => {
   res.json({ ok: true, service: "Athoo API" });
 });
 

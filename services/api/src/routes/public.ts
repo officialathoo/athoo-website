@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { pool } from "@athoo/db";
 import { logger } from "../lib/logger.js";
-import { sendMail, ADMIN_EMAIL, SUPPORT_EMAIL } from "../lib/mailer.js";
+import { sendMail, brandedEmail, notificationRows, ADMIN_EMAIL, SUPPORT_EMAIL } from "../lib/mailer.js";
 
 const router = Router();
 
@@ -98,28 +98,42 @@ router.post("/public/waitlist", async (req: any, res: any) => {
 
     sendMail({
       to: ADMIN_EMAIL,
-      subject: `New Provider Waitlist — ${name} (${city})`,
-      html: `<div style="font-family:Arial,sans-serif;color:#111"><h2 style="color:#0057FF">New Provider Waitlist Submission</h2>
-<table style="border-collapse:collapse;width:100%">
-<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Name</b></td><td style="padding:6px 12px;border:1px solid #ddd">${name}</td></tr>
-<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Email</b></td><td style="padding:6px 12px;border:1px solid #ddd">${email}</td></tr>
-<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Phone</b></td><td style="padding:6px 12px;border:1px solid #ddd">${phone}</td></tr>
-<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Service</b></td><td style="padding:6px 12px;border:1px solid #ddd">${serviceCategory}</td></tr>
-<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>City</b></td><td style="padding:6px 12px;border:1px solid #ddd">${city}</td></tr>
-</table>
-<p style="font-size:12px;color:#999;margin-top:16px">Lead ID: ${lead.id} | Athoo Admin</p></div>`,
+      subject: `[Athoo] New Provider Waitlist — ${name} (${city}) #${lead.id}`,
+      html: brandedEmail(
+        `New Provider Waitlist — ${name}`,
+        `<h2 style="margin:0 0 6px;font-size:22px;font-weight:900;color:#0057FF">New Provider Waitlist</h2>
+        <p style="margin:0 0 20px;font-size:14px;color:#718096">Lead ID: <strong style="color:#2d3748">#${lead.id}</strong></p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e8effe;border-radius:10px;overflow:hidden;border-collapse:collapse">
+          <tr><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;font-weight:700;color:#4a5568;width:140px">Name</td><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;color:#2d3748">${name}</td></tr>
+          <tr><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;font-weight:700;color:#4a5568">Email</td><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;color:#2d3748">${email}</td></tr>
+          <tr><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;font-weight:700;color:#4a5568">Phone</td><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;color:#2d3748">${phone}</td></tr>
+          <tr><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;font-weight:700;color:#4a5568">Service</td><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;color:#2d3748">${serviceCategory}</td></tr>
+          <tr><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#4a5568">City</td><td style="padding:10px 14px;font-size:13px;color:#2d3748">${city}</td></tr>
+        </table>
+        <p style="margin:20px 0 0;font-size:13px;color:#718096">View in <a href="https://www.athoo.pk/admin" style="color:#0057FF;font-weight:700">Admin Panel</a></p>`,
+        "New provider waitlist submission received"
+      ),
     }).catch(() => {});
 
     sendMail({
       to: email,
       replyTo: ADMIN_EMAIL,
       subject: "Provider Application Received — Athoo",
-      html: `<div style="font-family:Arial,sans-serif;max-width:600px;color:#111">
-<h2 style="color:#0057FF">Application Received</h2>
-<p>Hi ${name},</p>
-<p>Thank you for your interest in becoming an Athoo Service Partner. Our team will review your application and contact you shortly on your provided phone number.</p>
-<p style="color:#666;font-size:12px">Athoo | official@athoo.pk | +92 339 0051068</p>
-</div>`,
+      html: brandedEmail(
+        "Athoo Provider Application",
+        `<h2 style="margin:0 0 12px;font-size:24px;font-weight:900;color:#0057FF">Application Received ✅</h2>
+        <p style="margin:0 0 16px;font-size:15px;color:#2d3748;line-height:1.7">Hi <strong>${name}</strong>,</p>
+        <p style="margin:0 0 16px;font-size:15px;color:#2d3748;line-height:1.7">Thank you for your interest in becoming an <strong>Athoo Service Partner</strong>. Our team has received your application and will contact you shortly.</p>
+        <div style="background:#f0f7f0;border-left:4px solid #22c55e;border-radius:0 12px 12px 0;padding:16px 20px;margin:0 0 20px">
+          <p style="margin:0;font-size:14px;color:#2d3748;line-height:2">
+            ✅ &nbsp;Application submitted successfully<br/>
+            📞 &nbsp;We will call you on your provided phone number<br/>
+            📋 &nbsp;Verification process begins when onboarding opens
+          </p>
+        </div>
+        <p style="margin:0;font-size:14px;color:#718096">Questions? WhatsApp us at <a href="https://wa.me/923390051068" style="color:#0057FF;font-weight:700">+92 339 0051068</a></p>`,
+        "Your Athoo provider application has been received."
+      ),
     }).catch(() => {});
 
     return res.status(201).json({
@@ -180,17 +194,22 @@ router.post("/public/contact", async (req: any, res: any) => {
 
     sendMail({
       to: SUPPORT_EMAIL,
-      subject: `Contact Form — ${subject || name}`,
-      html: `<div style="font-family:Arial,sans-serif;color:#111"><h2 style="color:#0057FF">New Contact Form Submission</h2>
-<table style="border-collapse:collapse;width:100%">
-<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Name</b></td><td style="padding:6px 12px;border:1px solid #ddd">${name}</td></tr>
-<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Email</b></td><td style="padding:6px 12px;border:1px solid #ddd">${email}</td></tr>
-${phone ? `<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Phone</b></td><td style="padding:6px 12px;border:1px solid #ddd">${phone}</td></tr>` : ""}
-${subject ? `<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Subject</b></td><td style="padding:6px 12px;border:1px solid #ddd">${subject}</td></tr>` : ""}
-<tr><td style="padding:6px 12px;border:1px solid #ddd"><b>Message</b></td><td style="padding:6px 12px;border:1px solid #ddd">${message.replace(/\n/g, "<br>")}</td></tr>
-</table>
-<p style="font-size:12px;color:#999;margin-top:16px">Lead ID: ${lead.id} | Athoo Admin</p></div>`,
+      subject: `[Athoo] Contact Form — ${subject || name} #${lead.id}`,
       replyTo: email,
+      html: brandedEmail(
+        `Contact Form — ${name}`,
+        `<h2 style="margin:0 0 6px;font-size:22px;font-weight:900;color:#0057FF">New Contact Form Message</h2>
+        <p style="margin:0 0 20px;font-size:14px;color:#718096">From <strong style="color:#2d3748">${name}</strong> · Lead #${lead.id}</p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e8effe;border-radius:10px;overflow:hidden;border-collapse:collapse">
+          <tr><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;font-weight:700;color:#4a5568;width:120px">Name</td><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;color:#2d3748">${name}</td></tr>
+          <tr><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;font-weight:700;color:#4a5568">Email</td><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;color:#2d3748"><a href="mailto:${email}" style="color:#0057FF">${email}</a></td></tr>
+          ${phone ? `<tr><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;font-weight:700;color:#4a5568">Phone</td><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;color:#2d3748">${phone}</td></tr>` : ""}
+          ${subject ? `<tr><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;font-weight:700;color:#4a5568">Subject</td><td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;color:#2d3748">${subject}</td></tr>` : ""}
+          <tr><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#4a5568;vertical-align:top">Message</td><td style="padding:10px 14px;font-size:13px;color:#2d3748;line-height:1.7">${message.replace(/\n/g, "<br>")}</td></tr>
+        </table>
+        <p style="margin:20px 0 0;font-size:13px;color:#718096">Reply directly to this email or view in <a href="https://www.athoo.pk/admin" style="color:#0057FF;font-weight:700">Admin Panel</a></p>`,
+        `New contact from ${name}`
+      ),
     }).catch(() => {});
 
     return res.status(201).json({

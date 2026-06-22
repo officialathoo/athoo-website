@@ -1,15 +1,11 @@
 import { Router } from "express";
 import { pool } from "@athoo/db";
 import { logger } from "../lib/logger.js";
-import { sendMail, ADMIN_EMAIL, SUPPORT_EMAIL } from "../lib/mailer.js";
+import { sendMail, brandedEmail, notificationRows, ADMIN_EMAIL, SUPPORT_EMAIL } from "../lib/mailer.js";
 
 const router = Router();
 
-const ALLOWED_FORMS = new Set([
-  "Contact Form",
-  "Waitlist Signup",
-  "Provider Waitlist",
-]);
+const ALLOWED_FORMS = new Set(["Contact Form", "Waitlist Signup", "Provider Waitlist"]);
 
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 const RATE_WINDOW_MS = 60_000;
@@ -17,134 +13,72 @@ const RATE_LIMIT = 10;
 
 function getIp(req: any): string {
   const forwarded = req.headers["x-forwarded-for"];
-
-  return String(
-    Array.isArray(forwarded)
-      ? forwarded[0]
-      : forwarded || req.socket?.remoteAddress || "unknown",
-  )
-    .split(",")[0]
-    .trim();
+  return String(Array.isArray(forwarded) ? forwarded[0] : forwarded || req.socket?.remoteAddress || "unknown").split(",")[0].trim();
 }
 
 function rateLimit(req: any, keyPrefix = "global"): boolean {
   const key = `${keyPrefix}:${getIp(req)}`;
   const now = Date.now();
-
-  const current = rateBuckets.get(key) || {
-    count: 0,
-    resetAt: now + RATE_WINDOW_MS,
-  };
-
-  if (now > current.resetAt) {
-    current.count = 0;
-    current.resetAt = now + RATE_WINDOW_MS;
-  }
-
+  const current = rateBuckets.get(key) || { count: 0, resetAt: now + RATE_WINDOW_MS };
+  if (now > current.resetAt) { current.count = 0; current.resetAt = now + RATE_WINDOW_MS; }
   current.count += 1;
   rateBuckets.set(key, current);
-
   return current.count <= RATE_LIMIT;
 }
 
 function sanitize(value: unknown, max = 2000): string {
-  return String(value ?? "")
-    .replace(/[<>]/g, "")
-    .replace(/[\u0000-\u001F\u007F]/g, " ")
-    .trim()
-    .slice(0, max);
+  return String(value ?? "").replace(/[<>]/g, "").replace(/[\u0000-\u001F\u007F]/g, " ").trim().slice(0, max);
 }
 
 function validate(formType: string, body: Record<string, unknown>): string[] {
   const errors: string[] = [];
-
   const email = sanitize(body.email, 255);
   const phone = sanitize(body.phone, 30);
   const name = sanitize(body.name, 120);
   const message = sanitize(body.message, 2500);
 
   if (!ALLOWED_FORMS.has(formType)) errors.push("Invalid form type");
-
-  if (email && !/^\S+@\S+\.\S+$/.test(email)) {
-    errors.push("Invalid email");
-  }
-
-  if (formType === "Waitlist Signup" && !email) {
-    errors.push("Email is required");
-  }
-
+  if (email && !/^\S+@\S+\.\S+$/.test(email)) errors.push("Invalid email");
+  if (formType === "Waitlist Signup" && !email) errors.push("Email is required");
   if (formType === "Contact Form") {
     if (name.length < 2) errors.push("Name is required");
     if (!email) errors.push("Email is required");
     if (message.length < 10) errors.push("Message is required");
   }
-
   if (formType === "Provider Waitlist") {
     if (name.length < 2) errors.push("Name is required");
     if (phone.length < 10) errors.push("Phone is required");
     if (!sanitize(body.service, 100)) errors.push("Service is required");
     if (!sanitize(body.city, 100)) errors.push("City is required");
   }
-
   return errors;
 }
 
 function safeJsonParse(value: unknown): Record<string, unknown> {
   if (!value) return {};
   if (typeof value === "object") return value as Record<string, unknown>;
-
-  try {
-    return JSON.parse(String(value)) as Record<string, unknown>;
-  } catch {
-    return {};
-  }
-}
-
-function tableRows(payload: Record<string, unknown>): string {
-  return Object.entries(payload)
-    .filter(([key]) => !["formType", "submittedAt", "source"].includes(key))
-    .map(([key, value]) => {
-      return (
-        "<tr>" +
-        `<td style="padding:6px 12px;border:1px solid #ddd"><b>${sanitize(key, 100)}</b></td>` +
-        `<td style="padding:6px 12px;border:1px solid #ddd">${sanitize(value, 1000) || "-"}</td>` +
-        "</tr>"
-      );
-    })
-    .join("");
+  try { return JSON.parse(String(value)) as Record<string, unknown>; } catch { return {}; }
 }
 
 async function logEmail(
-  leadId: number | null,
-  recipient: string,
-  subject: string,
-  body: string,
-  status: "sent" | "failed" | "skipped",
-  providerResponse: Record<string, unknown> = {},
+  leadId: number | null, recipient: string, subject: string, body: string,
+  status: "sent" | "failed" | "skipped", providerResponse: Record<string, unknown> = {},
 ): Promise<void> {
   try {
     await pool.query(
-      `INSERT INTO athoo_email_logs (lead_id, recipient, subject, body, status, provider_response)
-       VALUES ($1,$2,$3,$4,$5,$6)`,
+      `INSERT INTO athoo_email_logs (lead_id, recipient, subject, body, status, provider_response) VALUES ($1,$2,$3,$4,$5,$6)`,
       [leadId, recipient, subject, body, status, JSON.stringify(providerResponse)],
     );
-  } catch (err: any) {
-    logger.warn({ err: err?.message || err }, "Email log insert failed");
-  }
+  } catch (err: any) { logger.warn({ err: err?.message || err }, "Email log insert failed"); }
 }
 
 async function sendOneEmail(
-  leadId: number,
-  recipient: string,
-  subject: string,
-  html: string,
-  replyTo?: string,
+  leadId: number, recipient: string, subject: string, html: string, replyTo?: string,
 ): Promise<boolean> {
   if (!recipient) {
     await logEmail(leadId, recipient, subject, html, "skipped", { reason: "missing_recipient" });
     return false;
   }
-
   const ok = await sendMail({ to: recipient, subject, html, replyTo });
   await logEmail(leadId, recipient, subject, html, ok ? "sent" : "failed", {
     provider: "smtp",
@@ -153,109 +87,98 @@ async function sendOneEmail(
   return ok;
 }
 
-async function sendEmails(lead: Record<string, any>): Promise<{
-  admin: boolean;
-  user: boolean | null;
-}> {
+async function sendEmails(lead: Record<string, any>): Promise<{ admin: boolean; user: boolean | null }> {
   const payload = safeJsonParse(lead.payload);
   const formType = sanitize(lead.form_type, 80);
   const userEmail = sanitize(lead.email, 255);
   const userName = sanitize(lead.name, 120) || "there";
   const leadId = Number(lead.id);
-
   const notifyTo = formType === "Contact Form" ? SUPPORT_EMAIL : ADMIN_EMAIL;
-  const rows = tableRows(payload);
+  const rows = notificationRows(payload);
 
-  const adminSubject = `New Athoo ${formType}`;
-  const adminHtml = `
-    <div style="font-family:Arial,sans-serif;color:#111">
-      <h2 style="color:#0057FF">New ${formType}</h2>
-      <table style="border-collapse:collapse;width:100%">${rows}</table>
-      <p style="font-size:12px;color:#999;margin-top:16px">
-        Athoo Admin | official@athoo.pk
-      </p>
-    </div>
+  const adminSubject = `[Athoo] New ${formType} — #${leadId}`;
+  const adminBody = `
+    <h2 style="margin:0 0 6px;font-size:22px;font-weight:900;color:#0057FF">New ${formType}</h2>
+    <p style="margin:0 0 20px;font-size:14px;color:#718096">Lead ID: <strong style="color:#2d3748">#${leadId}</strong> · Received at ${new Date().toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}</p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e8effe;border-radius:10px;overflow:hidden;border-collapse:collapse">
+      ${rows || `<tr><td style="padding:12px 14px;font-size:13px;color:#718096">No additional details provided.</td></tr>`}
+    </table>
+    <p style="margin:20px 0 0;font-size:13px;color:#718096">
+      View this lead in the <a href="https://www.athoo.pk/admin" style="color:#0057FF;font-weight:700">Athoo Admin Panel</a>
+    </p>
   `;
-
+  const adminHtml = brandedEmail(adminSubject, adminBody, `New ${formType} submission received`);
   const adminSent = await sendOneEmail(leadId, notifyTo, adminSubject, adminHtml, userEmail || undefined);
 
   let userSent: boolean | null = null;
   if (!userEmail) return { admin: adminSent, user: userSent };
 
   if (formType === "Waitlist Signup") {
-    userSent = await sendOneEmail(
-      leadId,
-      userEmail,
-      "You're on the Athoo Waitlist!",
-      `
-        <div style="font-family:Arial,sans-serif;max-width:600px;color:#111">
-          <h2 style="color:#0057FF">Welcome to the Athoo Waitlist</h2>
-          <p>Hi ${userName},</p>
-          <p>Thank you for joining the Athoo waitlist. We'll notify you as soon as our app launches in Rawalpindi and Islamabad.</p>
-          <p>
-            Stay updated:<br/>
-            Instagram: <a href="https://instagram.com/athoo_services">@athoo_services</a><br/>
-            Facebook: <a href="https://facebook.com/Athoo.Services/">Athoo.Services</a><br/>
-            TikTok: <a href="https://tiktok.com/@athoo.pk">@athoo.pk</a>
-          </p>
-          <p style="color:#666;font-size:12px">
-            Athoo | official@athoo.pk | +92 339 0051068
-          </p>
-        </div>
-      `,
-      ADMIN_EMAIL,
-    );
+    const userBody = `
+      <h2 style="margin:0 0 12px;font-size:24px;font-weight:900;color:#0057FF">You're on the Waitlist! 🎉</h2>
+      <p style="margin:0 0 16px;font-size:15px;color:#2d3748;line-height:1.7">Hi <strong>${userName}</strong>,</p>
+      <p style="margin:0 0 16px;font-size:15px;color:#2d3748;line-height:1.7">
+        Thank you for joining the <strong>Athoo waitlist</strong>. You'll be among the first to know when our app launches in <strong>Rawalpindi and Islamabad</strong>.
+      </p>
+      <div style="background:#f0f4ff;border-radius:12px;padding:20px 22px;margin:0 0 24px">
+        <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#4a5568;text-transform:uppercase;letter-spacing:1px">What's coming</p>
+        <ul style="margin:0;padding:0 0 0 18px;font-size:14px;color:#4a5568;line-height:2">
+          <li>10+ home service categories</li>
+          <li>Verified &amp; background-checked providers</li>
+          <li>Fast booking in minutes</li>
+          <li>Serving Rawalpindi &amp; Islamabad first</li>
+        </ul>
+      </div>
+      <p style="margin:0 0 16px;font-size:14px;color:#718096">Follow us for updates:</p>
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="padding-right:8px"><a href="https://instagram.com/athoo_services" style="display:inline-block;background:#0057FF;color:#fff;font-size:13px;font-weight:700;text-decoration:none;border-radius:8px;padding:8px 16px">Instagram</a></td>
+          <td style="padding-right:8px"><a href="https://facebook.com/Athoo.Services/" style="display:inline-block;background:#0057FF;color:#fff;font-size:13px;font-weight:700;text-decoration:none;border-radius:8px;padding:8px 16px">Facebook</a></td>
+          <td><a href="https://tiktok.com/@athoo.pk" style="display:inline-block;background:#0057FF;color:#fff;font-size:13px;font-weight:700;text-decoration:none;border-radius:8px;padding:8px 16px">TikTok</a></td>
+        </tr>
+      </table>
+    `;
+    userSent = await sendOneEmail(leadId, userEmail, "You're on the Athoo Waitlist! 🎉", brandedEmail("Athoo Waitlist Confirmed", userBody, "You're in! Athoo is launching soon in Pakistan."), ADMIN_EMAIL);
   }
 
   if (formType === "Provider Waitlist") {
-    userSent = await sendOneEmail(
-      leadId,
-      userEmail,
-      "Provider Application Received — Athoo",
-      `
-        <div style="font-family:Arial,sans-serif;max-width:600px;color:#111">
-          <h2 style="color:#0057FF">Application Received</h2>
-          <p>Hi ${userName},</p>
-          <p>Thank you for your interest in becoming an Athoo Service Partner. Our team will review your application and contact you shortly.</p>
-          <p style="color:#666;font-size:12px">
-            Athoo | official@athoo.pk | +92 339 0051068
-          </p>
-        </div>
-      `,
-      ADMIN_EMAIL,
-    );
+    const userBody = `
+      <h2 style="margin:0 0 12px;font-size:24px;font-weight:900;color:#0057FF">Application Received ✅</h2>
+      <p style="margin:0 0 16px;font-size:15px;color:#2d3748;line-height:1.7">Hi <strong>${userName}</strong>,</p>
+      <p style="margin:0 0 16px;font-size:15px;color:#2d3748;line-height:1.7">
+        Thank you for your interest in becoming an <strong>Athoo Service Partner</strong>. Our team has received your application and will review it shortly.
+      </p>
+      <div style="background:#f0f7f0;border-left:4px solid #22c55e;border-radius:0 12px 12px 0;padding:16px 20px;margin:0 0 24px">
+        <p style="margin:0;font-size:14px;color:#2d3748;line-height:1.7">
+          ✅ &nbsp;Application submitted successfully<br/>
+          📞 &nbsp;Our team will contact you on your provided phone number<br/>
+          📋 &nbsp;You'll be guided through the verification process once onboarding opens
+        </p>
+      </div>
+      <p style="margin:0;font-size:14px;color:#718096">
+        Questions? WhatsApp us at <a href="https://wa.me/923390051068" style="color:#0057FF;font-weight:700">+92 339 0051068</a>
+      </p>
+    `;
+    userSent = await sendOneEmail(leadId, userEmail, "Provider Application Received — Athoo", brandedEmail("Athoo Provider Application", userBody, "Your Athoo provider application has been received."), ADMIN_EMAIL);
   }
 
   return { admin: adminSent, user: userSent };
 }
 
-router.options("/submit", (_req, res) => {
-  return res.status(204).send();
-});
+router.options("/submit", (_req, res) => res.status(204).send());
 
 router.post("/submit", async (req: any, res: any) => {
   if (!rateLimit(req, "submit")) {
-    return res.status(429).json({
-      ok: false,
-      error: "Too many requests. Please try again later.",
-    });
+    return res.status(429).json({ ok: false, error: "Too many requests. Please try again later." });
   }
 
   try {
     const body = req.body || {};
     const formType = sanitize(body.formType, 80);
     const errors = validate(formType, body);
-
-    if (errors.length) {
-      return res.status(400).json({
-        ok: false,
-        error: errors.join(", "),
-        errors,
-      });
-    }
+    if (errors.length) return res.status(400).json({ ok: false, error: errors.join(", "), errors });
 
     const cleanPayload: Record<string, string> = {};
-
     for (const [key, value] of Object.entries(body)) {
       const cleanKey = sanitize(key, 80);
       if (!cleanKey) continue;
@@ -263,41 +186,14 @@ router.post("/submit", async (req: any, res: any) => {
     }
 
     const email = sanitize(body.email, 255).toLowerCase() || null;
-
     const duplicate = email
-      ? await pool.query(
-        `SELECT id FROM website_leads
-           WHERE lower(email) = $1 AND form_type = $2
-           LIMIT 1`,
-        [email, formType],
-      )
+      ? await pool.query(`SELECT id FROM website_leads WHERE lower(email) = $1 AND form_type = $2 LIMIT 1`, [email, formType])
       : { rows: [] };
 
     const result = await pool.query(
-      `INSERT INTO website_leads (
-        form_type,
-        name,
-        email,
-        phone,
-        subject,
-        message,
-        service,
-        city,
-        experience,
-        source,
-        ip_address,
-        user_agent,
-        payload,
-        status,
-        priority,
-        created_at,
-        updated_at
-      )
-      VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,
-        'new','normal',NOW(),NOW()
-      )
-      RETURNING id, form_type, name, email, payload`,
+      `INSERT INTO website_leads (form_type,name,email,phone,subject,message,service,city,experience,source,ip_address,user_agent,payload,status,priority,created_at,updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'new','normal',NOW(),NOW())
+       RETURNING id, form_type, name, email, payload`,
       [
         formType,
         sanitize(body.name, 120) || null,
@@ -308,15 +204,10 @@ router.post("/submit", async (req: any, res: any) => {
         sanitize(body.service, 120) || null,
         sanitize(body.city, 120) || null,
         sanitize(body.experience, 800) || null,
-        sanitize(body.source, 500) ||
-        sanitize(req.headers.referer, 500) ||
-        "website",
+        sanitize(body.source, 500) || sanitize(req.headers.referer, 500) || "website",
         getIp(req),
         sanitize(req.headers["user-agent"], 500) || null,
-        JSON.stringify({
-          ...cleanPayload,
-          submittedAt: new Date().toISOString(),
-        }),
+        JSON.stringify({ ...cleanPayload, submittedAt: new Date().toISOString() }),
       ],
     );
 
@@ -324,10 +215,7 @@ router.post("/submit", async (req: any, res: any) => {
 
     if (duplicate.rows.length) {
       await pool.query(
-        `UPDATE website_leads
-         SET admin_notes = COALESCE(admin_notes || E'\\n', '') || $1,
-             updated_at = NOW()
-         WHERE id = $2`,
+        `UPDATE website_leads SET admin_notes = COALESCE(admin_notes || E'\\n', '') || $1, updated_at = NOW() WHERE id = $2`,
         [`Possible duplicate of lead #${duplicate.rows[0].id}`, lead.id],
       );
     }
@@ -343,34 +231,13 @@ router.post("/submit", async (req: any, res: any) => {
       else emailStatus = "failed";
     } catch (mailErr: any) {
       emailStatus = "failed";
-      logger.warn(
-        {
-          err: mailErr?.message || mailErr,
-          leadId: lead.id,
-        },
-        "Lead saved but email notification failed",
-      );
+      logger.warn({ err: mailErr?.message || mailErr, leadId: lead.id }, "Lead saved but email notification failed");
     }
 
-    return res.status(200).json({
-      ok: true,
-      id: lead.id,
-      emailStatus,
-      emailDetails,
-    });
+    return res.status(200).json({ ok: true, id: lead.id, emailStatus, emailDetails });
   } catch (err: any) {
-    logger.error(
-      {
-        err: err?.message || err,
-        stack: err?.stack,
-      },
-      "Form submission failed",
-    );
-
-    return res.status(500).json({
-      ok: false,
-      error: "Submission failed",
-    });
+    logger.error({ err: err?.message || err, stack: err?.stack }, "Form submission failed");
+    return res.status(500).json({ ok: false, error: "Submission failed" });
   }
 });
 

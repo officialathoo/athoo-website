@@ -156,6 +156,13 @@ export default function Admin() {
   // Blog categories
   const [blogCats, setBlogCats] = useState<{ id: number; name: string; slug: string; description?: string }[]>([]);
   const [blogCatForm, setBlogCatForm] = useState({ name: "", description: "" });
+  // Newsletter state
+  const [newsletterSending, setNewsletterSending] = useState<Set<number>>(new Set());
+  const [newsletterResult, setNewsletterResult] = useState<Record<number,string>>({});
+  // Subscriber stats state
+  type SubStats = { total: number; withEmail: number; noEmail: number; daily: { date: string; count: number }[]; cities: { city: string; count: number }[] };
+  const [subStats, setSubStats] = useState<SubStats | null>(null);
+  const [subStatsLoading, setSubStatsLoading] = useState(false);
   // DB stats
   const [dbStats, setDbStats] = useState<{ table: string; count: number }[]>([]);
 
@@ -500,6 +507,41 @@ export default function Admin() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  async function sendNewsletter(postId: number, title: string) {
+    if (!window.confirm(`Send newsletter for "${title}" to all waitlist subscribers?\n\nThis will email everyone who signed up on the waitlist. Continue?`)) return;
+    setNewsletterSending(prev => new Set(prev).add(postId));
+    setNewsletterResult(prev => ({ ...prev, [postId]: "" }));
+    setError(""); setNotice("");
+    try {
+      const r = await fetch(apiUrl(`/api/admin/blog/newsletter/${postId}`), {
+        method: "POST",
+        headers: authHeaders(token),
+      });
+      const d = await r.json();
+      if (!r.ok || d.ok === false) throw new Error(d.error || "Newsletter send failed");
+      const msg = `✅ Sent to ${d.sent}/${d.total} subscribers${d.failed ? ` (${d.failed} failed)` : ""}`;
+      setNewsletterResult(prev => ({ ...prev, [postId]: msg }));
+      setNotice(msg);
+    } catch (err) {
+      const msg = `❌ ${err instanceof Error ? err.message : "Newsletter failed"}`;
+      setNewsletterResult(prev => ({ ...prev, [postId]: msg }));
+      setError(err instanceof Error ? err.message : "Newsletter failed");
+    } finally {
+      setNewsletterSending(prev => { const s = new Set(prev); s.delete(postId); return s; });
+    }
+  }
+
+  async function loadSubscriberStats() {
+    if (!token) return;
+    setSubStatsLoading(true);
+    try {
+      const r = await fetch(apiUrl("/api/admin/subscriber-stats"), { headers: noStoreHeaders(token) });
+      const d = await r.json();
+      if (r.ok && d.ok) setSubStats(d);
+    } catch { }
+    finally { setSubStatsLoading(false); }
+  }
+
   // ── Templates ────────────────────────────────────────────────────────────────
   async function saveTemplate() {
     setError("");
@@ -839,6 +881,77 @@ export default function Admin() {
                   </div>
                 </div>
               </div>
+
+              {/* ── Subscriber Stats Card ───────────────────────────────────────────── */}
+              <div className="rounded-[1.75rem] bg-white p-5 shadow-sm">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="font-black flex items-center gap-2"><Users className="h-5 w-5 text-[#10B981]" />Waitlist Subscriber Stats</h3>
+                  <Button size="sm" variant="secondary" onClick={loadSubscriberStats} disabled={subStatsLoading}><RefreshCw className={`h-3.5 w-3.5 ${subStatsLoading ? "animate-spin" : ""}`} /></Button>
+                </div>
+                {subStatsLoading && !subStats && <p className="text-sm text-gray-400">Loading subscriber data…</p>}
+                {subStats && <>
+                  <div className="mb-5 grid grid-cols-3 gap-3">
+                    <div className="rounded-2xl bg-[#10B981]/10 p-4 text-center">
+                      <div className="text-3xl font-black text-[#10B981]">{subStats.total}</div>
+                      <div className="mt-1 text-xs font-semibold text-gray-500">Total Signups</div>
+                    </div>
+                    <div className="rounded-2xl bg-[#0057FF]/10 p-4 text-center">
+                      <div className="text-3xl font-black text-[#0057FF]">{subStats.withEmail}</div>
+                      <div className="mt-1 text-xs font-semibold text-gray-500">Newsletter Eligible</div>
+                    </div>
+                    <div className="rounded-2xl bg-gray-100 p-4 text-center">
+                      <div className="text-3xl font-black text-gray-400">{subStats.noEmail}</div>
+                      <div className="mt-1 text-xs font-semibold text-gray-500">No Email</div>
+                    </div>
+                  </div>
+                  {/* 30-day bar chart (pure SVG, no deps) */}
+                  {subStats.daily.length > 0 && (() => {
+                    const max = Math.max(...subStats.daily.map(d => d.count), 1);
+                    const W = 536, H = 80, BAR_W = Math.max(4, Math.floor((W - subStats.daily.length * 2) / subStats.daily.length));
+                    return (
+                      <div className="mb-4">
+                        <div className="mb-1 flex items-center justify-between text-xs text-gray-400">
+                          <span>Signups — last 30 days</span>
+                          <span className="font-bold text-[#0057FF]">{subStats.daily.reduce((s, d) => s + d.count, 0)} total</span>
+                        </div>
+                        <svg viewBox={`0 0 ${W} ${H + 16}`} className="w-full overflow-visible" aria-label="Daily signups chart">
+                          {subStats.daily.map((d, i) => {
+                            const barH = Math.max(3, Math.round((d.count / max) * H));
+                            const x = i * (BAR_W + 2);
+                            const y = H - barH;
+                            return (
+                              <g key={d.date}>
+                                <rect x={x} y={y} width={BAR_W} height={barH} rx={2} fill="#0057FF" fillOpacity={0.75} />
+                                {d.count > 0 && <title>{d.date}: {d.count} signup{d.count !== 1 ? "s" : ""}</title>}
+                              </g>
+                            );
+                          })}
+                          <text x="0" y={H + 14} fontSize="9" fill="#a0aec0">{subStats.daily[0]?.date?.slice(5)}</text>
+                          <text x={W} y={H + 14} fontSize="9" fill="#a0aec0" textAnchor="end">{subStats.daily[subStats.daily.length - 1]?.date?.slice(5)}</text>
+                        </svg>
+                      </div>
+                    );
+                  })()}
+                  {subStats.cities.length > 0 && (
+                    <div>
+                      <div className="mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Top Cities</div>
+                      <div className="space-y-2">
+                        {subStats.cities.map(c => (
+                          <div key={c.city} className="flex items-center gap-2">
+                            <div className="w-24 shrink-0 truncate text-sm font-medium">{c.city}</div>
+                            <div className="flex-1 overflow-hidden rounded-full bg-gray-100 h-2">
+                              <div className="h-2 rounded-full bg-[#0057FF]" style={{ width: `${Math.round((c.count / (subStats.cities[0]?.count || 1)) * 100)}%` }} />
+                            </div>
+                            <div className="w-6 shrink-0 text-right text-xs font-bold text-gray-500">{c.count}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {!subStats.total && <p className="text-sm text-gray-400 text-center py-4">No waitlist signups yet — share the site to start growing!</p>}
+                </>}
+                {!subStats && !subStatsLoading && <p className="text-sm text-gray-400">Click refresh to load subscriber stats.</p>}
+              </div>
             </>}
 
             {/* ── Leads table (shared by leads / waitlist / providers / contacts / support) ── */}
@@ -1004,12 +1117,20 @@ export default function Admin() {
                             {(b.tags?.length ?? 0) > 0 && b.tags!.slice(0,3).map(t => <span key={t} className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">#{t}</span>)}
                           </div>
                         </div>
-                        <div className="flex shrink-0 gap-1">
+                        <div className="flex shrink-0 flex-wrap gap-1">
+                          {b.status === "published" && (
+                            <Button size="sm" variant="secondary" title="Send newsletter to all waitlist subscribers" onClick={() => sendNewsletter(b.id, b.title)} disabled={newsletterSending.has(b.id)} className="gap-1 text-blue-600 hover:bg-blue-50">
+                              {newsletterSending.has(b.id) ? <><RefreshCw className="h-3.5 w-3.5 animate-spin" /><span className="text-xs">Sending…</span></> : <><Mail className="h-3.5 w-3.5" /><span className="text-xs hidden sm:inline">Newsletter</span></>}
+                            </Button>
+                          )}
                           <Button size="sm" variant="secondary" title="Duplicate" onClick={() => duplicateBlog(b)}><Copy className="h-3.5 w-3.5" /></Button>
                           <Button size="sm" variant="secondary" onClick={() => editBlog(b)}><Pencil className="h-3.5 w-3.5" /></Button>
                           <Button size="sm" variant="secondary" onClick={() => deleteBlog(b.id)} className="text-red-500 hover:text-red-700"><Trash2 className="h-3.5 w-3.5" /></Button>
                         </div>
                       </div>
+                      {newsletterResult[b.id] && (
+                        <div className={`mt-2 rounded-lg px-3 py-1.5 text-xs font-medium ${newsletterResult[b.id].startsWith("✅") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>{newsletterResult[b.id]}</div>
+                      )}
                     </div>
                   )}
                   {!blogs.length && !blogLoading && <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500"><BookOpen className="mx-auto mb-3 h-8 w-8 text-gray-300" /><p className="mb-1 font-semibold">No blog posts yet</p><p>Create your first post using the form on the left.</p></div>}
