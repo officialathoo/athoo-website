@@ -5,25 +5,6 @@ import { handlePathClick, handleWaitlistClick } from "@/lib/navigation";
 import { apiUrl } from "@/lib/apiBase";
 import Hero3DScene from "./Hero3DScene";
 
-function HeroGalaxyBadge() {
-  return (
-    <div className="pointer-events-none absolute -right-2 -top-6 z-30 hidden h-32 w-32 sm:block lg:-right-10 lg:-top-10 lg:h-40 lg:w-40">
-      <style>{`
-        @keyframes heroGalaxySpin { to { transform: rotate(360deg); } }
-        @keyframes heroGalaxyPulse { 0%,100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.06); filter: brightness(1.2); } }
-        .hero-galaxy-ring { animation: heroGalaxySpin 12s linear infinite; transform-origin:center; }
-        .hero-galaxy-ring-alt { animation: heroGalaxySpin 16s linear infinite reverse; transform-origin:center; }
-        .hero-galaxy-planet { animation: heroGalaxyPulse 4s ease-in-out infinite; }
-      `}</style>
-      <div className="absolute inset-0 rounded-full bg-blue-500/30 blur-2xl" />
-      <div className="hero-galaxy-planet absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_35%_35%,#ffffff,#3b82f6_34%,#0057FF_66%,#071537)] shadow-[0_0_50px_rgba(0,87,255,.55)] lg:h-24 lg:w-24" />
-      <div className="hero-galaxy-ring absolute left-1/2 top-1/2 h-20 w-36 -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-orange-300/45" />
-      <div className="hero-galaxy-ring-alt absolute left-1/2 top-1/2 h-16 w-40 -translate-x-1/2 -translate-y-1/2 rotate-12 rounded-[50%] border border-cyan-300/35" />
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-black text-white drop-shadow-lg">PK</div>
-    </div>
-  );
-}
-
 export default function HomeHero() {
   const [cms, setCms] = useState({
     badge: "App Launching Soon in Pakistan",
@@ -106,7 +87,6 @@ export default function HomeHero() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, scale: 0.94, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.8 }} className="relative mx-auto w-full max-w-[520px] pb-8 lg:pb-0">
-          <HeroGalaxyBadge />
           <div className="absolute inset-6 rounded-[3rem] bg-gradient-to-tr from-blue-600/40 to-orange-400/30 blur-3xl" />
           <div
             className="relative rounded-[2.5rem] border border-white/10 bg-white/5 p-3 shadow-2xl backdrop-blur-2xl sm:p-5"

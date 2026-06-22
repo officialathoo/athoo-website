@@ -23,6 +23,6 @@ export function WhatsAppButton() {
       <span className="absolute right-full mr-4 bg-white text-gray-900 text-sm font-medium py-1 px-3 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
         Chat with us
       </span>
-    </a>
+    <span className="sr-only">Chat with Athoo on WhatsApp</span></a>
   );
 }

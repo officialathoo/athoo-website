@@ -14,7 +14,7 @@ export default function WhatsAppButton() {
         aria-label="Chat with us on WhatsApp"
       >
         <SiWhatsapp className="h-7 w-7" />
-      </a>
+      <span className="sr-only">Chat with Athoo on WhatsApp</span></a>
     </div>
   );
 }

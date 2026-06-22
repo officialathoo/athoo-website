@@ -20,15 +20,6 @@
       ]
     },
     {
-      "source": "/images/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
       "source": "/(.*)",
       "headers": [
         {
@@ -46,58 +37,6 @@
     {
       "source": "/api/:path*",
       "destination": "https://thoo-api.onrender.com/api/:path*"
-    },
-    {
-      "source": "/admin/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/become-provider/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/services/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/about/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/contact/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/support/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/faq/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/blogs/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/blog/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/how-it-works/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/privacy/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/terms/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/cookie-policy/:path*",
-      "destination": "/index.html"
     },
     {
       "source": "/:path*",

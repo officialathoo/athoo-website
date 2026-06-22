@@ -480,3 +480,30 @@ section, article {
     animation-play-state: paused !important;
   }
 }
+
+
+/* Athoo final mobile + desktop orbit animations */
+@keyframes athooOrbitSpin {
+  0% { transform: rotateX(64deg) rotateZ(0deg); }
+  100% { transform: rotateX(64deg) rotateZ(360deg); }
+}
+@keyframes athooOrbitSpinReverse {
+  0% { transform: rotateX(58deg) rotateZ(360deg); }
+  100% { transform: rotateX(58deg) rotateZ(0deg); }
+}
+.athoo-orbit-ring {
+  animation: athooOrbitSpin 10s linear infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+.athoo-orbit-ring-reverse {
+  animation: athooOrbitSpinReverse 14s linear infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .athoo-orbit-ring,
+  .athoo-orbit-ring-reverse {
+    animation: none !important;
+  }
+}
