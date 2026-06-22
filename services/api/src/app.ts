@@ -62,6 +62,18 @@ app.disable("x-powered-by");
 app.set("trust proxy", 1);
 
 app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  const origin = String(req.headers.origin || "").replace(/\/$/, "");
+  if (!origin || isAllowedOrigin(origin)) {
+    if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, X-Requested-With, Cache-Control, Pragma");
+  }
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
 app.use((req, res, next) => {
   if (req.method === "OPTIONS") {
     cors(corsOptions)(req, res, () => res.sendStatus(204));

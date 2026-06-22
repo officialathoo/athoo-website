@@ -62,6 +62,7 @@ function Router() {
       <Suspense fallback={<PageLoader />}>
         <Switch>
           <Route path="/admin" component={Admin} />
+          <Route path="/admin/:path*" component={Admin} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>
@@ -83,6 +84,7 @@ function Router() {
           <Route path="/faq" component={FAQ} />
           <Route path="/blogs" component={Blogs} />
           <Route path="/blogs/:slug" component={BlogPost} />
+          <Route path="/blog/:slug" component={BlogPost} />
           <Route path="/privacy" component={Privacy} />
           <Route path="/terms" component={Terms} />
           <Route path="/cookie-policy" component={CookiePolicy} />

@@ -18,7 +18,7 @@ function resolveApiBase(): string {
 }
 const API_BASE = resolveApiBase();
 const apiUrl = (path: string) => API_BASE + path;
-const noStoreHeaders = (token: string) => ({ Authorization: `Bearer ${token}` });
+const noStoreHeaders = (token: string) => ({ Authorization: `Bearer ${token}`, Accept: "application/json" });
 
 const roles = ["super_admin", "admin", "manager", "custom"];
 const statuses = ["new", "contacted", "approved", "rejected", "closed"];
@@ -103,7 +103,7 @@ const FORM_TYPE_MAP: Partial<Record<AdminTab, string>> = {
   support: "Support Request",
 };
 
-function authHeaders(token: string) { return { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }; }
+function authHeaders(token: string) { return { Authorization: `Bearer ${token}`, "Content-Type": "application/json", Accept: "application/json" }; }
 function prettyRole(role: string) { return role.replace("_", " ").replace(/\b\w/g, (m) => m.toUpperCase()); }
 
 const defaultBlogForm: Partial<BlogPost> = {

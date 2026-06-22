@@ -16,6 +16,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "src"),
       "@assets": path.resolve(__dirname, "public"),
+      "react-helmet-async": path.resolve(__dirname, "src/lib/helmetSafe.tsx"),
     },
     dedupe: ["react", "react-dom"],
   },
