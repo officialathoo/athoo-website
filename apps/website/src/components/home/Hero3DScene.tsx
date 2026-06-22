@@ -33,10 +33,9 @@ export default function Hero3DScene() {
     const particles: Particle[] = [];
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
-      canvas.width = Math.max(1, canvas.offsetWidth) * dpr;
-      canvas.height = Math.max(1, canvas.offsetHeight) * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
     };
     resize();
     window.addEventListener("resize", resize, { passive: true });
@@ -160,18 +159,11 @@ export default function Hero3DScene() {
   }, []);
 
   return (
-    <>
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 h-full w-full"
-        style={{ opacity: 0.78 }}
-        aria-hidden="true"
-      />
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        <div className="athoo-galaxy-orb absolute left-[8%] top-[18%] h-32 w-32 rounded-full sm:h-44 sm:w-44" />
-        <div className="athoo-galaxy-orb athoo-galaxy-orb-alt absolute bottom-[16%] right-[6%] h-40 w-40 rounded-full sm:h-56 sm:w-56" />
-        <div className="athoo-galaxy-ring absolute left-1/2 top-[42%] h-[360px] w-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[520px] sm:w-[520px]" />
-      </div>
-    </>
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 h-full w-full"
+      style={{ opacity: 0.6 }}
+      aria-hidden="true"
+    />
   );
 }

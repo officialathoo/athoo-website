@@ -13,7 +13,7 @@ export default function WhatsAppButton() {
         className="animate-pulse-glow flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-2xl shadow-green-500/50 transition-transform hover:scale-110 active:scale-95"
         aria-label="Chat with us on WhatsApp"
       >
-        <SiWhatsapp aria-hidden="true" focusable="false" className="h-7 w-7" />
+        <SiWhatsapp className="h-7 w-7" />
       </a>
     </div>
   );
