@@ -1,98 +1,87 @@
-# Athoo Website Production Project
+# Athoo — Pakistan's Smart Home Services Platform
 
-Clean website-only production package for Athoo. This is not the full mobile app monorepo.
+Pre-launch website connecting customers with verified electricians, plumbers, AC technicians, cleaners, carpenters and painters in Rawalpindi & Islamabad.
 
-## Includes
+## Stack
 
-- Public website: `apps/website`
-- Website admin/lead dashboard: `apps/website/src/pages/admin.tsx`
-- Website API: `services/api`
-- Shared packages: `packages/*`
-- Vercel config: `vercel.json`
-- Render API config: `render.yaml`
-- VPS reference configs: `infrastructure/*`
+| Layer | Tech |
+|-------|------|
+| Frontend | React 18 + Vite + TypeScript + Tailwind CSS v4 |
+| Routing | wouter |
+| Animations | Framer Motion + CSS 3D |
+| Backend API | Express 5 on [Render](https://render.com) |
+| Database | PostgreSQL (Neon DB) + Drizzle ORM |
+| Monorepo | pnpm workspaces |
 
-## Existing resource compatibility
+## Project structure
 
-Kept compatible with:
-
-- Vercel website deployment
-- Render API deployment
-- Neon/PostgreSQL via `DATABASE_URL`
-- Zoho/SMTP via `SMTP_*` env variables
-- Existing `/api/*` route pattern
-- Existing build output: `artifacts/athoo/dist/public`
-
-## Local setup
-
-```powershell
-pnpm install --frozen-lockfile=false
-copy .env.example .env
-pnpm run dev:api
-# second terminal
-pnpm run dev:web
+```
+artifacts/
+  athoo-website/   — React/Vite frontend (SPA)
+  api-server/      — Express 5 REST API
+lib/
+  api-spec/        — OpenAPI spec (source of truth for the contract)
+  api-client-react/— Generated React Query hooks
+  api-zod/         — Generated Zod schemas
+  db/              — Drizzle ORM schema + migrations
+scripts/           — Utility scripts
+vercel.json        — Vercel deployment config (frontend)
 ```
 
-## Vercel settings
+## Getting started
 
-Install command:
+```bash
+# 1. Install dependencies
+pnpm install
 
-```text
-pnpm install --frozen-lockfile=false
+# 2. Copy env template
+cp .env.example .env
+# Edit .env and fill DATABASE_URL + SESSION_SECRET
+
+# 3. Push DB schema (first time)
+pnpm --filter @workspace/db run push
+
+# 4. Start everything
+pnpm --filter @workspace/api-server run dev   # API on :5000
+pnpm --filter @workspace/athoo-website run dev # Frontend on :5173
 ```
 
-Build command:
+## Build
 
-```text
-pnpm run build:web
+```bash
+pnpm run build
 ```
 
-Output directory:
+Builds `artifacts/athoo-website` → `artifacts/athoo-website/dist/public`
+and `artifacts/api-server` → `artifacts/api-server/dist/index.mjs`
 
-```text
-artifacts/athoo/dist/public
-```
+## Deploy
 
-## Render API settings
+### Frontend → Vercel
 
-Use `render.yaml`, or manually set:
+1. Import repo into Vercel
+2. Set **Build Command**: `pnpm --filter @workspace/athoo-website run build`
+3. Set **Output Directory**: `artifacts/athoo-website/dist/public`
+4. Set **Install Command**: `pnpm install`
+5. No env vars needed for the frontend — API calls proxy to Render via `vercel.json`
 
-```text
-Build command: pnpm install --frozen-lockfile=false && pnpm run build:api
-Start command: pnpm run start:api
-```
+### API → Render
 
-## Required environment variables
+- Root directory: `artifacts/api-server`
+- Build command: `pnpm install && pnpm run build`
+- Start command: `node --enable-source-maps dist/index.mjs`
+- Env vars: `DATABASE_URL`, `SESSION_SECRET`, `PORT`
 
-See `.env.example`. Never commit real secrets. Minimum production keys:
+## Admin panel
 
-```text
-DATABASE_URL
-ADMIN_PASSWORD
-AUTH_SECRET
-SESSION_SECRET
-SUPER_ADMIN_EMAIL
-SMTP_HOST
-SMTP_PORT
-SMTP_USER
-SMTP_PASS
-SMTP_FROM
-RATE_LIMIT_PER_MINUTE
-VITE_API_BASE_URL
-VITE_SITE_URL
-```
+Navigate to `/admin` on the deployed frontend. Login with your admin credentials.
 
-## Verification
+Features: Leads CRM · Bulk Email · Newsletter · Blog CMS · Media Library · FAQ · SEO · Social Links · Services Manager · CMS Controls · Maintenance Mode · Admin Users · Activity Logs · DB Stats · CSV Export
 
-```powershell
-pnpm run build:web
-pnpm run build:api
-pnpm run typecheck
-```
+## API
 
-## Notes
-
-- Website SEO assets are in `apps/website/public`.
-- Blog/article source is in `apps/website/src/lib/blogData.ts` and website pages.
-- Admin lead dashboard is inside the website app, not a separate admin app in this package.
-- Mobile app is not included in this website package.
+- Public API base: `https://thoo-api.onrender.com`
+- Form submissions: `POST /api/submit`
+- Public settings: `GET /api/public/settings`
+- Public CMS: `GET /api/public/cms`
+- Admin: `POST /api/admin/login` → Bearer token → all `/api/admin/*` routes
