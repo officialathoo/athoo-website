@@ -1,226 +1,189 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ShieldCheck, Star, MapPin, Zap, Droplets, Wind, Hammer, PaintRoller, Sparkles } from "lucide-react";
 
 const PROVIDERS = [
   { name: "Ahmed K.", role: "Master Electrician", rating: 4.9, jobs: 312, icon: Zap, color: "#0057FF" },
-  { name: "Bilal R.", role: "Certified Plumber", rating: 4.8, jobs: 228, icon: Droplets, color: "#06b6d4" },
-  { name: "Usman T.", role: "AC Specialist", rating: 5.0, jobs: 445, icon: Wind, color: "#10b981" },
-  { name: "Tariq S.", role: "Senior Carpenter", rating: 4.7, jobs: 189, icon: Hammer, color: "#FF8A00" },
-  { name: "Imran A.", role: "Home Painter", rating: 4.9, jobs: 267, icon: PaintRoller, color: "#a855f7" },
-  { name: "Saad M.", role: "Deep Clean Expert", rating: 4.8, jobs: 334, icon: Sparkles, color: "#22c55e" },
+  { name: "Bilal S.", role: "Plumbing Expert", rating: 4.8, jobs: 246, icon: Droplets, color: "#06b6d4" },
+  { name: "Usman A.", role: "AC Technician", rating: 4.9, jobs: 401, icon: Wind, color: "#10b981" },
+  { name: "Imran R.", role: "Carpenter", rating: 4.7, jobs: 186, icon: Hammer, color: "#FF8A00" },
+  { name: "Saad M.", role: "Painter", rating: 4.8, jobs: 214, icon: PaintRoller, color: "#a855f7" },
+  { name: "Athoo Team", role: "Cleaning Pros", rating: 4.9, jobs: 355, icon: Sparkles, color: "#22c55e" },
 ];
 
 const STEPS = [
-  { num: "01", title: "Post Your Service Request", desc: "Tell Athoo what you need — in seconds." },
-  { num: "02", title: "AI-Matched to Providers", desc: "We surface the best-fit verified professionals near you." },
-  { num: "03", title: "Confirm & Book", desc: "Chat, compare, and confirm. Your slot is locked." },
-  { num: "04", title: "Job Done. Review.", desc: "Rate your provider. Build the trust network." },
+  { num: "01", title: "Verified Profiles", desc: "Professionals are reviewed before joining the Athoo network." },
+  { num: "02", title: "Transparent Requests", desc: "Customers share clear service details before provider matching." },
+  { num: "03", title: "Local Coverage", desc: "Built first for Rawalpindi and Islamabad service needs." },
+  { num: "04", title: "Better Experience", desc: "Cleaner communication, faster updates and organized leads." },
 ];
 
-// Readable card for grid layout (mobile / tablet)
-function MobileProviderCard({ provider }: { provider: typeof PROVIDERS[0] }) {
-  const IconComp = provider.icon;
-  return (
-    <div
-      className="rounded-2xl border border-white/10 p-4 text-center"
-      style={{ background: "rgba(8,17,32,0.85)" }}
-    >
-      <div
-        className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl"
-        style={{ background: `${provider.color}22`, border: `1px solid ${provider.color}40` }}
-      >
-        <IconComp className="h-6 w-6" style={{ color: provider.color }} />
-      </div>
-      <p className="text-sm font-black text-white">{provider.name}</p>
-      <p className="text-xs text-slate-400">{provider.role}</p>
-      <div className="mt-2 flex items-center justify-center gap-1">
-        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-        <span className="text-xs font-black text-amber-400">{provider.rating}</span>
-        <span className="text-xs text-slate-500">· {provider.jobs} jobs</span>
-      </div>
-      <div className="mt-1 flex items-center justify-center gap-1">
-        <ShieldCheck className="h-3 w-3 text-green-400" />
-        <span className="text-xs font-bold text-green-400">Verified</span>
-      </div>
-    </div>
-  );
+type Provider = (typeof PROVIDERS)[number];
+
+function useIsCompact() {
+  const [compact, setCompact] = useState(() => typeof window !== "undefined" && window.innerWidth < 768);
+  useEffect(() => {
+    const check = () => setCompact(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check, { passive: true });
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  return compact;
 }
 
-function ProviderNode({
-  provider,
-  angle,
-  radius,
-  rotY,
-}: {
-  provider: typeof PROVIDERS[0];
-  angle: number;
-  radius: number;
-  rotY: number;
-}) {
-  const [hovered, setHovered] = useState(false);
-  const totalAngle = angle + rotY;
-  const rad = (totalAngle * Math.PI) / 180;
-  const x = Math.sin(rad) * radius;
-  const z = Math.cos(rad) * radius;
-  // Improved: min opacity 0.55 so back nodes remain fully readable
-  const t = (z + radius) / (2 * radius);
-  const scale = 0.6 + t * 0.55;
-  const opacity = 0.55 + t * 0.45;
+function ProviderCard({ provider, active = false, compact = false }: { provider: Provider; active?: boolean; compact?: boolean }) {
   const IconComp = provider.icon;
-
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className="h-full rounded-3xl border p-4 shadow-2xl transition-transform duration-300 sm:p-5"
       style={{
-        position: "absolute",
-        left: "50%",
-        top: "50%",
-        width: 160,
-        transform: `translate(-50%, -50%) translateX(${x}px) scale(${scale})`,
-        zIndex: Math.round(scale * 100),
-        opacity,
-        transition: "opacity 0.08s",
+        background: active
+          ? `linear-gradient(135deg, ${provider.color}26, rgba(8,17,32,0.96))`
+          : "rgba(8,17,32,0.94)",
+        borderColor: active ? `${provider.color}70` : "rgba(255,255,255,0.12)",
+        boxShadow: active ? `0 0 34px ${provider.color}55` : "0 12px 36px rgba(0,0,0,0.42)",
       }}
     >
-      <div
-        className="rounded-2xl p-4 text-center transition-all duration-300"
-        style={{
-          background: hovered
-            ? `linear-gradient(135deg, ${provider.color}30, rgba(8,17,32,0.95))`
-            : "rgba(8,17,32,0.92)",
-          backdropFilter: "blur(16px)",
-          border: hovered
-            ? `1px solid ${provider.color}60`
-            : "1px solid rgba(255,255,255,0.12)",
-          boxShadow: hovered
-            ? `0 0 30px ${provider.color}40`
-            : "0 4px 24px rgba(0,0,0,0.5)",
-          transform: hovered ? "translateY(-6px)" : "none",
-        }}
-      >
+      <div className="mb-3 flex items-center gap-3">
         <div
-          className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl"
-          style={{ background: `${provider.color}22`, border: `1px solid ${provider.color}40` }}
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
+          style={{ background: `${provider.color}22`, border: `1px solid ${provider.color}45`, boxShadow: `0 0 20px ${provider.color}35` }}
         >
           <IconComp className="h-6 w-6" style={{ color: provider.color }} />
         </div>
-        <p className="text-sm font-black text-white">{provider.name}</p>
-        <p className="text-xs text-slate-300">{provider.role}</p>
-        <div className="mt-2 flex items-center justify-center gap-1">
-          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-          <span className="text-xs font-black text-amber-400">{provider.rating}</span>
-          <span className="text-xs text-slate-400">· {provider.jobs} jobs</span>
+        <div className="min-w-0">
+          <h3 className="truncate text-sm font-black text-white sm:text-base">{provider.name}</h3>
+          <p className="truncate text-xs font-semibold text-slate-300">{provider.role}</p>
         </div>
-        <div className="mt-2 flex items-center justify-center gap-1">
-          <ShieldCheck className="h-3 w-3 text-green-400" />
-          <span className="text-xs font-bold text-green-400">Verified</span>
-        </div>
+      </div>
+      <div className="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2">
+        <span className="flex items-center gap-1 text-xs font-black text-yellow-300"><Star className="h-3.5 w-3.5 fill-yellow-300" /> {provider.rating}</span>
+        <span className="text-xs font-bold text-slate-300">{provider.jobs}+ jobs</span>
+      </div>
+      <div className="mt-3 flex items-center gap-2 text-xs font-black text-green-300">
+        <ShieldCheck className="h-4 w-4" /> Verified Partner
       </div>
     </div>
   );
 }
 
 export default function VirtualShowroom() {
+  const compact = useIsCompact();
   const [rotY, setRotY] = useState(0);
-  // Use 1024px so tablets see the readable grid
-  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth < 1024 : true);
-  const dragRef = useRef({ dragging: false, startX: 0, startRot: 0 });
+  const [hovered, setHovered] = useState<string | null>(null);
+  const dragRef = useRef({ dragging: false, startX: 0, startRot: 0, moved: false });
   const frameRef = useRef<number>(0);
+  const total = PROVIDERS.length;
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024);
-    check();
-    window.addEventListener("resize", check, { passive: true });
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  useEffect(() => {
-    if (isMobile) return;
-    // Slowed from 0.22 to 0.14 — easier to read as it rotates
     const tick = () => {
-      if (!dragRef.current.dragging) setRotY((r) => r + 0.14);
+      if (!dragRef.current.dragging && !hovered) setRotY((r) => r + (compact ? 0.24 : 0.13));
       frameRef.current = requestAnimationFrame(tick);
     };
     frameRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [isMobile]);
+  }, [compact, hovered]);
 
-  const onPointerDown = (e: React.PointerEvent) => {
-    dragRef.current = { dragging: true, startX: e.clientX, startRot: rotY };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    dragRef.current = { dragging: true, startX: e.clientX, startRot: rotY, moved: false };
+    e.currentTarget.setPointerCapture(e.pointerId);
   };
-  const onPointerMove = (e: React.PointerEvent) => {
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current.dragging) return;
-    setRotY(dragRef.current.startRot + (e.clientX - dragRef.current.startX) * 0.35);
+    const delta = e.clientX - dragRef.current.startX;
+    if (Math.abs(delta) > 3) dragRef.current.moved = true;
+    setRotY(dragRef.current.startRot + delta * (compact ? 0.82 : 0.34));
   };
-  const onPointerUp = () => { dragRef.current.dragging = false; };
+  const finishDrag = () => {
+    if (compact && dragRef.current.moved) {
+      const step = 360 / total;
+      setRotY((r) => Math.round(r / step) * step);
+    }
+    dragRef.current.dragging = false;
+  };
+
+  const radius = compact ? 118 : 310;
+  const cardWidth = compact ? 168 : 220;
+  const activeIndex = useMemo(() => {
+    const step = 360 / total;
+    return ((Math.round((-rotY % 360) / step) % total) + total) % total;
+  }, [rotY, total]);
 
   return (
-    <section className="relative overflow-hidden bg-[#030812] py-24">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(0,87,255,0.15),transparent)]" />
+    <section className="relative overflow-hidden bg-[#020817] py-20 sm:py-28">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,87,255,0.16),transparent_60%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(34,197,94,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(0,87,255,.045)_1px,transparent_1px)] bg-[size:52px_52px]" />
 
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-16 text-center">
-          <span className="inline-block rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm font-black text-blue-400">
-            Provider Network
+      <div className="container relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-14 text-center">
+          <span className="inline-block rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-black text-emerald-300">
+            Meet Athoo Providers
           </span>
-          <h2 className="mt-5 text-4xl font-black text-white sm:text-5xl">
-            Meet Athoo's{" "}
-            <span className="bg-gradient-to-r from-[#0057FF] to-[#4facfe] bg-clip-text text-transparent">
-              Verified Experts
+          <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+            Verified Local{" "}
+            <span className="bg-gradient-to-r from-emerald-300 via-blue-300 to-[#4facfe] bg-clip-text text-transparent">
+              Experts
             </span>
           </h2>
           <p className="mt-4 text-lg text-slate-400">
-            {isMobile ? "Trusted professionals across Pakistan" : "Drag to explore the provider orbit"}
+            Trusted professionals prepared for a better home service experience.
           </p>
         </div>
 
-        {isMobile ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {PROVIDERS.map((p) => <MobileProviderCard key={p.name} provider={p} />)}
+        <div
+          className="relative mx-auto select-none touch-pan-y"
+          style={{ height: compact ? 360 : 430, perspective: compact ? 850 : 1000, cursor: dragRef.current.dragging ? "grabbing" : "grab" }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={finishDrag}
+          onPointerCancel={finishDrag}
+          onPointerLeave={finishDrag}
+        >
+          <div className="pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-emerald-400/20" style={{ width: compact ? 230 : 620, height: compact ? 230 : 330, transform: "translate(-50%, -50%) rotateX(64deg)", animation: "athoo-spin 19s linear infinite" }} />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-blue-400/20" style={{ width: compact ? 285 : 690, height: compact ? 285 : 390, transform: "translate(-50%, -50%) rotateX(64deg)", animation: "athoo-spin 26s linear infinite reverse" }} />
+
+          <div className="absolute inset-0 flex items-center justify-center" style={{ transformStyle: "preserve-3d" }}>
+            {PROVIDERS.map((p, i) => {
+              const angle = (i / total) * 360 + rotY;
+              const rad = (angle * Math.PI) / 180;
+              const x = Math.sin(rad) * radius;
+              const z = Math.cos(rad) * radius;
+              const depth = (z + radius) / (2 * radius);
+              const scale = compact ? 0.78 + depth * 0.32 : 0.66 + depth * 0.44;
+              const opacity = compact ? 0.42 + depth * 0.58 : 0.55 + depth * 0.45;
+              const active = compact ? i === activeIndex : depth > 0.72 || hovered === p.name;
+              return (
+                <div
+                  key={p.name}
+                  onMouseEnter={() => setHovered(p.name)}
+                  onMouseLeave={() => setHovered(null)}
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    width: cardWidth,
+                    transform: `translate(-50%, -50%) translateX(${x}px) translateZ(${compact ? z * 0.24 : z * 0.1}px) scale(${scale})`,
+                    zIndex: Math.round(scale * 100 + z),
+                    opacity,
+                    transition: dragRef.current.dragging ? "none" : "opacity 180ms ease, transform 220ms ease",
+                    pointerEvents: active ? "auto" : "none",
+                  }}
+                >
+                  <ProviderCard provider={p} active={active} compact={compact} />
+                </div>
+              );
+            })}
           </div>
-        ) : (
-          <div
-            className="relative mx-auto select-none"
-            style={{ height: 420, perspective: 900, cursor: "grab" }}
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            onPointerLeave={onPointerUp}
-          >
-            {PROVIDERS.map((p, i) => (
-              <ProviderNode
-                key={p.name}
-                provider={p}
-                angle={(i / PROVIDERS.length) * 360}
-                radius={300}
-                rotY={rotY}
-              />
-            ))}
-            <div
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-              style={{ width: 100, height: 100 }}
-            >
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: "radial-gradient(circle, rgba(0,87,255,0.8) 0%, rgba(0,87,255,0) 70%)",
-                  animation: "athoo-pulse 2.5s ease-in-out infinite",
-                }}
-              />
-              <div
-                className="absolute inset-3 rounded-full border-2 border-blue-500/50"
-                style={{ animation: "athoo-spin 8s linear infinite" }}
-              />
-              <div className="absolute inset-6 flex items-center justify-center rounded-full bg-blue-600">
-                <MapPin className="h-5 w-5 text-white" />
-              </div>
+
+          <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: compact ? 86 : 110, height: compact ? 86 : 110 }}>
+            <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(0,87,255,0.75) 0%, rgba(34,197,94,0.3) 40%, rgba(0,87,255,0) 72%)", animation: "athoo-pulse 2.5s ease-in-out infinite" }} />
+            <div className="absolute inset-3 rounded-full border-2 border-blue-400/50" style={{ animation: "athoo-spin 8s linear infinite" }} />
+            <div className="absolute inset-7 flex items-center justify-center rounded-full bg-blue-600 shadow-[0_0_30px_rgba(0,87,255,.55)]">
+              <MapPin className="h-5 w-5 text-white" />
             </div>
           </div>
-        )}
+        </div>
 
-        <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step, i) => (
             <div
               key={step.num}
@@ -230,12 +193,10 @@ export default function VirtualShowroom() {
                 transitionDelay: `${i * 80}ms`,
               }}
             >
-              <div className="mb-4 text-4xl font-black text-blue-500/30 transition-colors group-hover:text-blue-500/60">
-                {step.num}
-              </div>
+              <div className="mb-4 text-4xl font-black text-blue-500/30 transition-colors group-hover:text-blue-500/60">{step.num}</div>
               <h3 className="mb-2 text-base font-black text-white">{step.title}</h3>
               <p className="text-sm leading-6 text-slate-400">{step.desc}</p>
-              <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-[#0057FF] to-[#FF8A00] transition-all duration-500 group-hover:w-full" />
+              <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-[#0057FF] to-emerald-300 transition-all duration-500 group-hover:w-full" />
             </div>
           ))}
         </div>

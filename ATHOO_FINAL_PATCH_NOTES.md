@@ -1,17 +1,31 @@
-# Athoo final patch notes
+ATHOO FINAL PATCH NOTES
 
 Fixed in this package:
+- Mobile service gallery now uses readable 3D carousel with auto-rotation + finger drag/swipe.
+- Mobile provider gallery now uses readable 3D carousel with auto-rotation + finger drag/swipe.
+- Hero galaxy canvas now renders particle glow on mobile and fixes resize scaling.
+- Waitlist navigation now scrolls to the actual form section with sticky-header offset instead of stopping early.
+- Admin login route now auto-creates/updates env admin and creates admin_users table if missing.
+- Form submit route now creates missing lead/email tables and never fails just because email logging fails.
+- Vercel SPA rewrite retained for /admin, /become-provider and all React routes.
+- Added ATHOO_NEON_REQUIRED_TABLES.sql.
 
-- Vercel routing: added explicit `/admin` and route rewrites so direct admin opens do not return Vercel 404.
-- Mobile animations: replaced static/non-interactive mobile grids with touch-swipe galaxy galleries for services and providers.
-- Galaxy effects: added mobile and desktop galaxy/orb/ring animation layers in the hero and gallery sections.
-- Accessibility: fixed WhatsApp SVG alternative text issue.
-- AI/SEO: updated `llms.txt` with explicit Markdown links and cleaned sitemap/robots.
-- Security: removed `.env` and `.env.local` from the export. Use Render/Vercel environment variables.
+Required Render env:
+DATABASE_URL=...
+ADMIN_EMAIL=official@athoo.pk
+ADMIN_PASSWORD=your-current-password
+SESSION_SECRET=random-long-secret
+SMTP_HOST=smtp.zoho.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=official@athoo.pk
+SMTP_PASS=zoho-app-password
+SMTP_FROM=Athoo <official@athoo.pk>
 
-Required deployment reminders:
-
-1. Run `ATHOO_NEON_REQUIRED_TABLES.sql` in Neon if tables are missing.
-2. Deploy Render API after setting SMTP and DATABASE_URL variables.
-3. Deploy Vercel without cache.
-4. Purge Cloudflare cache.
+Deploy:
+pnpm install
+pnpm run build
+git add .
+git commit -m "final admin forms and mobile animation fixes"
+git push origin main
+Then redeploy Vercel without cache and Render.

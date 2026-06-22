@@ -1,168 +1,202 @@
-import { useEffect, useRef, useState } from "react";
-import { ShieldCheck, Star, Zap, Droplets, Wind, Hammer, PaintRoller, Sparkles, MapPin } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ShieldCheck, Star, MapPin, Zap, Droplets, Wind, Hammer, PaintRoller, Sparkles } from "lucide-react";
 
 const PROVIDERS = [
-  { name: "Ahmed K.", role: "Expert Electrician", rating: 4.9, jobs: 312, icon: Zap, color: "#0057FF" },
-  { name: "Bilal R.", role: "Certified Plumber", rating: 4.8, jobs: 228, icon: Droplets, color: "#06b6d4" },
-  { name: "Usman T.", role: "AC Specialist", rating: 5.0, jobs: 445, icon: Wind, color: "#10b981" },
-  { name: "Tariq S.", role: "Senior Carpenter", rating: 4.7, jobs: 189, icon: Hammer, color: "#FF8A00" },
-  { name: "Imran A.", role: "Home Painter", rating: 4.9, jobs: 267, icon: PaintRoller, color: "#a855f7" },
-  { name: "Saad M.", role: "Deep Clean Expert", rating: 4.8, jobs: 334, icon: Sparkles, color: "#22c55e" },
+  { name: "Ahmed K.", role: "Master Electrician", rating: 4.9, jobs: 312, icon: Zap, color: "#0057FF" },
+  { name: "Bilal S.", role: "Plumbing Expert", rating: 4.8, jobs: 246, icon: Droplets, color: "#06b6d4" },
+  { name: "Usman A.", role: "AC Technician", rating: 4.9, jobs: 401, icon: Wind, color: "#10b981" },
+  { name: "Imran R.", role: "Carpenter", rating: 4.7, jobs: 186, icon: Hammer, color: "#FF8A00" },
+  { name: "Saad M.", role: "Painter", rating: 4.8, jobs: 214, icon: PaintRoller, color: "#a855f7" },
+  { name: "Athoo Team", role: "Cleaning Pros", rating: 4.9, jobs: 355, icon: Sparkles, color: "#22c55e" },
 ];
 
 const STEPS = [
-  { num: "01", title: "Post Your Service Request", desc: "Tell Athoo what you need — in seconds." },
-  { num: "02", title: "AI-Matched to Providers", desc: "We surface the best-fit verified professionals near you." },
-  { num: "03", title: "Confirm & Book", desc: "Chat, compare, and confirm. Your slot is locked." },
-  { num: "04", title: "Job Done. Review.", desc: "Rate your provider. Build the trust network." },
+  { num: "01", title: "Verified Profiles", desc: "Professionals are reviewed before joining the Athoo network." },
+  { num: "02", title: "Transparent Requests", desc: "Customers share clear service details before provider matching." },
+  { num: "03", title: "Local Coverage", desc: "Built first for Rawalpindi and Islamabad service needs." },
+  { num: "04", title: "Better Experience", desc: "Cleaner communication, faster updates and organized leads." },
 ];
 
-function useIsDesktop() {
-  const [desktop, setDesktop] = useState(() => (typeof window !== "undefined" ? window.innerWidth >= 1024 : false));
+type Provider = (typeof PROVIDERS)[number];
+
+function useIsCompact() {
+  const [compact, setCompact] = useState(() => typeof window !== "undefined" && window.innerWidth < 768);
   useEffect(() => {
-    const onResize = () => setDesktop(window.innerWidth >= 1024);
-    onResize();
-    window.addEventListener("resize", onResize, { passive: true });
-    return () => window.removeEventListener("resize", onResize);
+    const check = () => setCompact(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check, { passive: true });
+    return () => window.removeEventListener("resize", check);
   }, []);
-  return desktop;
+  return compact;
 }
 
-function ProviderGalaxyCore() {
-  return (
-    <div className="pointer-events-none absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 sm:h-52 sm:w-52">
-      <div className="absolute inset-0 rounded-full bg-blue-500/30 blur-3xl" />
-      <div className="absolute inset-7 rounded-full bg-gradient-to-br from-sky-300 via-blue-600 to-emerald-500 shadow-2xl shadow-blue-950/60">
-        <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,.86),transparent_20%),radial-gradient(circle_at_72%_78%,rgba(255,255,255,.14),transparent_38%)]" />
-        <MapPin className="absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 text-white/90" />
-      </div>
-      <div className="athoo-orbit-ring absolute inset-1 rounded-full border border-cyan-300/45" />
-      <div className="athoo-orbit-ring-reverse absolute inset-8 rounded-full border border-emerald-300/35" />
-    </div>
-  );
-}
-
-function ProviderCard({ provider, active=false }: { provider: (typeof PROVIDERS)[number]; active?: boolean }) {
+function ProviderCard({ provider, active = false, compact = false }: { provider: Provider; active?: boolean; compact?: boolean }) {
   const IconComp = provider.icon;
   return (
-    <div className={`relative h-[190px] w-[220px] shrink-0 overflow-hidden rounded-[1.6rem] border p-4 text-center shadow-2xl backdrop-blur-xl transition-all duration-300 sm:h-[205px] sm:w-[245px] ${active ? "border-white/25" : "border-white/12"}`} style={{ background: `linear-gradient(155deg, rgba(2,8,20,.96), ${provider.color}20 58%, rgba(1,13,31,.98))`, boxShadow: active ? `0 18px 48px ${provider.color}45` : "0 8px 28px rgba(0,0,0,.38)" }}>
-      <div className="absolute -left-10 -top-10 h-28 w-28 rounded-full blur-2xl" style={{ background: `${provider.color}44` }} />
-      <div className="relative mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl" style={{ background: `${provider.color}22`, border: `1px solid ${provider.color}48`, boxShadow: `0 0 18px ${provider.color}38` }}>
-        <IconComp className="h-6 w-6" style={{ color: provider.color }} />
-      </div>
-      <p className="relative truncate text-base font-black text-white">{provider.name}</p>
-      <p className="relative mt-1 truncate text-xs text-blue-50/74">{provider.role}</p>
-      <div className="relative mt-3 flex items-center justify-center gap-1">
-        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-        <span className="text-xs font-black text-amber-300">{provider.rating}</span>
-        <span className="text-xs text-slate-300">· {provider.jobs} jobs</span>
-      </div>
-      <div className="relative mt-3 inline-flex items-center justify-center gap-1 rounded-full border border-green-400/25 bg-green-400/10 px-3 py-1">
-        <ShieldCheck className="h-3 w-3 text-green-300" />
-        <span className="text-xs font-bold text-green-300">Verified Expert</span>
-      </div>
-    </div>
-  );
-}
-
-function MobileProviderOrbit() {
-  const [active, setActive] = useState(0);
-  const drag = useRef({ down: false, x: 0 });
-  useEffect(() => {
-    const timer = window.setInterval(() => setActive((v) => (v + 1) % PROVIDERS.length), 2800);
-    return () => window.clearInterval(timer);
-  }, []);
-  const onPointerDown = (e: React.PointerEvent) => { drag.current = { down: true, x: e.clientX }; (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); };
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!drag.current.down) return;
-    const diff = e.clientX - drag.current.x;
-    if (Math.abs(diff) > 45) {
-      setActive((v) => (v + (diff < 0 ? 1 : PROVIDERS.length - 1)) % PROVIDERS.length);
-      drag.current.x = e.clientX;
-    }
-  };
-  const onPointerUp = () => { drag.current.down = false; };
-  return (
-    <div className="relative lg:hidden">
-      <div className="athoo-touch-orbit relative mx-auto h-[430px] max-w-[390px] overflow-hidden rounded-[2rem] border border-cyan-200/10 bg-black/10 px-2 py-8" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerLeave={onPointerUp}>
-        <ProviderGalaxyCore />
-        <div className="absolute inset-x-0 top-[120px] h-[255px] touch-pan-y select-none">
-          {PROVIDERS.map((provider, i) => {
-            let delta = i - active;
-            if (delta > PROVIDERS.length / 2) delta -= PROVIDERS.length;
-            if (delta < -PROVIDERS.length / 2) delta += PROVIDERS.length;
-            if (Math.abs(delta) > 1) return null;
-            const activeCard = delta === 0;
-            return (
-              <div key={provider.name} className={`absolute left-1/2 top-1/2 transition-transform duration-500 ease-out will-change-transform ${activeCard ? "athoo-mobile-active-card" : "blur-[0.5px]"}`} style={{ transform: `translate(-50%, -50%) translateX(${delta * 168}px) translateY(${Math.abs(delta) * 12}px) rotateY(${-delta * 10}deg) scale(${activeCard ? 1 : 0.72})`, zIndex: 20 - Math.abs(delta), opacity: activeCard ? 1 : 0.22 }}>
-                <ProviderCard provider={provider} active={activeCard} />
-              </div>
-            );
-          })}
+    <div
+      className="h-full rounded-3xl border p-4 shadow-2xl transition-transform duration-300 sm:p-5"
+      style={{
+        background: active
+          ? `linear-gradient(135deg, ${provider.color}26, rgba(8,17,32,0.96))`
+          : "rgba(8,17,32,0.94)",
+        borderColor: active ? `${provider.color}70` : "rgba(255,255,255,0.12)",
+        boxShadow: active ? `0 0 34px ${provider.color}55` : "0 12px 36px rgba(0,0,0,0.42)",
+      }}
+    >
+      <div className="mb-3 flex items-center gap-3">
+        <div
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
+          style={{ background: `${provider.color}22`, border: `1px solid ${provider.color}45`, boxShadow: `0 0 20px ${provider.color}35` }}
+        >
+          <IconComp className="h-6 w-6" style={{ color: provider.color }} />
         </div>
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
-          {PROVIDERS.map((p, i) => <button key={p.name} aria-label={`Show ${p.name}`} onClick={() => setActive(i)} className={`h-1.5 rounded-full transition-all ${i === active ? "w-6 bg-cyan-300" : "w-1.5 bg-white/30"}`} />)}
+        <div className="min-w-0">
+          <h3 className="truncate text-sm font-black text-white sm:text-base">{provider.name}</h3>
+          <p className="truncate text-xs font-semibold text-slate-300">{provider.role}</p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function DesktopProviderOrbit() {
-  const [rotY, setRotY] = useState(0);
-  const [hover, setHover] = useState<string | null>(null);
-  const drag = useRef({ dragging: false, startX: 0, startRot: 0 });
-  const raf = useRef<number>(0);
-  useEffect(() => {
-    const tick = () => { if (!drag.current.dragging && !hover) setRotY((r) => r + 0.07); raf.current = requestAnimationFrame(tick); };
-    raf.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf.current);
-  }, [hover]);
-  const onPointerDown = (e: React.PointerEvent) => { drag.current = { dragging: true, startX: e.clientX, startRot: rotY }; (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); };
-  const onPointerMove = (e: React.PointerEvent) => { if (drag.current.dragging) setRotY(drag.current.startRot + (e.clientX - drag.current.startX) * 0.22); };
-  const onPointerUp = () => { drag.current.dragging = false; };
-  return (
-    <div className="relative mx-auto hidden h-[500px] select-none lg:block" style={{ perspective: 1100, cursor: "grab" }} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerLeave={onPointerUp}>
-      <ProviderGalaxyCore />
-      {PROVIDERS.map((provider, i) => {
-        const angle = (i / PROVIDERS.length) * 360 + rotY;
-        const rad = (angle * Math.PI) / 180;
-        const radius = 385;
-        const x = Math.sin(rad) * radius;
-        const z = Math.cos(rad) * radius;
-        const t = (z + radius) / (2 * radius);
-        const scale = 0.64 + t * 0.34;
-        const opacity = 0.46 + t * 0.54;
-        return (
-          <div key={provider.name} onMouseEnter={() => setHover(provider.name)} onMouseLeave={() => setHover(null)} className="absolute left-1/2 top-1/2 transition-transform duration-150 will-change-transform" style={{ transform: `translate(-50%, -50%) translateX(${x}px) scale(${scale})`, zIndex: Math.round(t * 100), opacity }}>
-            <ProviderCard provider={provider} active={hover === provider.name || t > 0.72} />
-          </div>
-        );
-      })}
+      <div className="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2">
+        <span className="flex items-center gap-1 text-xs font-black text-yellow-300"><Star className="h-3.5 w-3.5 fill-yellow-300" /> {provider.rating}</span>
+        <span className="text-xs font-bold text-slate-300">{provider.jobs}+ jobs</span>
+      </div>
+      <div className="mt-3 flex items-center gap-2 text-xs font-black text-green-300">
+        <ShieldCheck className="h-4 w-4" /> Verified Partner
+      </div>
     </div>
   );
 }
 
 export default function VirtualShowroom() {
-  const isDesktop = useIsDesktop();
+  const compact = useIsCompact();
+  const [rotY, setRotY] = useState(0);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const dragRef = useRef({ dragging: false, startX: 0, startRot: 0, moved: false });
+  const frameRef = useRef<number>(0);
+  const total = PROVIDERS.length;
+
+  useEffect(() => {
+    const tick = () => {
+      if (!dragRef.current.dragging && !hovered) setRotY((r) => r + (compact ? 0.24 : 0.13));
+      frameRef.current = requestAnimationFrame(tick);
+    };
+    frameRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameRef.current);
+  }, [compact, hovered]);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    dragRef.current = { dragging: true, startX: e.clientX, startRot: rotY, moved: false };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.dragging) return;
+    const delta = e.clientX - dragRef.current.startX;
+    if (Math.abs(delta) > 3) dragRef.current.moved = true;
+    setRotY(dragRef.current.startRot + delta * (compact ? 0.82 : 0.34));
+  };
+  const finishDrag = () => {
+    if (compact && dragRef.current.moved) {
+      const step = 360 / total;
+      setRotY((r) => Math.round(r / step) * step);
+    }
+    dragRef.current.dragging = false;
+  };
+
+  const radius = compact ? 118 : 310;
+  const cardWidth = compact ? 168 : 220;
+  const activeIndex = useMemo(() => {
+    const step = 360 / total;
+    return ((Math.round((-rotY % 360) / step) % total) + total) % total;
+  }, [rotY, total]);
+
   return (
-    <section className="relative overflow-hidden bg-[#020617] py-20 sm:py-24">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(0,87,255,0.2),transparent),radial-gradient(ellipse_at_90%_30%,rgba(16,185,129,0.11),transparent_44%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,.045)_1px,transparent_1px)] bg-[size:54px_54px]" />
+    <section className="relative overflow-hidden bg-[#020817] py-20 sm:py-28">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,87,255,0.16),transparent_60%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(34,197,94,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(0,87,255,.045)_1px,transparent_1px)] bg-[size:52px_52px]" />
+
       <div className="container relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto mb-12 max-w-3xl text-center">
-          <span className="inline-block rounded-full border border-blue-400/35 bg-blue-500/15 px-4 py-2 text-sm font-black text-blue-300 shadow-lg shadow-blue-950/30">Meet Athoo Provider</span>
-          <h2 className="mt-5 text-4xl font-black text-white sm:text-5xl">Verified <span className="bg-gradient-to-r from-[#4facfe] via-[#00f2fe] to-[#22c55e] bg-clip-text text-transparent">Provider Orbit</span></h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base font-medium leading-7 text-blue-50/72 sm:text-lg">Meet the kind of verified professionals Athoo is building its partner network around.</p>
+        <div className="mb-14 text-center">
+          <span className="inline-block rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-black text-emerald-300">
+            Meet Athoo Providers
+          </span>
+          <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+            Verified Local{" "}
+            <span className="bg-gradient-to-r from-emerald-300 via-blue-300 to-[#4facfe] bg-clip-text text-transparent">
+              Experts
+            </span>
+          </h2>
+          <p className="mt-4 text-lg text-slate-400">
+            Trusted professionals prepared for a better home service experience.
+          </p>
         </div>
-        {isDesktop ? <DesktopProviderOrbit /> : <MobileProviderOrbit />}
+
+        <div
+          className="relative mx-auto select-none touch-pan-y"
+          style={{ height: compact ? 360 : 430, perspective: compact ? 850 : 1000, cursor: dragRef.current.dragging ? "grabbing" : "grab" }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={finishDrag}
+          onPointerCancel={finishDrag}
+          onPointerLeave={finishDrag}
+        >
+          <div className="pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-emerald-400/20" style={{ width: compact ? 230 : 620, height: compact ? 230 : 330, transform: "translate(-50%, -50%) rotateX(64deg)", animation: "athoo-spin 19s linear infinite" }} />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-blue-400/20" style={{ width: compact ? 285 : 690, height: compact ? 285 : 390, transform: "translate(-50%, -50%) rotateX(64deg)", animation: "athoo-spin 26s linear infinite reverse" }} />
+
+          <div className="absolute inset-0 flex items-center justify-center" style={{ transformStyle: "preserve-3d" }}>
+            {PROVIDERS.map((p, i) => {
+              const angle = (i / total) * 360 + rotY;
+              const rad = (angle * Math.PI) / 180;
+              const x = Math.sin(rad) * radius;
+              const z = Math.cos(rad) * radius;
+              const depth = (z + radius) / (2 * radius);
+              const scale = compact ? 0.78 + depth * 0.32 : 0.66 + depth * 0.44;
+              const opacity = compact ? 0.42 + depth * 0.58 : 0.55 + depth * 0.45;
+              const active = compact ? i === activeIndex : depth > 0.72 || hovered === p.name;
+              return (
+                <div
+                  key={p.name}
+                  onMouseEnter={() => setHovered(p.name)}
+                  onMouseLeave={() => setHovered(null)}
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    width: cardWidth,
+                    transform: `translate(-50%, -50%) translateX(${x}px) translateZ(${compact ? z * 0.24 : z * 0.1}px) scale(${scale})`,
+                    zIndex: Math.round(scale * 100 + z),
+                    opacity,
+                    transition: dragRef.current.dragging ? "none" : "opacity 180ms ease, transform 220ms ease",
+                    pointerEvents: active ? "auto" : "none",
+                  }}
+                >
+                  <ProviderCard provider={p} active={active} compact={compact} />
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: compact ? 86 : 110, height: compact ? 86 : 110 }}>
+            <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(0,87,255,0.75) 0%, rgba(34,197,94,0.3) 40%, rgba(0,87,255,0) 72%)", animation: "athoo-pulse 2.5s ease-in-out infinite" }} />
+            <div className="absolute inset-3 rounded-full border-2 border-blue-400/50" style={{ animation: "athoo-spin 8s linear infinite" }} />
+            <div className="absolute inset-7 flex items-center justify-center rounded-full bg-blue-600 shadow-[0_0_30px_rgba(0,87,255,.55)]">
+              <MapPin className="h-5 w-5 text-white" />
+            </div>
+          </div>
+        </div>
+
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step, i) => (
-            <div key={step.num} className="athoo-reveal group relative overflow-hidden rounded-3xl border border-white/8 p-6" style={{ background: "linear-gradient(135deg, rgba(0,87,255,0.08), rgba(8,17,32,0.9))", transitionDelay: `${i * 80}ms` }}>
+            <div
+              key={step.num}
+              className="athoo-reveal group relative overflow-hidden rounded-3xl border border-white/8 p-6"
+              style={{
+                background: "linear-gradient(135deg, rgba(0,87,255,0.08), rgba(8,17,32,0.9))",
+                transitionDelay: `${i * 80}ms`,
+              }}
+            >
               <div className="mb-4 text-4xl font-black text-blue-500/30 transition-colors group-hover:text-blue-500/60">{step.num}</div>
               <h3 className="mb-2 text-base font-black text-white">{step.title}</h3>
               <p className="text-sm leading-6 text-slate-400">{step.desc}</p>
-              <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-[#0057FF] to-[#22c55e] transition-all duration-500 group-hover:w-full" />
+              <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-[#0057FF] to-emerald-300 transition-all duration-500 group-hover:w-full" />
             </div>
           ))}
         </div>
