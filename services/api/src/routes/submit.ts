@@ -1,57 +1,57 @@
 import { Router } from "express";
-import { db, pool } from "@workspace/db";
+import { db } from "@workspace/db";
 import { leads, emailLogs } from "@workspace/db";
-import { sendMail, ADMIN_EMAIL, adminLeadNotificationHtml, userConfirmationHtml } from "../lib/mailer.js";
+import {
+  sendMail,
+  ADMIN_EMAIL,
+  adminLeadNotificationHtml,
+  userConfirmationHtml,
+} from "../lib/mailer.js";
 
 const router = Router();
 
-async function ensureLeadTables() {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS leads (
-      id serial PRIMARY KEY,
-      form_type varchar(100) NOT NULL,
-      name text,
-      email text,
-      phone varchar(50),
-      subject text,
-      message text,
-      service text,
-      city text,
-      experience text,
-      source text,
-      status varchar(50) NOT NULL DEFAULT 'new',
-      priority varchar(50) DEFAULT 'normal',
-      assigned_to text,
-      admin_notes text,
-      last_contacted_at timestamp,
-      created_at timestamp NOT NULL DEFAULT now(),
-      updated_at timestamp NOT NULL DEFAULT now()
-    );
-    CREATE TABLE IF NOT EXISTS email_logs (
-      id serial PRIMARY KEY,
-      recipient text NOT NULL,
-      subject text NOT NULL,
-      status varchar(50) NOT NULL DEFAULT 'sent',
-      sent_by text,
-      created_at timestamp NOT NULL DEFAULT now()
-    );
-  `);
+function clean(value: unknown, max = 2500) {
+  return String(value ?? "").replace(/[<>]/g, "").replace(/[\u0000-\u001F\u007F]/g, " ").trim().slice(0, max);
+}
+
+async function safeLogEmail(input: { recipient: string; subject: string; status: string; sent_by?: string }) {
+  try {
+    await db.insert(emailLogs).values({
+      recipient: input.recipient,
+      subject: input.subject,
+      status: input.status,
+      sent_by: input.sent_by || "system",
+    });
+  } catch {
+    // Email logging must never make a successful lead submission fail.
+  }
 }
 
 router.post("/submit", async (req, res) => {
   try {
-    await ensureLeadTables();
-    const { formType, name, email, phone, subject, message, service, city, experience, source } = req.body as Record<string, string>;
+    const body = req.body as Record<string, string>;
+    const formType = clean(body.formType, 80);
+    const email = clean(body.email, 255).toLowerCase();
+    const name = clean(body.name, 120);
+    const phone = clean(body.phone, 40);
+    const subject = clean(body.subject, 200);
+    const message = clean(body.message, 2500);
+    const service = clean(body.service, 140);
+    const city = clean(body.city, 140);
+    const experience = clean(body.experience, 800);
+    const source = clean(body.source, 500) || "website";
+
     if (!formType) {
-      res.status(400).json({ error: "formType is required" });
-      return;
-    }
-    if (email && !/^\S+@\S+\.\S+$/.test(email)) {
-      res.status(400).json({ error: "Please enter a valid email address" });
+      res.status(400).json({ ok: false, error: "formType is required" });
       return;
     }
 
-    await db.insert(leads).values({
+    if (email && !/^\S+@\S+\.\S+$/.test(email)) {
+      res.status(400).json({ ok: false, error: "Invalid email address" });
+      return;
+    }
+
+    const inserted = await db.insert(leads).values({
       form_type: formType,
       name: name || null,
       email: email || null,
@@ -61,37 +61,52 @@ router.post("/submit", async (req, res) => {
       service: service || null,
       city: city || null,
       experience: experience || null,
-      source: source || null,
+      source,
       status: "new",
-    });
+    }).returning({ id: leads.id });
 
-    let emailStatus = "skipped";
+    let adminStatus = "skipped";
+    let userStatus = "skipped";
+
     try {
       const adminResult = await sendMail({
         to: ADMIN_EMAIL,
         subject: `[Athoo] New ${formType} — ${name || email || phone || "Anonymous"}`,
         html: adminLeadNotificationHtml({ formType, name, email, phone, service, city, message }),
       });
-      emailStatus = adminResult.status;
-      await db.insert(emailLogs).values({ recipient: ADMIN_EMAIL, subject: `[Athoo] New ${formType}`, status: adminResult.ok ? "sent" : adminResult.status, sent_by: "system" });
-    } catch (mailLogErr) {
-      req.log.warn({ err: mailLogErr }, "admin email/log failed after lead saved");
-      emailStatus = "failed";
+      adminStatus = adminResult.ok ? "sent" : adminResult.status;
+      await safeLogEmail({ recipient: ADMIN_EMAIL, subject: `[Athoo] New ${formType}`, status: adminStatus });
+    } catch (mailErr) {
+      req.log.warn({ err: mailErr }, "admin lead email failed");
+      adminStatus = "failed";
     }
 
     if (email) {
       try {
-        const userResult = await sendMail({ to: email, subject: "You're on Athoo's list!", html: userConfirmationHtml(name) });
-        await db.insert(emailLogs).values({ recipient: email, subject: "You're on Athoo's list!", status: userResult.ok ? "sent" : userResult.status, sent_by: "system" });
-      } catch (mailLogErr) {
-        req.log.warn({ err: mailLogErr }, "user confirmation/log failed after lead saved");
+        const userResult = await sendMail({
+          to: email,
+          subject: "You're on Athoo's list!",
+          html: userConfirmationHtml(name),
+        });
+        userStatus = userResult.ok ? "sent" : userResult.status;
+        await safeLogEmail({ recipient: email, subject: "You're on Athoo's list!", status: userStatus });
+      } catch (mailErr) {
+        req.log.warn({ err: mailErr }, "user confirmation email failed");
+        userStatus = "failed";
       }
     }
 
-    res.json({ ok: true, message: "Thank you! Your submission has been received.", emailStatus });
+    res.json({
+      ok: true,
+      id: inserted[0]?.id,
+      message: "Thank you! Your request has been received.",
+      emailStatus: adminStatus,
+      adminEmailStatus: adminStatus,
+      userEmailStatus: userStatus,
+    });
   } catch (err) {
     req.log.error({ err }, "submit error");
-    res.status(500).json({ error: "Could not save submission. Please try again or contact Athoo on WhatsApp." });
+    res.status(500).json({ ok: false, error: "Could not save submission. Please try again or contact Athoo support." });
   }
 });
 

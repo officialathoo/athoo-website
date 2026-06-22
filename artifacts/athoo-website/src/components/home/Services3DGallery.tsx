@@ -13,102 +13,166 @@ const SERVICES = [
   { id: "more", name: "More Coming Soon", desc: "10+ service categories planned", icon: Wrench, color: "#0057FF", glow: "rgba(0,87,255,0.35)" },
 ];
 
-type Service = (typeof SERVICES)[number];
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth < 768 : true,
+  );
 
-function useIsCompact() {
-  const [compact, setCompact] = useState(() => typeof window !== "undefined" && window.innerWidth < 768);
   useEffect(() => {
-    const check = () => setCompact(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 768);
     check();
     window.addEventListener("resize", check, { passive: true });
     return () => window.removeEventListener("resize", check);
   }, []);
-  return compact;
+
+  return isMobile;
 }
 
-function ServiceCard({ svc, active = false, compact = false }: { svc: Service; active?: boolean; compact?: boolean }) {
-  const IconComp = svc.icon;
+function MobileServiceCarousel() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef({ active: false, startX: 0 });
+  const total = SERVICES.length;
+
+  const next = () => setActiveIndex((i) => (i + 1) % total);
+  const prev = () => setActiveIndex((i) => (i - 1 + total) % total);
+
+  useEffect(() => {
+    if (isDragging) return;
+    const timer = window.setInterval(next, 3600);
+    return () => window.clearInterval(timer);
+  }, [isDragging, total]);
+
+  const visible = useMemo(() => [-1, 0, 1].map((offset) => {
+    const index = (activeIndex + offset + total) % total;
+    return { item: SERVICES[index], offset };
+  }), [activeIndex, total]);
+
+  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    dragRef.current = { active: true, startX: event.clientX };
+    setIsDragging(true);
+    setDragOffset(0);
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+
+  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    const diff = event.clientX - dragRef.current.startX;
+    setDragOffset(Math.max(-105, Math.min(105, diff)));
+  };
+
+  const finishDrag = () => {
+    if (!dragRef.current.active) return;
+    if (dragOffset < -40) next();
+    if (dragOffset > 40) prev();
+    dragRef.current.active = false;
+    setDragOffset(0);
+    window.setTimeout(() => setIsDragging(false), 250);
+  };
+
   return (
-    <div
-      className="h-full rounded-3xl border p-4 text-center shadow-2xl transition-transform duration-300 sm:p-5"
-      style={{
-        background: active
-          ? `linear-gradient(135deg, ${svc.color}28, rgba(8,17,32,0.96))`
-          : "rgba(8,17,32,0.94)",
-        borderColor: active ? `${svc.color}70` : "rgba(255,255,255,0.12)",
-        boxShadow: active ? `0 0 34px ${svc.glow}` : "0 12px 36px rgba(0,0,0,0.42)",
-      }}
-    >
+    <div className="relative mx-auto w-full max-w-[420px] overflow-hidden px-1 pb-8 pt-2">
       <div
-        className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl sm:h-14 sm:w-14"
-        style={{
-          background: `linear-gradient(135deg, ${svc.color}35, ${svc.color}12)`,
-          boxShadow: `0 0 20px ${svc.glow}`,
-          border: `1px solid ${svc.color}45`,
-        }}
+        className="relative h-[286px] touch-pan-y select-none"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={finishDrag}
+        onPointerCancel={finishDrag}
+        onPointerLeave={finishDrag}
       >
-        <IconComp className="h-6 w-6 sm:h-7 sm:w-7" style={{ color: svc.color }} />
+        <div className="pointer-events-none absolute inset-x-6 top-12 h-44 rounded-full bg-orange-500/10 blur-3xl" />
+        {visible.map(({ item, offset }) => {
+          const IconComp = item.icon;
+          const isCenter = offset === 0;
+          const x = offset * 128 + dragOffset;
+          return (
+            <article
+              key={`${item.id}-${offset}`}
+              className="absolute left-1/2 top-4 w-[218px] rounded-[1.7rem] border p-5 text-center shadow-2xl transition-[transform,opacity,filter] duration-500 ease-out"
+              style={{
+                transform: `translate3d(calc(-50% + ${x}px), ${isCenter ? 0 : 20}px, 0) scale(${isCenter ? 1 : 0.82})`,
+                opacity: isCenter ? 1 : 0.44,
+                zIndex: isCenter ? 20 : 8,
+                filter: isCenter ? "none" : "blur(0.2px)",
+                background: isCenter
+                  ? `linear-gradient(145deg, rgba(8,17,32,0.96), ${item.color}18)`
+                  : "rgba(8,17,32,0.78)",
+                borderColor: isCenter ? `${item.color}60` : "rgba(255,255,255,0.1)",
+                boxShadow: isCenter ? `0 22px 60px ${item.glow}` : "0 10px 30px rgba(0,0,0,0.35)",
+              }}
+            >
+              <div
+                className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
+                style={{ background: `${item.color}24`, border: `1px solid ${item.color}45` }}
+              >
+                <IconComp className="h-7 w-7" style={{ color: item.color }} />
+              </div>
+              <h3 className="text-base font-black text-white">{item.name}</h3>
+              <p className="mt-2 min-h-[42px] text-xs font-medium leading-5 text-slate-300">{item.desc}</p>
+              <span
+                className="mt-4 inline-block rounded-full px-3 py-1 text-xs font-black"
+                style={{ background: `${item.color}22`, color: item.color }}
+              >
+                Launching Soon
+              </span>
+            </article>
+          );
+        })}
       </div>
-      <h3 className="text-sm font-black text-white sm:text-base">{svc.name}</h3>
-      <p className="mt-1 text-xs font-medium leading-5 text-slate-300">{compact ? svc.desc.split(",")[0] : svc.desc}</p>
-      <span
-        className="mt-3 inline-block rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wide"
-        style={{ background: `${svc.color}22`, color: svc.color }}
-      >
-        Launching Soon
-      </span>
+      <div className="mt-1 flex justify-center gap-2">
+        {SERVICES.map((item, index) => (
+          <button
+            key={item.id}
+            type="button"
+            aria-label={`Show ${item.name}`}
+            onClick={() => setActiveIndex(index)}
+            className="h-2.5 rounded-full transition-all duration-300"
+            style={{
+              width: activeIndex === index ? 22 : 9,
+              background: activeIndex === index ? "#FF8A00" : "rgba(255,255,255,0.25)",
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
 
 export default function Services3DGallery() {
-  const compact = useIsCompact();
   const [rotY, setRotY] = useState(0);
   const [hovered, setHovered] = useState<string | null>(null);
-  const dragRef = useRef({ dragging: false, startX: 0, startRot: 0, moved: false });
+  const isMobile = useIsMobile();
+  const dragRef = useRef({ dragging: false, startX: 0, startRot: 0 });
   const frameRef = useRef<number>(0);
-  const total = SERVICES.length;
 
   useEffect(() => {
+    if (isMobile) return;
     const tick = () => {
-      if (!dragRef.current.dragging && !hovered) setRotY((r) => r + (compact ? 0.22 : 0.11));
+      if (!dragRef.current.dragging) setRotY((r) => r + 0.1);
       frameRef.current = requestAnimationFrame(tick);
     };
     frameRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [compact, hovered]);
+  }, [isMobile]);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    dragRef.current = { dragging: true, startX: e.clientX, startRot: rotY, moved: false };
-    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = { dragging: true, startX: e.clientX, startRot: rotY };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
   };
-
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current.dragging) return;
-    const delta = e.clientX - dragRef.current.startX;
-    if (Math.abs(delta) > 3) dragRef.current.moved = true;
-    setRotY(dragRef.current.startRot + delta * (compact ? 0.75 : 0.32));
+    setRotY(dragRef.current.startRot + (e.clientX - dragRef.current.startX) * 0.25);
   };
+  const onPointerUp = () => { dragRef.current.dragging = false; };
 
-  const finishDrag = () => {
-    if (compact && dragRef.current.moved) {
-      const step = 360 / total;
-      setRotY((r) => Math.round(r / step) * step);
-    }
-    dragRef.current.dragging = false;
-  };
-
-  const radius = compact ? 118 : 360;
-  const cardWidth = compact ? 156 : 190;
-  const activeIndex = useMemo(() => {
-    const step = 360 / total;
-    return ((Math.round((-rotY % 360) / step) % total) + total) % total;
-  }, [rotY, total]);
+  const total = SERVICES.length;
+  const radius = 360;
 
   return (
     <section className="relative overflow-hidden bg-[#050b1a] py-20 sm:py-28">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,138,0,0.16),transparent_64%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,138,0,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(0,87,255,.04)_1px,transparent_1px)] bg-[size:48px_48px]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,138,0,0.12),transparent_65%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,138,0,.04)_1px,transparent_1px),linear-gradient(90deg,rgba(0,87,255,.035)_1px,transparent_1px)] bg-[size:48px_48px]" />
 
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
@@ -121,68 +185,92 @@ export default function Services3DGallery() {
               Service Galaxy
             </span>
           </h2>
-          <p className="mt-4 text-lg font-medium text-slate-400">
-            10+ trusted home service categories launching across Pakistan.
+          <p className="mx-auto mt-4 max-w-2xl text-lg font-medium text-slate-400">
+            A preview of Athoo service categories launching for homes and businesses in Pakistan.
           </p>
         </div>
 
-        <div
-          className="relative mx-auto select-none touch-pan-y"
-          style={{ height: compact ? 360 : 500, perspective: compact ? 850 : 1100, cursor: dragRef.current.dragging ? "grabbing" : "grab" }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={finishDrag}
-          onPointerCancel={finishDrag}
-          onPointerLeave={finishDrag}
-        >
-          <div className="pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-orange-400/20" style={{ width: compact ? 235 : 690, height: compact ? 235 : 360, transform: "translate(-50%, -50%) rotateX(64deg)", animation: "athoo-spin 18s linear infinite" }} />
-          <div className="pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-blue-400/15" style={{ width: compact ? 285 : 780, height: compact ? 285 : 420, transform: "translate(-50%, -50%) rotateX(64deg)", animation: "athoo-spin 24s linear infinite reverse" }} />
-
-          <div className="absolute inset-0 flex items-center justify-center" style={{ transformStyle: "preserve-3d" }}>
-            {SERVICES.map((svc, i) => {
-              const angle = (i / total) * 360 + rotY;
-              const rad = (angle * Math.PI) / 180;
-              const x = Math.sin(rad) * radius;
-              const z = Math.cos(rad) * radius;
-              const depth = (z + radius) / (2 * radius);
-              const scale = compact ? 0.78 + depth * 0.32 : 0.66 + depth * 0.44;
-              const opacity = compact ? 0.38 + depth * 0.62 : 0.55 + depth * 0.45;
-              const active = compact ? i === activeIndex : depth > 0.7 || hovered === svc.id;
-              return (
-                <div
-                  key={svc.id}
-                  onMouseEnter={() => setHovered(svc.id)}
-                  onMouseLeave={() => setHovered(null)}
-                  style={{
-                    position: "absolute",
-                    left: "50%",
-                    top: "50%",
-                    width: cardWidth,
-                    transform: `translate(-50%, -50%) translateX(${x}px) translateZ(${compact ? z * 0.24 : z * 0.1}px) scale(${scale})`,
-                    zIndex: Math.round(scale * 100 + z),
-                    opacity,
-                    filter: compact && !active ? "blur(0.2px)" : "none",
-                    transition: dragRef.current.dragging ? "none" : "opacity 180ms ease, transform 220ms ease, filter 220ms ease",
-                    pointerEvents: active ? "auto" : "none",
-                  }}
-                >
-                  <ServiceCard svc={svc} active={active} compact={compact} />
-                </div>
-              );
-            })}
-          </div>
-
+        {isMobile ? (
+          <MobileServiceCarousel />
+        ) : (
           <div
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              width: compact ? 74 : 90,
-              height: compact ? 74 : 90,
-              background: "radial-gradient(circle, rgba(255,138,0,0.7), rgba(0,87,255,0.18), rgba(0,87,255,0))",
-              boxShadow: "0 0 60px rgba(255,138,0,0.35), 0 0 80px rgba(0,87,255,0.28)",
-              animation: "athoo-pulse 2.6s ease-in-out infinite",
-            }}
-          />
-        </div>
+            className="relative mx-auto select-none"
+            style={{ height: 500, perspective: 1100, cursor: dragRef.current.dragging ? "grabbing" : "grab" }}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
+            onPointerLeave={onPointerUp}
+          >
+            <div className="absolute inset-0 flex items-center justify-center" style={{ transformStyle: "preserve-3d" }}>
+              {SERVICES.map((svc, i) => {
+                const angle = (i / total) * 360 + rotY;
+                const rad = (angle * Math.PI) / 180;
+                const x = Math.sin(rad) * radius;
+                const z = Math.cos(rad) * radius;
+                const t = (z + radius) / (2 * radius);
+                const scale = 0.66 + t * 0.42;
+                const opacity = 0.54 + t * 0.46;
+                const isHov = hovered === svc.id;
+                const IconComp = svc.icon;
+
+                return (
+                  <div
+                    key={svc.id}
+                    onMouseEnter={() => setHovered(svc.id)}
+                    onMouseLeave={() => setHovered(null)}
+                    style={{
+                      position: "absolute",
+                      left: "50%",
+                      top: "50%",
+                      transform: `translate(-50%, -50%) translateX(${x}px) scale(${scale})`,
+                      zIndex: Math.round(scale * 100),
+                      opacity,
+                      width: 190,
+                      transition: "opacity 0.08s",
+                    }}
+                  >
+                    <div
+                      className="rounded-3xl border p-5 text-center transition-all duration-300"
+                      style={{
+                        background: isHov
+                          ? `linear-gradient(135deg, ${svc.color}22, ${svc.color}11)`
+                          : "rgba(8,17,32,0.92)",
+                        backdropFilter: "blur(14px)",
+                        boxShadow: isHov ? `0 0 32px ${svc.glow}` : "0 8px 32px rgba(0,0,0,0.5)",
+                        border: isHov ? `1px solid ${svc.color}60` : "1px solid rgba(255,255,255,0.12)",
+                        transform: isHov ? "translateY(-8px)" : "none",
+                      }}
+                    >
+                      <div
+                        className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
+                        style={{ background: `linear-gradient(135deg, ${svc.color}33, ${svc.color}11)`, boxShadow: `0 0 20px ${svc.glow}`, border: `1px solid ${svc.color}40` }}
+                      >
+                        <IconComp className="h-7 w-7" style={{ color: svc.color }} />
+                      </div>
+                      <h3 className="text-sm font-black text-white">{svc.name}</h3>
+                      <p className="mt-1 text-xs font-medium leading-5 text-slate-300">{svc.desc}</p>
+                      <span className="mt-3 inline-block rounded-full px-3 py-1 text-xs font-black" style={{ background: `${svc.color}20`, color: svc.color }}>
+                        Launching Soon
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+              style={{
+                width: 90,
+                height: 90,
+                background: "radial-gradient(circle, rgba(255,138,0,0.55), rgba(0,87,255,0.2), rgba(0,87,255,0))",
+                boxShadow: "0 0 70px rgba(255,138,0,0.45)",
+                filter: "blur(2px)",
+              }}
+            />
+          </div>
+        )}
       </div>
     </section>
   );
