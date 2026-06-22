@@ -40,34 +40,51 @@ function ServiceCard({ svc, index = 0 }: { svc: (typeof SERVICES)[number]; index
 }
 
 function MobileServiceGallery() {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+
+  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.dataset.dragging = "true";
+    el.dataset.startX = String(event.clientX);
+    el.dataset.scrollLeft = String(el.scrollLeft);
+    el.setPointerCapture?.(event.pointerId);
+  };
+
+  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollerRef.current;
+    if (!el || el.dataset.dragging !== "true") return;
+    const startX = Number(el.dataset.startX || 0);
+    const startScroll = Number(el.dataset.scrollLeft || 0);
+    el.scrollLeft = startScroll - (event.clientX - startX);
+  };
+
+  const stopDrag = () => {
+    const el = scrollerRef.current;
+    if (el) el.dataset.dragging = "false";
+  };
+
   return (
-    <div className="service-mobile-stage lg:hidden">
-      <style>{`
-        @keyframes serviceFloatMobile {
-          0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
-          50% { transform: translate3d(0, -10px, 0) rotateX(1.5deg) rotateY(-1.5deg); }
-        }
-        @keyframes serviceTrackMobile {
-          0% { transform: translate3d(0, 0, 0); }
-          100% { transform: translate3d(-50%, 0, 0); }
-        }
-        .service-mobile-track { animation: serviceTrackMobile 28s linear infinite; will-change: transform; }
-        .service-mobile-card { animation: serviceFloatMobile 4.8s ease-in-out infinite; transform: translateZ(0); will-change: transform; }
-        .service-mobile-stage:hover .service-mobile-track { animation-play-state: paused; }
-        @media (prefers-reduced-motion: reduce) {
-          .service-mobile-track, .service-mobile-card { animation: none !important; }
-        }
-      `}</style>
-      <div className="relative -mx-4 overflow-hidden px-4 py-4 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
-        <div className="service-mobile-track flex w-max gap-4">
-          {[...SERVICES, ...SERVICES].map((svc, index) => (
-            <div key={`${svc.id}-${index}`} className="w-[210px] shrink-0 sm:w-[240px]">
-              <ServiceCard svc={svc} index={index} />
-            </div>
-          ))}
-        </div>
+    <div className="service-mobile-stage relative lg:hidden">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/25 blur-3xl" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-52 w-52 -translate-x-1/2 -translate-y-1/2 rounded-full border border-orange-300/25" style={{ animation: "athooGalaxyRing 18s linear infinite" }} />
+      <div
+        ref={scrollerRef}
+        className="athoo-mobile-scroll relative -mx-4 flex gap-4 px-4 py-6 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={stopDrag}
+        onPointerCancel={stopDrag}
+        onPointerLeave={stopDrag}
+        aria-label="Swipe Athoo services gallery"
+      >
+        {SERVICES.map((svc, index) => (
+          <div key={svc.id} className="athoo-mobile-snap w-[235px] shrink-0 sm:w-[270px]">
+            <ServiceCard svc={svc} index={index} />
+          </div>
+        ))}
       </div>
-      <p className="mt-3 text-center text-xs font-bold text-orange-100/70">Auto-moving service gallery · swipe horizontally anytime</p>
+      <p className="mt-1 text-center text-xs font-bold text-orange-100/70">Swipe the service galaxy · cards stay readable on mobile</p>
     </div>
   );
 }

@@ -48,34 +48,51 @@ function ProviderCard({ provider, index = 0 }: { provider: (typeof PROVIDERS)[nu
 }
 
 function MobileProviderGallery() {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+
+  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.dataset.dragging = "true";
+    el.dataset.startX = String(event.clientX);
+    el.dataset.scrollLeft = String(el.scrollLeft);
+    el.setPointerCapture?.(event.pointerId);
+  };
+
+  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollerRef.current;
+    if (!el || el.dataset.dragging !== "true") return;
+    const startX = Number(el.dataset.startX || 0);
+    const startScroll = Number(el.dataset.scrollLeft || 0);
+    el.scrollLeft = startScroll - (event.clientX - startX);
+  };
+
+  const stopDrag = () => {
+    const el = scrollerRef.current;
+    if (el) el.dataset.dragging = "false";
+  };
+
   return (
-    <div className="provider-mobile-stage lg:hidden">
-      <style>{`
-        @keyframes providerFloatMobile {
-          0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
-          50% { transform: translate3d(0, -12px, 0) rotateX(-1deg) rotateY(1.5deg); }
-        }
-        @keyframes providerTrackMobile {
-          0% { transform: translate3d(-50%, 0, 0); }
-          100% { transform: translate3d(0, 0, 0); }
-        }
-        .provider-mobile-track { animation: providerTrackMobile 26s linear infinite; will-change: transform; }
-        .provider-mobile-card { animation: providerFloatMobile 5.2s ease-in-out infinite; transform: translateZ(0); will-change: transform; }
-        .provider-mobile-stage:hover .provider-mobile-track { animation-play-state: paused; }
-        @media (prefers-reduced-motion: reduce) {
-          .provider-mobile-track, .provider-mobile-card { animation: none !important; }
-        }
-      `}</style>
-      <div className="relative -mx-4 overflow-hidden px-4 py-4 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
-        <div className="provider-mobile-track flex w-max gap-4">
-          {[...PROVIDERS, ...PROVIDERS].map((provider, index) => (
-            <div key={`${provider.name}-${index}`} className="w-[215px] shrink-0 sm:w-[250px]">
-              <ProviderCard provider={provider} index={index} />
-            </div>
-          ))}
-        </div>
+    <div className="provider-mobile-stage relative lg:hidden">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/25 blur-3xl" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full border border-blue-300/25" style={{ animation: "athooGalaxyRing 20s linear infinite reverse" }} />
+      <div
+        ref={scrollerRef}
+        className="athoo-mobile-scroll relative -mx-4 flex gap-4 px-4 py-6 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={stopDrag}
+        onPointerCancel={stopDrag}
+        onPointerLeave={stopDrag}
+        aria-label="Swipe Athoo verified providers gallery"
+      >
+        {PROVIDERS.map((provider, index) => (
+          <div key={provider.name} className="athoo-mobile-snap w-[235px] shrink-0 sm:w-[270px]">
+            <ProviderCard provider={provider} index={index} />
+          </div>
+        ))}
       </div>
-      <p className="mt-3 text-center text-xs font-bold text-blue-100/70">Live provider showcase · animated on mobile and desktop</p>
+      <p className="mt-1 text-center text-xs font-bold text-blue-100/70">Swipe verified providers · galaxy motion works on mobile</p>
     </div>
   );
 }

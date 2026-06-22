@@ -480,3 +480,48 @@ section, article {
     animation-play-state: paused !important;
   }
 }
+
+
+/* Athoo mobile + desktop galaxy and swipe animation fixes */
+@keyframes athooGalaxyPulse {
+  0%, 100% { transform: translate3d(0,0,0) scale(1); opacity: .55; filter: blur(10px); }
+  50% { transform: translate3d(0,-12px,0) scale(1.08); opacity: .9; filter: blur(7px); }
+}
+@keyframes athooGalaxyRing {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes athooCardFloat {
+  0%, 100% { transform: translate3d(0,0,0) rotateX(0deg) rotateY(0deg); }
+  50% { transform: translate3d(0,-9px,0) rotateX(1deg) rotateY(-1deg); }
+}
+.athoo-galaxy-orb {
+  background: radial-gradient(circle, rgba(0,87,255,.45) 0%, rgba(79,172,254,.24) 35%, rgba(0,87,255,0) 72%);
+  box-shadow: 0 0 80px rgba(0,87,255,.32);
+  animation: athooGalaxyPulse 5s ease-in-out infinite;
+  will-change: transform, opacity, filter;
+}
+.athoo-galaxy-orb-alt {
+  background: radial-gradient(circle, rgba(255,138,0,.35) 0%, rgba(251,113,133,.18) 38%, rgba(255,138,0,0) 72%);
+  animation-delay: -2s;
+}
+.athoo-galaxy-ring {
+  border: 1px solid rgba(79,172,254,.24);
+  box-shadow: inset 0 0 45px rgba(0,87,255,.13), 0 0 35px rgba(0,87,255,.12);
+  animation: athooGalaxyRing 24s linear infinite;
+  will-change: transform;
+}
+.athoo-mobile-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  touch-action: pan-x pan-y;
+}
+.athoo-mobile-scroll::-webkit-scrollbar { display: none; }
+.athoo-mobile-snap { scroll-snap-align: center; }
+.service-mobile-card, .provider-mobile-card { animation: athooCardFloat 4.8s ease-in-out infinite; transform: translateZ(0); will-change: transform; }
+@media (prefers-reduced-motion: reduce) {
+  .athoo-galaxy-orb, .athoo-galaxy-ring, .service-mobile-card, .provider-mobile-card { animation: none !important; }
+}
