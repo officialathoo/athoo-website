@@ -1,6 +1,6 @@
 import React from "react";
 
-type MotionLikeProps = React.HTMLAttributes<HTMLElement> & {
+type MotionLikeProps = Record<string, any> & React.HTMLAttributes<HTMLElement> & {
   initial?: unknown;
   animate?: unknown;
   whileInView?: unknown;

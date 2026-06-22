@@ -35,6 +35,8 @@ export default function HomeHero() {
   return (
     <section className="relative isolate min-h-screen overflow-hidden bg-[#060d1c] pt-24">
       <Hero3DScene />
+      <div className="athoo-hero-nebula pointer-events-none absolute -left-24 top-20 h-80 w-80 rounded-full bg-blue-500/20 blur-3xl sm:h-[30rem] sm:w-[30rem]" />
+      <div className="athoo-hero-nebula pointer-events-none absolute -right-24 top-32 h-72 w-72 rounded-full bg-orange-500/18 blur-3xl sm:h-[28rem] sm:w-[28rem]" style={{ animationDelay: "-5s" }} />
 
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(0,87,255,0.22),transparent_30%),radial-gradient(circle_at_85%_10%,rgba(255,138,0,0.18),transparent_24%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,87,255,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(0,87,255,.05)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:linear-gradient(to_bottom,black,transparent_80%)]" />

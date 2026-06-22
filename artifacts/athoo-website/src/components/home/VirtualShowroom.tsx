@@ -84,17 +84,17 @@ function MobileProviderOrbit() {
   const onPointerUp = () => { drag.current.down = false; };
   return (
     <div className="relative lg:hidden">
-      <div className="relative mx-auto h-[430px] max-w-[360px] overflow-hidden rounded-[2rem] border border-cyan-200/10 bg-black/10 px-2 py-8" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerLeave={onPointerUp}>
+      <div className="athoo-touch-orbit relative mx-auto h-[430px] max-w-[390px] overflow-hidden rounded-[2rem] border border-cyan-200/10 bg-black/10 px-2 py-8" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerLeave={onPointerUp}>
         <ProviderGalaxyCore />
-        <div className="absolute inset-x-0 top-[136px] h-[220px] touch-pan-y select-none">
+        <div className="absolute inset-x-0 top-[120px] h-[255px] touch-pan-y select-none">
           {PROVIDERS.map((provider, i) => {
             let delta = i - active;
             if (delta > PROVIDERS.length / 2) delta -= PROVIDERS.length;
             if (delta < -PROVIDERS.length / 2) delta += PROVIDERS.length;
-            if (Math.abs(delta) > 2) return null;
+            if (Math.abs(delta) > 1) return null;
             const activeCard = delta === 0;
             return (
-              <div key={provider.name} className="absolute left-1/2 top-1/2 transition-transform duration-500 ease-out will-change-transform" style={{ transform: `translate(-50%, -50%) translateX(${delta * 132}px) translateY(${Math.abs(delta) * 8}px) rotateY(${-delta * 16}deg) scale(${activeCard ? 1 : 0.82})`, zIndex: 20 - Math.abs(delta), opacity: activeCard ? 1 : 0.46 }}>
+              <div key={provider.name} className={`absolute left-1/2 top-1/2 transition-transform duration-500 ease-out will-change-transform ${activeCard ? "athoo-mobile-active-card" : "blur-[0.5px]"}`} style={{ transform: `translate(-50%, -50%) translateX(${delta * 168}px) translateY(${Math.abs(delta) * 12}px) rotateY(${-delta * 10}deg) scale(${activeCard ? 1 : 0.72})`, zIndex: 20 - Math.abs(delta), opacity: activeCard ? 1 : 0.22 }}>
                 <ProviderCard provider={provider} active={activeCard} />
               </div>
             );
@@ -104,7 +104,6 @@ function MobileProviderOrbit() {
           {PROVIDERS.map((p, i) => <button key={p.name} aria-label={`Show ${p.name}`} onClick={() => setActive(i)} className={`h-1.5 rounded-full transition-all ${i === active ? "w-6 bg-cyan-300" : "w-1.5 bg-white/30"}`} />)}
         </div>
       </div>
-      <p className="mt-4 text-center text-xs font-bold text-blue-100/75">Auto-rotating provider galaxy. Swipe or drag cards by hand.</p>
     </div>
   );
 }
@@ -154,7 +153,7 @@ export default function VirtualShowroom() {
         <div className="mx-auto mb-12 max-w-3xl text-center">
           <span className="inline-block rounded-full border border-blue-400/35 bg-blue-500/15 px-4 py-2 text-sm font-black text-blue-300 shadow-lg shadow-blue-950/30">Meet Athoo Provider</span>
           <h2 className="mt-5 text-4xl font-black text-white sm:text-5xl">Verified <span className="bg-gradient-to-r from-[#4facfe] via-[#00f2fe] to-[#22c55e] bg-clip-text text-transparent">Provider Orbit</span></h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base font-medium leading-7 text-blue-50/72 sm:text-lg">{isDesktop ? "Drag the provider orbit — slower, readable and interactive." : "Readable mobile provider orbit. Swipe or drag cards while the galaxy rotates."}</p>
+          <p className="mx-auto mt-4 max-w-2xl text-base font-medium leading-7 text-blue-50/72 sm:text-lg">Meet the kind of verified professionals Athoo is building its partner network around.</p>
         </div>
         {isDesktop ? <DesktopProviderOrbit /> : <MobileProviderOrbit />}
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

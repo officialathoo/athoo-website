@@ -5,6 +5,21 @@ import { signToken, verifyPassword, hashPassword } from "../../lib/auth.js";
 
 const router = Router();
 
+async function ensureEnvAdmin() {
+  const existing = await db.select().from(adminUsers).limit(1);
+  if (existing.length > 0) return existing;
+
+  const email = process.env.ADMIN_EMAIL || process.env.SUPER_ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD || process.env.SUPER_ADMIN_PASSWORD;
+  const name = process.env.ADMIN_NAME || "Athoo Admin";
+
+  if (!email || !password) return existing;
+
+  const password_hash = hashPassword(password);
+  await db.insert(adminUsers).values({ name, email, password_hash, role: "super_admin", is_active: true });
+  return db.select().from(adminUsers).limit(1);
+}
+
 // POST /api/admin/login
 router.post("/login", async (req, res) => {
   try {
@@ -16,7 +31,7 @@ router.post("/login", async (req, res) => {
     }
 
     // Find admin — if email provided, match by email; else try the first active super_admin
-    let admins;
+    let admins = await ensureEnvAdmin();
     if (email) {
       admins = await db.select().from(adminUsers).where(eq(adminUsers.email, email)).limit(1);
     } else {

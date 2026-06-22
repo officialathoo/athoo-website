@@ -81,23 +81,23 @@ function MobileServiceOrbit() {
 
   return (
     <div className="relative lg:hidden">
-      <div className="relative mx-auto h-[420px] max-w-[360px] overflow-hidden rounded-[2rem] border border-orange-200/10 bg-black/10 px-2 py-8" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerLeave={onPointerUp}>
+      <div className="athoo-touch-orbit relative mx-auto h-[420px] max-w-[390px] overflow-hidden rounded-[2rem] border border-orange-200/10 bg-black/10 px-2 py-8" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerLeave={onPointerUp}>
         <GalaxyCore tone="service" />
-        <div className="absolute inset-x-0 top-[130px] h-[215px] touch-pan-y select-none">
+        <div className="absolute inset-x-0 top-[118px] h-[245px] touch-pan-y select-none">
           {SERVICES.map((svc, i) => {
             let delta = i - active;
             if (delta > SERVICES.length / 2) delta -= SERVICES.length;
             if (delta < -SERVICES.length / 2) delta += SERVICES.length;
-            if (Math.abs(delta) > 2) return null;
+            if (Math.abs(delta) > 1) return null;
             const activeCard = delta === 0;
             return (
               <div
                 key={svc.id}
-                className="absolute left-1/2 top-1/2 transition-transform duration-500 ease-out will-change-transform"
+                className={`absolute left-1/2 top-1/2 transition-transform duration-500 ease-out will-change-transform ${activeCard ? "athoo-mobile-active-card" : "blur-[0.5px]"}`}
                 style={{
-                  transform: `translate(-50%, -50%) translateX(${delta * 132}px) translateY(${Math.abs(delta) * 8}px) rotateY(${-delta * 16}deg) scale(${activeCard ? 1 : 0.82})`,
+                  transform: `translate(-50%, -50%) translateX(${delta * 168}px) translateY(${Math.abs(delta) * 12}px) rotateY(${-delta * 10}deg) scale(${activeCard ? 1 : 0.72})`,
                   zIndex: 20 - Math.abs(delta),
-                  opacity: activeCard ? 1 : 0.46,
+                  opacity: activeCard ? 1 : 0.22,
                 }}
               >
                 <ServiceCard svc={svc} active={activeCard} />
@@ -109,7 +109,6 @@ function MobileServiceOrbit() {
           {SERVICES.map((svc, i) => <button key={svc.id} aria-label={`Show ${svc.name}`} onClick={() => setActive(i)} className={`h-1.5 rounded-full transition-all ${i === active ? "w-6 bg-orange-300" : "w-1.5 bg-white/30"}`} />)}
         </div>
       </div>
-      <p className="mt-4 text-center text-xs font-bold text-orange-100/75">Auto-rotating galaxy. Swipe or drag cards by hand.</p>
     </div>
   );
 }
@@ -160,7 +159,7 @@ export default function Services3DGallery() {
         <div className="mx-auto mb-12 max-w-3xl text-center">
           <span className="inline-flex rounded-full border border-orange-300/35 bg-orange-400/12 px-4 py-2 text-sm font-black text-orange-200 shadow-lg shadow-orange-950/20">Explore Our Services Gallery</span>
           <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">Service <span className="bg-gradient-to-r from-[#FF8A00] via-red-400 to-pink-400 bg-clip-text text-transparent">Galaxy</span></h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base font-medium leading-7 text-orange-50/72 sm:text-lg">Readable rotating cards with touch drag on mobile and desktop. Swipe to move the orbit.</p>
+          <p className="mx-auto mt-4 max-w-2xl text-base font-medium leading-7 text-orange-50/72 sm:text-lg">Explore core home services launching first in Rawalpindi and Islamabad.</p>
         </div>
         {isDesktop ? <DesktopServiceOrbit /> : <MobileServiceOrbit />}
       </div>

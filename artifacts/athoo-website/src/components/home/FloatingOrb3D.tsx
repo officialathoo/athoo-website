@@ -118,9 +118,8 @@ export default function FloatingOrb3D() {
         </div>
 
         <div className="flex flex-col items-center gap-12 lg:flex-row lg:items-center lg:gap-20">
-          {/* Orb — desktop only for performance */}
-          {!isMobile && (
-            <div className="relative flex w-full justify-center lg:flex-1">
+          {/* Animated service network orb */}
+          <div className="relative flex w-full justify-center lg:flex-1">
               <div
                 className="relative flex items-center justify-center"
                 style={{ width: 320, height: 320, perspective: "900px" }}
@@ -254,7 +253,6 @@ export default function FloatingOrb3D() {
                 })}
               </div>
             </div>
-          )}
 
           {/* Stats cards */}
           <div className={isMobile ? "w-full" : "w-full lg:flex-1"}>
