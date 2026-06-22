@@ -1,22 +1,29 @@
-import { pgTable, serial, text, integer, boolean } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
-export const serviceCategoriesTable = pgTable("service_categories", {
-  id: serial("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
-  name: text("name").notNull(),
-  description: text("description").notNull(),
-  icon: text("icon").notNull(),
-  cities: text("cities").array().notNull().default([]),
-  startingPrice: integer("starting_price"),
-  isActive: boolean("is_active").notNull().default(true),
-  sortOrder: integer("sort_order").notNull().default(0),
+export const services = pgTable("services", {
+  id:             serial("id").primaryKey(),
+  name:           text("name").notNull(),
+  description:    text("description"),
+  icon:           text("icon").default("Wrench"),
+  starting_price: text("starting_price"),
+  cities:         text("cities"),
+  is_active:      boolean("is_active").notNull().default(true),
+  sort_order:     integer("sort_order").default(0),
+  created_at:     timestamp("created_at").notNull().defaultNow(),
+  updated_at:     timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const insertServiceCategorySchema = createInsertSchema(serviceCategoriesTable).omit({
-  id: true,
+export const activityLogs = pgTable("activity_logs", {
+  id:          serial("id").primaryKey(),
+  admin_email: text("admin_email").notNull(),
+  action:      text("action").notNull(),
+  target_type: text("target_type"),
+  target_id:   text("target_id"),
+  ip_address:  text("ip_address"),
+  created_at:  timestamp("created_at").notNull().defaultNow(),
 });
 
-export type InsertServiceCategory = z.infer<typeof insertServiceCategorySchema>;
-export type ServiceCategory = typeof serviceCategoriesTable.$inferSelect;
+export type Service         = typeof services.$inferSelect;
+export type InsertService   = typeof services.$inferInsert;
+export type ActivityLog     = typeof activityLogs.$inferSelect;
+export type InsertActivityLog = typeof activityLogs.$inferInsert;

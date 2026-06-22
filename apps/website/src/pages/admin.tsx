@@ -752,6 +752,17 @@ export default function Admin() {
     if (activeTab === "email") loadEmailLogs();
   }, [activeTab]);
 
+  /* Auto-refresh leads & dashboard every 30s while tab is visible */
+  useEffect(() => {
+    if (!token) return;
+    const shouldPoll = activeTab === "dashboard" || activeTab === "leads" || !!FORM_TYPE_MAP[activeTab];
+    if (!shouldPoll) return;
+    const id = window.setInterval(() => {
+      if (!document.hidden) loadLeads(FORM_TYPE_MAP[activeTab]);
+    }, 30_000);
+    return () => window.clearInterval(id);
+  }, [token, activeTab]);
+
   function switchTab(tab: AdminTab) { setActiveTab(tab); setSidebarOpen(false); setError(""); setNotice(""); }
 
   // ── Login screen ────────────────────────────────────────────────────────────

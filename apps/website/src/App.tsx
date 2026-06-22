@@ -1,9 +1,10 @@
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { HelmetProvider } from "react-helmet-async";
+import { initScrollReveal, refreshScrollReveal } from "@/lib/scrollReveal";
 
 import MainLayout from "@/components/layout/MainLayout";
 import MaintenanceGate from "@/components/MaintenanceGate";
@@ -50,7 +51,17 @@ function ScrollToTop() {
   const [location] = useLocation();
   React.useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    setTimeout(refreshScrollReveal, 120);
   }, [location]);
+  return null;
+}
+
+function GlobalReveal() {
+  useEffect(() => {
+    initScrollReveal();
+    const timer = setTimeout(initScrollReveal, 400);
+    return () => clearTimeout(timer);
+  }, []);
   return null;
 }
 
@@ -103,6 +114,7 @@ function App() {
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <ScrollToTop />
+            <GlobalReveal />
             <Router />
           </WouterRouter>
           <Toaster />

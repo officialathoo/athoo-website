@@ -17,12 +17,13 @@ const STEPS = [
   { num: "04", title: "Job Done. Review.", desc: "Rate your provider. Build the trust network." },
 ];
 
+// Readable card for grid layout (mobile / tablet)
 function MobileProviderCard({ provider }: { provider: typeof PROVIDERS[0] }) {
   const IconComp = provider.icon;
   return (
     <div
       className="rounded-2xl border border-white/10 p-4 text-center"
-      style={{ background: "rgba(8,17,32,0.8)", backdropFilter: "blur(12px)" }}
+      style={{ background: "rgba(8,17,32,0.85)" }}
     >
       <div
         className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl"
@@ -35,6 +36,7 @@ function MobileProviderCard({ provider }: { provider: typeof PROVIDERS[0] }) {
       <div className="mt-2 flex items-center justify-center gap-1">
         <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
         <span className="text-xs font-black text-amber-400">{provider.rating}</span>
+        <span className="text-xs text-slate-500">· {provider.jobs} jobs</span>
       </div>
       <div className="mt-1 flex items-center justify-center gap-1">
         <ShieldCheck className="h-3 w-3 text-green-400" />
@@ -44,14 +46,26 @@ function MobileProviderCard({ provider }: { provider: typeof PROVIDERS[0] }) {
   );
 }
 
-function ProviderNode({ provider, angle, radius, rotY }: { provider: typeof PROVIDERS[0]; angle: number; radius: number; rotY: number }) {
+function ProviderNode({
+  provider,
+  angle,
+  radius,
+  rotY,
+}: {
+  provider: typeof PROVIDERS[0];
+  angle: number;
+  radius: number;
+  rotY: number;
+}) {
   const [hovered, setHovered] = useState(false);
   const totalAngle = angle + rotY;
   const rad = (totalAngle * Math.PI) / 180;
   const x = Math.sin(rad) * radius;
   const z = Math.cos(rad) * radius;
-  const scale = 0.55 + ((z + radius) / (2 * radius)) * 0.65;
-  const opacity = 0.45 + ((z + radius) / (2 * radius)) * 0.55;
+  // Improved: min opacity 0.55 so back nodes remain fully readable
+  const t = (z + radius) / (2 * radius);
+  const scale = 0.6 + t * 0.55;
+  const opacity = 0.55 + t * 0.45;
   const IconComp = provider.icon;
 
   return (
@@ -66,16 +80,22 @@ function ProviderNode({ provider, angle, radius, rotY }: { provider: typeof PROV
         transform: `translate(-50%, -50%) translateX(${x}px) scale(${scale})`,
         zIndex: Math.round(scale * 100),
         opacity,
-        transition: "opacity 0.1s",
+        transition: "opacity 0.08s",
       }}
     >
       <div
         className="rounded-2xl p-4 text-center transition-all duration-300"
         style={{
-          background: hovered ? `linear-gradient(135deg, ${provider.color}30, rgba(8,17,32,0.95))` : "rgba(8,17,32,0.9)",
+          background: hovered
+            ? `linear-gradient(135deg, ${provider.color}30, rgba(8,17,32,0.95))`
+            : "rgba(8,17,32,0.92)",
           backdropFilter: "blur(16px)",
-          border: hovered ? `1px solid ${provider.color}60` : "1px solid rgba(255,255,255,0.08)",
-          boxShadow: hovered ? `0 0 30px ${provider.color}40` : "0 4px 24px rgba(0,0,0,0.5)",
+          border: hovered
+            ? `1px solid ${provider.color}60`
+            : "1px solid rgba(255,255,255,0.12)",
+          boxShadow: hovered
+            ? `0 0 30px ${provider.color}40`
+            : "0 4px 24px rgba(0,0,0,0.5)",
           transform: hovered ? "translateY(-6px)" : "none",
         }}
       >
@@ -86,11 +106,11 @@ function ProviderNode({ provider, angle, radius, rotY }: { provider: typeof PROV
           <IconComp className="h-6 w-6" style={{ color: provider.color }} />
         </div>
         <p className="text-sm font-black text-white">{provider.name}</p>
-        <p className="text-xs text-slate-400">{provider.role}</p>
+        <p className="text-xs text-slate-300">{provider.role}</p>
         <div className="mt-2 flex items-center justify-center gap-1">
           <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
           <span className="text-xs font-black text-amber-400">{provider.rating}</span>
-          <span className="text-xs text-slate-500">· {provider.jobs} jobs</span>
+          <span className="text-xs text-slate-400">· {provider.jobs} jobs</span>
         </div>
         <div className="mt-2 flex items-center justify-center gap-1">
           <ShieldCheck className="h-3 w-3 text-green-400" />
@@ -103,12 +123,13 @@ function ProviderNode({ provider, angle, radius, rotY }: { provider: typeof PROV
 
 export default function VirtualShowroom() {
   const [rotY, setRotY] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
+  // Use 1024px so tablets see the readable grid
+  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth < 1024 : true);
   const dragRef = useRef({ dragging: false, startX: 0, startRot: 0 });
   const frameRef = useRef<number>(0);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 1024);
     check();
     window.addEventListener("resize", check, { passive: true });
     return () => window.removeEventListener("resize", check);
@@ -116,8 +137,9 @@ export default function VirtualShowroom() {
 
   useEffect(() => {
     if (isMobile) return;
+    // Slowed from 0.22 to 0.14 — easier to read as it rotates
     const tick = () => {
-      if (!dragRef.current.dragging) setRotY((r) => r + 0.22);
+      if (!dragRef.current.dragging) setRotY((r) => r + 0.14);
       frameRef.current = requestAnimationFrame(tick);
     };
     frameRef.current = requestAnimationFrame(tick);
@@ -172,7 +194,7 @@ export default function VirtualShowroom() {
                 key={p.name}
                 provider={p}
                 angle={(i / PROVIDERS.length) * 360}
-                radius={320}
+                radius={300}
                 rotY={rotY}
               />
             ))}

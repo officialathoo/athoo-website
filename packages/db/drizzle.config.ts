@@ -1,19 +1,14 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import pg from "pg";
-import * as schema from "./schema";
-
-const { Pool } = pg;
+import { defineConfig } from "drizzle-kit";
+import path from "path";
 
 if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+  throw new Error("DATABASE_URL, ensure the database is provisioned");
 }
 
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+export default defineConfig({
+  schema: path.join(__dirname, "./src/schema/index.ts"),
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL,
+  },
 });
-
-export const db = drizzle(pool, { schema });
-
-export * from "./schema";

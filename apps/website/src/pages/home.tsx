@@ -1,18 +1,26 @@
+import { lazy, Suspense, useEffect } from "react";
 import HomeHero from "@/components/home/HomeHero";
 import Stats3D from "@/components/home/Stats3D";
 import HowItWorks from "@/components/home/HowItWorks";
-import Services3DGallery from "@/components/home/Services3DGallery";
-import AppShowcase from "@/components/home/AppShowcase";
-import TrustSafety from "@/components/home/TrustSafety";
 import WaitlistSection from "@/components/home/WaitlistSection";
-import ProviderTeaser from "@/components/home/ProviderTeaser";
-import FaqSection from "@/components/home/FaqSection";
-import CompleteInfoSection from "@/components/home/CompleteInfoSection";
-import BlogPreview from "@/components/home/BlogPreview";
-import HomeContact from "@/components/home/HomeContact";
-import VirtualShowroom from "@/components/home/VirtualShowroom";
 import { Helmet } from "react-helmet-async";
-import { useEffect } from "react";
+import { refreshScrollReveal } from "@/lib/scrollReveal";
+
+// Below-fold sections — lazy-loaded so they don't block first paint
+const Services3DGallery  = lazy(() => import("@/components/home/Services3DGallery"));
+const FloatingOrb3D      = lazy(() => import("@/components/home/FloatingOrb3D"));
+const VirtualShowroom    = lazy(() => import("@/components/home/VirtualShowroom"));
+const AppShowcase        = lazy(() => import("@/components/home/AppShowcase"));
+const TrustSafety        = lazy(() => import("@/components/home/TrustSafety"));
+const ProviderTeaser     = lazy(() => import("@/components/home/ProviderTeaser"));
+const CompleteInfoSection= lazy(() => import("@/components/home/CompleteInfoSection"));
+const BlogPreview        = lazy(() => import("@/components/home/BlogPreview"));
+const FaqSection         = lazy(() => import("@/components/home/FaqSection"));
+const HomeContact        = lazy(() => import("@/components/home/HomeContact"));
+
+function SectionSkeleton() {
+  return <div className="min-h-[120px] bg-transparent" aria-hidden="true" />;
+}
 
 const organizationSchema = {
   "@context": "https://schema.org",
@@ -67,7 +75,7 @@ const localBusinessSchema = {
   },
   "openingHoursSpecification": {
     "@type": "OpeningHoursSpecification",
-    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
     "opens": "09:00",
     "closes": "18:00",
   },
@@ -136,12 +144,13 @@ const faqSchema = {
 
 export default function Home() {
   useEffect(() => {
-    if (typeof window === "undefined") return;
     const shouldScroll = window.location.hash === "#waitlist" || window.location.search.includes("cta=waitlist");
-    if (!shouldScroll) return;
-    window.setTimeout(() => {
-      document.getElementById("waitlist")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 120);
+    if (shouldScroll) {
+      window.setTimeout(() => {
+        document.getElementById("waitlist")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 120);
+    }
+    window.setTimeout(refreshScrollReveal, 300);
   }, []);
 
   return (
@@ -162,21 +171,47 @@ export default function Home() {
       </Helmet>
 
       <div className="flex flex-col min-h-screen">
+        {/* Above-fold — eager */}
         <HomeHero />
         <Stats3D />
         <HowItWorks />
-        <Services3DGallery />
-        <VirtualShowroom />
-        <AppShowcase />
-        <TrustSafety />
+
+        {/* Below-fold — lazy-loaded */}
+        <Suspense fallback={<SectionSkeleton />}>
+          <Services3DGallery />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <FloatingOrb3D />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <VirtualShowroom />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <AppShowcase />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <TrustSafety />
+        </Suspense>
+
         <div id="waitlist">
           <WaitlistSection />
         </div>
-        <ProviderTeaser />
-        <CompleteInfoSection />
-        <BlogPreview />
-        <FaqSection />
-        <HomeContact />
+
+        <Suspense fallback={<SectionSkeleton />}>
+          <ProviderTeaser />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <CompleteInfoSection />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <BlogPreview />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <FaqSection />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <HomeContact />
+        </Suspense>
       </div>
     </>
   );

@@ -1,1 +1,1 @@
-console.log("Hello from @athoo/scripts");
+console.log("Hello from @workspace/scripts");

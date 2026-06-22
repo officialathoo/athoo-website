@@ -1,162 +1,155 @@
 import nodemailer from "nodemailer";
 import { logger } from "./logger.js";
 
+const SMTP_CONFIGURED = Boolean(
+  process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS,
+);
+
 export const ADMIN_EMAIL =
-  process.env.ADMIN_NOTIFICATION_EMAIL ||
-  process.env.LEAD_NOTIFY_TO ||
-  process.env.ADMIN_EMAIL ||
-  "official@athoo.pk";
+  process.env.ADMIN_NOTIFICATION_EMAIL ?? process.env.ADMIN_EMAIL ?? process.env.SMTP_USER ?? "official@athoo.pk";
 
-export const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || ADMIN_EMAIL;
-export const INFO_EMAIL = process.env.INFO_EMAIL || ADMIN_EMAIL;
+let _transporter: nodemailer.Transporter | null = null;
 
-function clean(value: string | undefined): string {
-  return String(value || "").trim();
-}
-
-function smtpHost(): string {
-  return clean(process.env.SMTP_HOST || process.env.ZOHO_SMTP_HOST || process.env.MAIL_HOST || process.env.EMAIL_HOST || "smtp.zoho.com");
-}
-function smtpUser(): string {
-  return clean(process.env.SMTP_USER || process.env.ZOHO_SMTP_USER || process.env.MAIL_USER || process.env.EMAIL_USER || process.env.SMTP_FROM || "");
-}
-function smtpPass(): string {
-  return clean(process.env.SMTP_PASS || process.env.ZOHO_SMTP_PASS || process.env.MAIL_PASS || process.env.MAIL_PASSWORD || process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD || "");
-}
-function smtpPort(): number {
-  const raw = Number(process.env.SMTP_PORT || process.env.ZOHO_SMTP_PORT || process.env.MAIL_PORT || process.env.EMAIL_PORT || "465");
-  return Number.isFinite(raw) && raw > 0 ? raw : 465;
-}
-function smtpSecure(): boolean {
-  const forced = clean(process.env.SMTP_SECURE || process.env.MAIL_SECURE || process.env.EMAIL_SECURE).toLowerCase();
-  if (["true","1","yes"].includes(forced)) return true;
-  if (["false","0","no"].includes(forced)) return false;
-  return smtpPort() === 465;
-}
-function fromAddress(): string {
-  const addr = clean(process.env.SMTP_FROM || process.env.MAIL_FROM || process.env.EMAIL_FROM || smtpUser() || ADMIN_EMAIL);
-  const name = clean(process.env.SMTP_FROM_NAME || process.env.MAIL_FROM_NAME || "Athoo");
-  return `${name} <${addr}>`;
-}
-
-export function getSmtpStatus() {
-  return {
-    configured: isSmtpConfigured(),
-    host: smtpHost(),
-    port: smtpPort(),
-    secure: smtpSecure(),
-    user: smtpUser() ? smtpUser().replace(/^(.{2}).*(@.*)?$/, (_m, a, b) => `${a}***${b || ""}`) : "",
-    from: fromAddress(),
-    adminEmail: ADMIN_EMAIL,
-    supportEmail: SUPPORT_EMAIL,
-  };
-}
-
-export function isSmtpConfigured(): boolean {
-  return Boolean(smtpHost() && smtpUser() && smtpPass());
+function getTransporter(): nodemailer.Transporter | null {
+  if (!SMTP_CONFIGURED) return null;
+  if (!_transporter) {
+    _transporter = nodemailer.createTransport({
+      host:   process.env.SMTP_HOST!,
+      port:   Number(process.env.SMTP_PORT ?? 587),
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER!,
+        pass: process.env.SMTP_PASS!,
+      },
+    });
+  }
+  return _transporter;
 }
 
 export interface MailOptions {
-  to: string | string[];
+  to:      string;
   subject: string;
-  html: string;
-  replyTo?: string;
+  html:    string;
+  text?:   string;
 }
 
-// ─── Shared branded email wrapper ────────────────────────────────────────────
-export function brandedEmail(title: string, bodyHtml: string, previewText = ""): string {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="x-apple-disable-message-reformatting"/>
-<title>${title}</title>
-</head>
-<body style="margin:0;padding:0;background:#f0f4ff;font-family:Arial,Helvetica,sans-serif">
-${previewText ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${previewText}</div>` : ""}
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f4ff;padding:32px 0">
-  <tr><td align="center">
-    <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,87,255,0.10)">
-      <!-- Header -->
-      <tr>
-        <td style="background:linear-gradient(135deg,#0057FF 0%,#174bff 60%,#003ACC 100%);padding:28px 32px;text-align:center">
-          <table width="100%" cellpadding="0" cellspacing="0" border="0">
-            <tr>
-              <td align="center">
-                <span style="display:inline-block;background:rgba(255,255,255,0.15);border-radius:12px;padding:8px 18px">
-                  <span style="font-size:22px;font-weight:900;color:#ffffff;letter-spacing:-0.5px">Athoo</span>
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <td align="center" style="padding-top:6px">
-                <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:2px;text-transform:uppercase">Pakistan's Home Services Marketplace</span>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-      <!-- Body -->
-      <tr>
-        <td style="padding:32px 32px 24px">
-          ${bodyHtml}
-        </td>
-      </tr>
-      <!-- Footer -->
-      <tr>
-        <td style="background:#f8faff;border-top:1px solid #e8effe;padding:20px 32px;text-align:center">
-          <p style="margin:0 0 6px;font-size:13px;color:#4a5568;font-weight:600">Athoo — Trusted Home Services in Pakistan</p>
-          <p style="margin:0 0 6px;font-size:12px;color:#718096">
-            <a href="mailto:official@athoo.pk" style="color:#0057FF;text-decoration:none">official@athoo.pk</a>
-            &nbsp;·&nbsp;
-            <a href="https://wa.me/923390051068" style="color:#0057FF;text-decoration:none">+92 339 0051068</a>
-          </p>
-          <p style="margin:0;font-size:11px;color:#a0aec0">
-            <a href="https://www.athoo.pk" style="color:#a0aec0;text-decoration:none">www.athoo.pk</a>
-            &nbsp;·&nbsp;Rawalpindi &amp; Islamabad, Pakistan
-          </p>
-        </td>
-      </tr>
-    </table>
-  </td></tr>
-</table>
-</body>
-</html>`;
+export type MailStatus = "sent" | "failed" | "smtp_not_configured";
+
+export interface MailResult {
+  ok:     boolean;
+  status: MailStatus;
+  error?: string;
 }
 
-// ─── Notification row builder ─────────────────────────────────────────────────
-export function notificationRows(payload: Record<string, unknown>): string {
-  return Object.entries(payload)
-    .filter(([k]) => !["formType","submittedAt","source"].includes(k))
-    .map(([k, v]) => `
-      <tr>
-        <td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;font-weight:700;color:#4a5568;white-space:nowrap;width:140px">${k.replace(/_/g," ")}</td>
-        <td style="padding:10px 14px;border-bottom:1px solid #e8effe;font-size:13px;color:#2d3748">${String(v ?? "").replace(/[<>]/g,"").slice(0,500) || "—"}</td>
-      </tr>
-    `).join("");
-}
+export async function sendMail(opts: MailOptions): Promise<MailResult> {
+  const fromAddress = process.env.SMTP_FROM ?? process.env.SMTP_USER ?? "official@athoo.pk";
+  const fromName = process.env.SMTP_FROM_NAME ?? "Athoo";
+  const from = fromAddress.includes("<") ? fromAddress : `${fromName} <${fromAddress}>`;
 
-export async function sendMail(opts: MailOptions): Promise<boolean> {
-  if (!isSmtpConfigured()) {
-    logger.warn({ to: opts.to, subject: opts.subject, missing: { host: !smtpHost(), user: !smtpUser(), pass: !smtpPass() } }, "SMTP not configured — email skipped");
-    return false;
+  const t = getTransporter();
+
+  if (!t) {
+    logger.warn(
+      { to: opts.to, subject: opts.subject },
+      "SMTP not configured — email not sent (set SMTP_HOST, SMTP_USER, SMTP_PASS)",
+    );
+    return { ok: false, status: "smtp_not_configured", error: "SMTP credentials not set" };
   }
+
   try {
-    const transporter = nodemailer.createTransport({
-      host: smtpHost(),
-      port: smtpPort(),
-      secure: smtpSecure(),
-      auth: { user: smtpUser(), pass: smtpPass() },
-      connectionTimeout: 15_000,
-      greetingTimeout: 15_000,
-      socketTimeout: 25_000,
+    await t.sendMail({
+      from,
+      to:      opts.to,
+      subject: opts.subject,
+      html:    opts.html,
+      text:    opts.text ?? opts.html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
     });
-    await transporter.sendMail({ from: fromAddress(), replyTo: opts.replyTo || ADMIN_EMAIL, ...opts });
-    logger.info({ to: opts.to, subject: opts.subject }, "Email sent");
-    return true;
+    logger.info({ to: opts.to, subject: opts.subject }, "email sent");
+    return { ok: true, status: "sent" };
   } catch (err: any) {
-    logger.warn({ err: err?.message || err, code: err?.code, command: err?.command, response: err?.response, to: opts.to, subject: opts.subject }, "Email send failed");
-    return false;
+    logger.error({ err, to: opts.to }, "sendMail failed");
+    return { ok: false, status: "failed", error: String(err?.message ?? err) };
   }
+}
+
+function escape(s: string | null | undefined): string {
+  return (s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+export function adminLeadNotificationHtml(lead: {
+  formType: string;
+  name?:    string;
+  email?:   string;
+  phone?:   string;
+  service?: string;
+  city?:    string;
+  message?: string;
+}): string {
+  const rows = [
+    ["Form Type",  lead.formType],
+    ["Name",       lead.name],
+    ["Email",      lead.email],
+    ["Phone",      lead.phone],
+    ["Service",    lead.service],
+    ["City",       lead.city],
+    ["Message",    lead.message],
+  ]
+    .filter(([, v]) => v)
+    .map(
+      ([k, v]) =>
+        `<tr><td style="padding:6px 12px;font-weight:600;color:#555;white-space:nowrap">${escape(k)}</td>`
+        + `<td style="padding:6px 12px;color:#111">${escape(v)}</td></tr>`,
+    )
+    .join("\n");
+
+  return `
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">
+  <div style="background:#0057FF;padding:24px 32px">
+    <h1 style="margin:0;color:#fff;font-size:20px">New Lead — Athoo Admin</h1>
+    <p style="margin:4px 0 0;color:#bdd5ff;font-size:14px">${escape(lead.formType)}</p>
+  </div>
+  <div style="padding:24px 32px">
+    <table style="border-collapse:collapse;width:100%">
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+  <div style="background:#f9fafb;padding:16px 32px;border-top:1px solid #e5e7eb">
+    <p style="margin:0;font-size:12px;color:#9ca3af">
+      Athoo Admin · <a href="https://athoo.pk/admin" style="color:#0057FF">Open Admin Panel</a>
+    </p>
+  </div>
+</div>`;
+}
+
+export function userConfirmationHtml(name: string | null | undefined): string {
+  const greeting = name ? `Hi ${escape(name)},` : "Hi there,";
+  return `
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">
+  <div style="background:#0057FF;padding:24px 32px">
+    <h1 style="margin:0;color:#fff;font-size:22px">You're on Athoo's list! 🎉</h1>
+  </div>
+  <div style="padding:24px 32px;color:#374151;line-height:1.6">
+    <p>${greeting}</p>
+    <p>
+      Thank you for reaching out to <strong>Athoo</strong> — Pakistan's smart home services platform.
+      We've received your submission and our team will be in touch very soon.
+    </p>
+    <p>
+      In the meantime, follow us on social media for launch updates:
+    </p>
+    <p>
+      <a href="https://www.instagram.com/athoo_services" style="color:#0057FF">Instagram</a> &nbsp;|&nbsp;
+      <a href="https://www.facebook.com/Athoo.Services/" style="color:#0057FF">Facebook</a> &nbsp;|&nbsp;
+      <a href="https://www.tiktok.com/@athoo.pk" style="color:#0057FF">TikTok</a>
+    </p>
+    <p style="margin-top:24px;font-size:13px;color:#9ca3af">
+      Questions? Email us at
+      <a href="mailto:official@athoo.pk" style="color:#0057FF">official@athoo.pk</a>
+      or WhatsApp <a href="https://wa.me/923390051068" style="color:#0057FF">+92 339 0051068</a>.
+    </p>
+  </div>
+  <div style="background:#f9fafb;padding:16px 32px;border-top:1px solid #e5e7eb">
+    <p style="margin:0;font-size:12px;color:#9ca3af">Athoo · Rawalpindi &amp; Islamabad, Pakistan</p>
+  </div>
+</div>`;
 }

@@ -5,11 +5,19 @@
     "tsBuildInfoFile": ".tsbuildinfo",
     "outDir": "dist",
     "rootDir": "src",
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "references": [
-    { "path": "../../packages/db" },
-    { "path": "../../packages/validation" }
+    {
+      "path": "../../packages/db"
+    },
+    {
+      "path": "../../packages/api-zod"
+    }
   ]
 }

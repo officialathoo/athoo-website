@@ -38,25 +38,25 @@ export default function Stats3D() {
             return (
               <div
                 key={stat.label}
-                className="group relative overflow-hidden rounded-3xl p-6 text-center transition-all duration-500"
+                className="stat-glass-card group relative overflow-hidden rounded-3xl p-6 text-center transition-all duration-500"
                 style={{
-                  background: "rgba(8,17,32,0.8)",
+                  background: "rgba(8,17,32,0.85)",
                   border: "1px solid rgba(255,255,255,0.07)",
-                  backdropFilter: "blur(12px)",
                   transform: visible ? "translateY(0) scale(1)" : "translateY(32px) scale(0.92)",
                   opacity: visible ? 1 : 0,
                   transitionDelay: `${i * 100}ms`,
-                  boxShadow: `0 0 0px ${stat.color}`,
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 40px ${stat.color}30`;
-                  (e.currentTarget as HTMLDivElement).style.borderColor = `${stat.color}40`;
-                  (e.currentTarget as HTMLDivElement).style.transform = "translateY(-6px) scale(1.03)";
+                  const el = e.currentTarget as HTMLDivElement;
+                  el.style.boxShadow = `0 0 40px ${stat.color}30`;
+                  el.style.borderColor = `${stat.color}40`;
+                  el.style.transform = "translateY(-6px) scale(1.03)";
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
-                  (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.07)";
-                  (e.currentTarget as HTMLDivElement).style.transform = "translateY(0) scale(1)";
+                  const el = e.currentTarget as HTMLDivElement;
+                  el.style.boxShadow = "none";
+                  el.style.borderColor = "rgba(255,255,255,0.07)";
+                  el.style.transform = "translateY(0) scale(1)";
                 }}
               >
                 <div

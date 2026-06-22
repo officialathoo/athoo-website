@@ -13,6 +13,7 @@ const SERVICES = [
   { id: "more", name: "More Coming Soon", desc: "10+ service categories planned", icon: Wrench, color: "#0057FF", glow: "rgba(0,87,255,0.35)" },
 ];
 
+// Grid view — used on mobile and tablet (<1024px)
 function MobileGrid() {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -22,7 +23,7 @@ function MobileGrid() {
           <div
             key={svc.id}
             className="group rounded-2xl border border-white/10 p-4 text-center transition-all duration-300 hover:-translate-y-1"
-            style={{ background: "rgba(8,17,32,0.8)", backdropFilter: "blur(12px)" }}
+            style={{ background: "rgba(8,17,32,0.85)" }}
           >
             <div
               className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl"
@@ -48,12 +49,13 @@ function MobileGrid() {
 export default function Services3DGallery() {
   const [rotY, setRotY] = useState(0);
   const [hovered, setHovered] = useState<string | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  // Use 1024px as breakpoint — tablets get the readable grid view
+  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth < 1024 : true);
   const dragRef = useRef({ dragging: false, startX: 0, startRot: 0 });
   const frameRef = useRef<number>(0);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 1024);
     check();
     window.addEventListener("resize", check, { passive: true });
     return () => window.removeEventListener("resize", check);
@@ -61,8 +63,9 @@ export default function Services3DGallery() {
 
   useEffect(() => {
     if (isMobile) return;
+    // Slow, smooth auto-rotation — easier to read
     const tick = () => {
-      if (!dragRef.current.dragging) setRotY((r) => r + 0.18);
+      if (!dragRef.current.dragging) setRotY((r) => r + 0.12);
       frameRef.current = requestAnimationFrame(tick);
     };
     frameRef.current = requestAnimationFrame(tick);
@@ -80,7 +83,7 @@ export default function Services3DGallery() {
   const onPointerUp = () => { dragRef.current.dragging = false; };
 
   const total = SERVICES.length;
-  const radius = 380;
+  const radius = 360;
 
   return (
     <section className="relative overflow-hidden bg-[#050b1a] py-20 sm:py-28">
@@ -120,7 +123,10 @@ export default function Services3DGallery() {
                 const rad = (angle * Math.PI) / 180;
                 const x = Math.sin(rad) * radius;
                 const z = Math.cos(rad) * radius;
-                const scale = (z + radius) / (2 * radius);
+                // Improved scale + opacity range: min 0.65 so back cards remain readable
+                const t = (z + radius) / (2 * radius);
+                const scale = 0.65 + t * 0.45;
+                const opacity = 0.6 + t * 0.4;
                 const isHov = hovered === svc.id;
                 const IconComp = svc.icon;
 
@@ -135,17 +141,24 @@ export default function Services3DGallery() {
                       top: "50%",
                       transform: `translate(-50%, -50%) translateX(${x}px) scale(${scale})`,
                       zIndex: Math.round(scale * 100),
-                      opacity: 0.4 + scale * 0.6,
+                      opacity,
                       width: 190,
+                      transition: "opacity 0.08s",
                     }}
                   >
                     <div
                       className="rounded-3xl border p-5 text-center transition-all duration-300"
                       style={{
-                        background: isHov ? `linear-gradient(135deg, ${svc.color}22, ${svc.color}11)` : "rgba(8,17,32,0.85)",
-                        backdropFilter: "blur(12px)",
-                        boxShadow: isHov ? `0 0 32px ${svc.glow}, inset 0 0 20px ${svc.color}08` : "0 8px 32px rgba(0,0,0,0.4)",
-                        border: isHov ? `1px solid ${svc.color}50` : "1px solid rgba(255,255,255,0.08)",
+                        background: isHov
+                          ? `linear-gradient(135deg, ${svc.color}22, ${svc.color}11)`
+                          : "rgba(8,17,32,0.92)",
+                        backdropFilter: "blur(14px)",
+                        boxShadow: isHov
+                          ? `0 0 32px ${svc.glow}, inset 0 0 20px ${svc.color}08`
+                          : "0 8px 32px rgba(0,0,0,0.5)",
+                        border: isHov
+                          ? `1px solid ${svc.color}60`
+                          : "1px solid rgba(255,255,255,0.12)",
                         transform: isHov ? "translateY(-8px)" : "none",
                       }}
                     >
@@ -160,7 +173,7 @@ export default function Services3DGallery() {
                         <IconComp className="h-7 w-7" style={{ color: svc.color }} />
                       </div>
                       <h3 className="text-sm font-black text-white">{svc.name}</h3>
-                      <p className="mt-1 text-xs font-medium leading-5 text-slate-400">{svc.desc}</p>
+                      <p className="mt-1 text-xs font-medium leading-5 text-slate-300">{svc.desc}</p>
                       <span
                         className="mt-3 inline-block rounded-full px-3 py-1 text-xs font-black"
                         style={{ background: `${svc.color}20`, color: svc.color }}

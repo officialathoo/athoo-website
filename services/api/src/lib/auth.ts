@@ -1,82 +1,46 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
-import { db, adminsTable, auditLogsTable } from "@athoo/db";
-import { eq } from "drizzle-orm";
-import { logger } from "./logger";
+import crypto from "crypto";
 
-const JWT_SECRET = process.env.SESSION_SECRET ?? "athoo-secret-key-change-in-production";
-const TOKEN_EXPIRY = "7d";
+const SECRET = process.env.SESSION_SECRET ?? "athoo-dev-secret-change-in-production";
 
-export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 12);
+// ── Token (HMAC-SHA256 signed payload) ────────────────────────────────────
+export function signToken(payload: Record<string, unknown>): string {
+  const data = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const sig  = crypto.createHmac("sha256", SECRET).update(data).digest("base64url");
+  return `${data}.${sig}`;
 }
 
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(password, hash);
-}
-
-export function signToken(adminId: number): string {
-  return jwt.sign({ adminId }, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
-}
-
-export function verifyToken(token: string): { adminId: number } | null {
+export function verifyToken(token: string): Record<string, unknown> | null {
+  const dot = token.lastIndexOf(".");
+  if (dot === -1) return null;
+  const data = token.slice(0, dot);
+  const sig  = token.slice(dot + 1);
+  const expected = crypto.createHmac("sha256", SECRET).update(data).digest("base64url");
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { adminId: number };
-    return decoded;
+    if (!crypto.timingSafeEqual(Buffer.from(sig, "base64url"), Buffer.from(expected, "base64url"))) return null;
+  } catch {
+    return null;
+  }
+  try {
+    return JSON.parse(Buffer.from(data, "base64url").toString()) as Record<string, unknown>;
   } catch {
     return null;
   }
 }
 
-export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
-
-  if (!token) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-
-  const decoded = verifyToken(token);
-  if (!decoded) {
-    res.status(401).json({ error: "Invalid or expired token" });
-    return;
-  }
-
-  const [admin] = await db.select().from(adminsTable).where(eq(adminsTable.id, decoded.adminId));
-  if (!admin || admin.status !== "active") {
-    res.status(401).json({ error: "Account inactive or not found" });
-    return;
-  }
-
-  (req as any).adminId = admin.id;
-  (req as any).admin = admin;
-  next();
+// ── Password (scrypt) ─────────────────────────────────────────────────────
+export function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.scryptSync(password, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
 }
 
-export async function logAudit(
-  adminId: number | null,
-  action: string,
-  module: string | null,
-  detail: string | null,
-  ipAddress: string | null
-): Promise<void> {
+export function verifyPassword(password: string, stored: string): boolean {
+  const [salt, hash] = stored.split(":");
+  if (!salt || !hash) return false;
   try {
-    await db.insert(auditLogsTable).values({
-      adminId,
-      action,
-      module,
-      detail,
-      ipAddress,
-    });
-  } catch (err) {
-    logger.error({ err }, "Failed to write audit log");
+    const derived = crypto.scryptSync(password, salt, 64).toString("hex");
+    return crypto.timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(derived, "hex"));
+  } catch {
+    return false;
   }
-}
-
-export function getIp(req: Request): string {
-  const forwarded = req.headers["x-forwarded-for"];
-  if (typeof forwarded === "string") return forwarded.split(",")[0].trim();
-  return req.socket.remoteAddress ?? "unknown";
 }

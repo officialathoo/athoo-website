@@ -1,31 +1,34 @@
-import { pgTable, serial, text, integer, timestamp, boolean } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { boolean, json, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
 
-export const blogPostsTable = pgTable("blog_posts", {
-  id: serial("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
-  title: text("title").notNull(),
-  excerpt: text("excerpt").notNull(),
-  content: text("content").notNull(),
-  category: text("category").notNull(),
-  tags: text("tags").array().default([]),
-  publishedAt: timestamp("published_at", { withTimezone: true }).notNull().defaultNow(),
-  readingTimeMinutes: integer("reading_time_minutes").notNull().default(5),
-  imageUrl: text("image_url").notNull().default(""),
-  metaTitle: text("meta_title"),
-  metaDescription: text("meta_description"),
-  author: text("author").notNull().default("Athoo Team"),
-  isPublished: boolean("is_published").notNull().default(true),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+export const blogPosts = pgTable("blog_posts", {
+  id:               serial("id").primaryKey(),
+  title:            text("title").notNull(),
+  slug:             text("slug").notNull().unique(),
+  category:         text("category").notNull().default("Insights"),
+  excerpt:          text("excerpt"),
+  content:          text("content"),
+  author:           text("author").default("Athoo Team"),
+  status:           varchar("status", { length: 50 }).notNull().default("draft"),
+  published_at:     text("published_at"),
+  cover_image:      text("cover_image"),
+  read_time:        text("read_time"),
+  featured:         boolean("featured").default(false),
+  meta_title:       text("meta_title"),
+  meta_description: text("meta_description"),
+  tags:             json("tags").$type<string[]>(),
+  created_at:       timestamp("created_at").notNull().defaultNow(),
+  updated_at:       timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const insertBlogPostSchema = createInsertSchema(blogPostsTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const blogCategories = pgTable("blog_categories", {
+  id:          serial("id").primaryKey(),
+  name:        text("name").notNull(),
+  slug:        text("slug").notNull().unique(),
+  description: text("description"),
+  created_at:  timestamp("created_at").notNull().defaultNow(),
 });
 
-export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
-export type BlogPost = typeof blogPostsTable.$inferSelect;
+export type BlogPost           = typeof blogPosts.$inferSelect;
+export type InsertBlogPost     = typeof blogPosts.$inferInsert;
+export type BlogCategory       = typeof blogCategories.$inferSelect;
+export type InsertBlogCategory = typeof blogCategories.$inferInsert;

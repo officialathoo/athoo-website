@@ -32,13 +32,10 @@ const allowedOrigins = Array.from(
 function isAllowedOrigin(origin: string): boolean {
   const cleanOrigin = origin.replace(/\/$/, "");
 
-  if (allowedOrigins.includes(cleanOrigin)) {
-    return true;
-  }
+  if (allowedOrigins.includes(cleanOrigin)) return true;
 
   try {
     const url = new URL(cleanOrigin);
-
     return (
       url.hostname === "localhost" ||
       url.hostname === "127.0.0.1" ||
@@ -49,6 +46,15 @@ function isAllowedOrigin(origin: string): boolean {
     return false;
   }
 }
+
+const allowedHeaders = [
+  "Content-Type",
+  "Authorization",
+  "Accept",
+  "X-Requested-With",
+  "Cache-Control",
+  "Pragma",
+];
 
 const corsOptions: cors.CorsOptions = {
   origin(origin, callback) {
@@ -61,14 +67,7 @@ const corsOptions: cors.CorsOptions = {
     callback(null, false);
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "Accept",
-    "X-Requested-With",
-    "Cache-Control",
-    "Pragma",
-  ],
+  allowedHeaders,
   exposedHeaders: ["Content-Type"],
   credentials: false,
   optionsSuccessStatus: 204,
@@ -83,34 +82,17 @@ app.use((req, res, next): void => {
   const origin = String(req.headers.origin || "").replace(/\/$/, "");
 
   if (!origin || isAllowedOrigin(origin)) {
-    if (origin) {
-      res.setHeader("Access-Control-Allow-Origin", origin);
-    }
-
+    if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
     res.setHeader(
       "Access-Control-Allow-Methods",
       "GET,POST,PUT,PATCH,DELETE,OPTIONS",
     );
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, Accept, X-Requested-With, Cache-Control, Pragma",
-    );
+    res.setHeader("Access-Control-Allow-Headers", allowedHeaders.join(", "));
   }
 
   if (req.method === "OPTIONS") {
     res.sendStatus(204);
-    return;
-  }
-
-  next();
-});
-
-app.use((req, res, next): void => {
-  if (req.method === "OPTIONS") {
-    cors(corsOptions)(req, res, () => {
-      res.sendStatus(204);
-    });
     return;
   }
 
