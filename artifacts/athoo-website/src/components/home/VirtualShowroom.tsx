@@ -17,55 +17,78 @@ const STEPS = [
   { num: "04", title: "Job Done. Review.", desc: "Rate your provider. Build the trust network." },
 ];
 
-// Readable card for grid layout (mobile / tablet)
-function MobileProviderCard({ provider }: { provider: typeof PROVIDERS[0] }) {
+function ProviderCard({ provider, index = 0 }: { provider: (typeof PROVIDERS)[number]; index?: number }) {
   const IconComp = provider.icon;
   return (
     <div
-      className="rounded-2xl border border-white/10 p-4 text-center"
-      style={{ background: "rgba(8,17,32,0.85)" }}
+      className="provider-mobile-card relative min-h-[190px] overflow-hidden rounded-3xl border border-blue-300/15 p-4 text-center shadow-2xl shadow-blue-950/20"
+      style={{
+        background: `linear-gradient(155deg, rgba(3,8,18,0.96), ${provider.color}18 60%, rgba(1,13,31,0.98))`,
+        animationDelay: `${index * 140}ms`,
+      }}
     >
-      <div
-        className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl"
-        style={{ background: `${provider.color}22`, border: `1px solid ${provider.color}40` }}
-      >
+      <div className="absolute -left-8 -top-8 h-24 w-24 rounded-full blur-2xl" style={{ background: `${provider.color}44` }} />
+      <div className="absolute -bottom-12 right-0 h-28 w-28 rounded-full bg-blue-500/10 blur-2xl" />
+      <div className="relative mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl" style={{ background: `${provider.color}22`, border: `1px solid ${provider.color}48`, boxShadow: `0 0 18px ${provider.color}38` }}>
         <IconComp className="h-6 w-6" style={{ color: provider.color }} />
       </div>
-      <p className="text-sm font-black text-white">{provider.name}</p>
-      <p className="text-xs text-slate-400">{provider.role}</p>
-      <div className="mt-2 flex items-center justify-center gap-1">
+      <p className="relative text-sm font-black text-white">{provider.name}</p>
+      <p className="relative mt-1 text-xs text-blue-50/70">{provider.role}</p>
+      <div className="relative mt-3 flex items-center justify-center gap-1">
         <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-        <span className="text-xs font-black text-amber-400">{provider.rating}</span>
-        <span className="text-xs text-slate-500">· {provider.jobs} jobs</span>
+        <span className="text-xs font-black text-amber-300">{provider.rating}</span>
+        <span className="text-xs text-slate-400">· {provider.jobs} jobs</span>
       </div>
-      <div className="mt-1 flex items-center justify-center gap-1">
-        <ShieldCheck className="h-3 w-3 text-green-400" />
-        <span className="text-xs font-bold text-green-400">Verified</span>
+      <div className="relative mt-3 inline-flex items-center justify-center gap-1 rounded-full border border-green-400/25 bg-green-400/10 px-3 py-1">
+        <ShieldCheck className="h-3 w-3 text-green-300" />
+        <span className="text-xs font-bold text-green-300">Verified Expert</span>
       </div>
     </div>
   );
 }
 
-function ProviderNode({
-  provider,
-  angle,
-  radius,
-  rotY,
-}: {
-  provider: typeof PROVIDERS[0];
-  angle: number;
-  radius: number;
-  rotY: number;
-}) {
+function MobileProviderGallery() {
+  return (
+    <div className="provider-mobile-stage lg:hidden">
+      <style>{`
+        @keyframes providerFloatMobile {
+          0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
+          50% { transform: translate3d(0, -12px, 0) rotateX(-1deg) rotateY(1.5deg); }
+        }
+        @keyframes providerTrackMobile {
+          0% { transform: translate3d(-50%, 0, 0); }
+          100% { transform: translate3d(0, 0, 0); }
+        }
+        .provider-mobile-track { animation: providerTrackMobile 26s linear infinite; will-change: transform; }
+        .provider-mobile-card { animation: providerFloatMobile 5.2s ease-in-out infinite; transform: translateZ(0); will-change: transform; }
+        .provider-mobile-stage:hover .provider-mobile-track { animation-play-state: paused; }
+        @media (prefers-reduced-motion: reduce) {
+          .provider-mobile-track, .provider-mobile-card { animation: none !important; }
+        }
+      `}</style>
+      <div className="relative -mx-4 overflow-hidden px-4 py-4 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
+        <div className="provider-mobile-track flex w-max gap-4">
+          {[...PROVIDERS, ...PROVIDERS].map((provider, index) => (
+            <div key={`${provider.name}-${index}`} className="w-[215px] shrink-0 sm:w-[250px]">
+              <ProviderCard provider={provider} index={index} />
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="mt-3 text-center text-xs font-bold text-blue-100/70">Live provider showcase · animated on mobile and desktop</p>
+    </div>
+  );
+}
+
+function ProviderNode({ provider, angle, radius, rotY }: { provider: (typeof PROVIDERS)[number]; angle: number; radius: number; rotY: number }) {
   const [hovered, setHovered] = useState(false);
   const totalAngle = angle + rotY;
   const rad = (totalAngle * Math.PI) / 180;
   const x = Math.sin(rad) * radius;
   const z = Math.cos(rad) * radius;
-  // Improved: min opacity 0.55 so back nodes remain fully readable
   const t = (z + radius) / (2 * radius);
-  const scale = 0.6 + t * 0.55;
-  const opacity = 0.55 + t * 0.45;
+  const scale = 0.72 + t * 0.34;
+  const opacity = 0.68 + t * 0.32;
   const IconComp = provider.icon;
 
   return (
@@ -76,45 +99,35 @@ function ProviderNode({
         position: "absolute",
         left: "50%",
         top: "50%",
-        width: 160,
+        width: 185,
         transform: `translate(-50%, -50%) translateX(${x}px) scale(${scale})`,
         zIndex: Math.round(scale * 100),
         opacity,
-        transition: "opacity 0.08s",
+        transition: "opacity 0.12s, transform 0.12s",
       }}
     >
       <div
-        className="rounded-2xl p-4 text-center transition-all duration-300"
+        className="rounded-[1.7rem] p-4 text-center transition-all duration-300"
         style={{
-          background: hovered
-            ? `linear-gradient(135deg, ${provider.color}30, rgba(8,17,32,0.95))`
-            : "rgba(8,17,32,0.92)",
+          background: hovered ? `linear-gradient(135deg, ${provider.color}2e, rgba(3,8,18,0.96))` : "rgba(3,8,18,0.93)",
           backdropFilter: "blur(16px)",
-          border: hovered
-            ? `1px solid ${provider.color}60`
-            : "1px solid rgba(255,255,255,0.12)",
-          boxShadow: hovered
-            ? `0 0 30px ${provider.color}40`
-            : "0 4px 24px rgba(0,0,0,0.5)",
-          transform: hovered ? "translateY(-6px)" : "none",
+          border: hovered ? `1px solid ${provider.color}70` : "1px solid rgba(255,255,255,0.13)",
+          boxShadow: hovered ? `0 0 32px ${provider.color}42` : "0 4px 24px rgba(0,0,0,0.48)",
         }}
       >
-        <div
-          className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl"
-          style={{ background: `${provider.color}22`, border: `1px solid ${provider.color}40` }}
-        >
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl" style={{ background: `${provider.color}22`, border: `1px solid ${provider.color}40` }}>
           <IconComp className="h-6 w-6" style={{ color: provider.color }} />
         </div>
         <p className="text-sm font-black text-white">{provider.name}</p>
-        <p className="text-xs text-slate-300">{provider.role}</p>
+        <p className="text-xs text-blue-50/70">{provider.role}</p>
         <div className="mt-2 flex items-center justify-center gap-1">
           <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-          <span className="text-xs font-black text-amber-400">{provider.rating}</span>
+          <span className="text-xs font-black text-amber-300">{provider.rating}</span>
           <span className="text-xs text-slate-400">· {provider.jobs} jobs</span>
         </div>
         <div className="mt-2 flex items-center justify-center gap-1">
-          <ShieldCheck className="h-3 w-3 text-green-400" />
-          <span className="text-xs font-bold text-green-400">Verified</span>
+          <ShieldCheck className="h-3 w-3 text-green-300" />
+          <span className="text-xs font-bold text-green-300">Verified</span>
         </div>
       </div>
     </div>
@@ -123,97 +136,76 @@ function ProviderNode({
 
 export default function VirtualShowroom() {
   const [rotY, setRotY] = useState(0);
-  // Use 1024px so tablets see the readable grid
-  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth < 1024 : true);
+  const [isDesktop, setIsDesktop] = useState(() => (typeof window !== "undefined" ? window.innerWidth >= 1024 : false));
   const dragRef = useRef({ dragging: false, startX: 0, startRot: 0 });
   const frameRef = useRef<number>(0);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024);
+    const check = () => setIsDesktop(window.innerWidth >= 1024);
     check();
     window.addEventListener("resize", check, { passive: true });
     return () => window.removeEventListener("resize", check);
   }, []);
 
   useEffect(() => {
-    if (isMobile) return;
-    // Slowed from 0.22 to 0.14 — easier to read as it rotates
+    if (!isDesktop) return undefined;
     const tick = () => {
-      if (!dragRef.current.dragging) setRotY((r) => r + 0.14);
+      if (!dragRef.current.dragging) setRotY((r) => r + 0.09);
       frameRef.current = requestAnimationFrame(tick);
     };
     frameRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [isMobile]);
+  }, [isDesktop]);
 
   const onPointerDown = (e: React.PointerEvent) => {
     dragRef.current = { dragging: true, startX: e.clientX, startRot: rotY };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
   };
   const onPointerMove = (e: React.PointerEvent) => {
     if (!dragRef.current.dragging) return;
-    setRotY(dragRef.current.startRot + (e.clientX - dragRef.current.startX) * 0.35);
+    setRotY(dragRef.current.startRot + (e.clientX - dragRef.current.startX) * 0.28);
   };
   const onPointerUp = () => { dragRef.current.dragging = false; };
 
   return (
-    <section className="relative overflow-hidden bg-[#030812] py-24">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(0,87,255,0.15),transparent)]" />
+    <section className="relative overflow-hidden bg-[#020617] py-24">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(0,87,255,0.2),transparent),radial-gradient(ellipse_at_90%_30%,rgba(16,185,129,0.11),transparent_44%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,.045)_1px,transparent_1px)] bg-[size:54px_54px]" />
 
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="container relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-16 text-center">
-          <span className="inline-block rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm font-black text-blue-400">
-            Provider Network
+          <span className="inline-block rounded-full border border-blue-400/35 bg-blue-500/15 px-4 py-2 text-sm font-black text-blue-300 shadow-lg shadow-blue-950/30">
+            Meet Athoo Provider
           </span>
           <h2 className="mt-5 text-4xl font-black text-white sm:text-5xl">
-            Meet Athoo's{" "}
-            <span className="bg-gradient-to-r from-[#0057FF] to-[#4facfe] bg-clip-text text-transparent">
-              Verified Experts
+            Verified{" "}
+            <span className="bg-gradient-to-r from-[#4facfe] via-[#00f2fe] to-[#22c55e] bg-clip-text text-transparent">
+              Provider Orbit
             </span>
           </h2>
-          <p className="mt-4 text-lg text-slate-400">
-            {isMobile ? "Trusted professionals across Pakistan" : "Drag to explore the provider orbit"}
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-blue-50/70">
+            {isDesktop ? "Drag the provider orbit — slower, readable and interactive." : "Mobile-friendly animated showcase of verified Athoo professionals."}
           </p>
         </div>
 
-        {isMobile ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {PROVIDERS.map((p) => <MobileProviderCard key={p.name} provider={p} />)}
-          </div>
-        ) : (
+        <MobileProviderGallery />
+
+        {isDesktop && (
           <div
-            className="relative mx-auto select-none"
-            style={{ height: 420, perspective: 900, cursor: "grab" }}
+            className="relative mx-auto hidden select-none lg:block"
+            style={{ height: 460, perspective: 1050, cursor: "grab" }}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             onPointerLeave={onPointerUp}
           >
             {PROVIDERS.map((p, i) => (
-              <ProviderNode
-                key={p.name}
-                provider={p}
-                angle={(i / PROVIDERS.length) * 360}
-                radius={300}
-                rotY={rotY}
-              />
+              <ProviderNode key={p.name} provider={p} angle={(i / PROVIDERS.length) * 360} radius={360} rotY={rotY} />
             ))}
-            <div
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-              style={{ width: 100, height: 100 }}
-            >
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: "radial-gradient(circle, rgba(0,87,255,0.8) 0%, rgba(0,87,255,0) 70%)",
-                  animation: "athoo-pulse 2.5s ease-in-out infinite",
-                }}
-              />
-              <div
-                className="absolute inset-3 rounded-full border-2 border-blue-500/50"
-                style={{ animation: "athoo-spin 8s linear infinite" }}
-              />
-              <div className="absolute inset-6 flex items-center justify-center rounded-full bg-blue-600">
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2">
+              <div className="absolute inset-0 rounded-full bg-blue-500/40 blur-2xl" />
+              <div className="absolute inset-4 rounded-full border-2 border-blue-400/45" style={{ animation: "athoo-spin 10s linear infinite" }} />
+              <div className="absolute inset-8 flex items-center justify-center rounded-full bg-blue-600 shadow-lg shadow-blue-900/50">
                 <MapPin className="h-5 w-5 text-white" />
               </div>
             </div>
@@ -230,12 +222,10 @@ export default function VirtualShowroom() {
                 transitionDelay: `${i * 80}ms`,
               }}
             >
-              <div className="mb-4 text-4xl font-black text-blue-500/30 transition-colors group-hover:text-blue-500/60">
-                {step.num}
-              </div>
+              <div className="mb-4 text-4xl font-black text-blue-500/30 transition-colors group-hover:text-blue-500/60">{step.num}</div>
               <h3 className="mb-2 text-base font-black text-white">{step.title}</h3>
               <p className="text-sm leading-6 text-slate-400">{step.desc}</p>
-              <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-[#0057FF] to-[#FF8A00] transition-all duration-500 group-hover:w-full" />
+              <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-[#0057FF] to-[#22c55e] transition-all duration-500 group-hover:w-full" />
             </div>
           ))}
         </div>
